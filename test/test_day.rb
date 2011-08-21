@@ -1,4 +1,5 @@
 require File.dirname(__FILE__) + '/test_helper.rb'
+require File.dirname(__FILE__) + '/mock_date_time.rb'
 
 class TestDay < Test::Unit::TestCase #:nodoc:
 
@@ -34,28 +35,28 @@ class TestDay < Test::Unit::TestCase #:nodoc:
   end
   
   must "set patterns correctly" do
-    return
+    
     times=Array.new()
     [[0,0,8,59],
      [12,0,12,59],
      [17,0,22,59]
     ].each {|start_hour,start_min,finish_hour,finish_min|
-      times<<[Time.utc(2011,1,1,start_hour,start_min),Time.utc(2011,1,1,finish_hour,finish_min)]
+      times<<[Workpattern::MockDateTime.new(2011,1,1,start_hour,start_min),Workpattern::MockDateTime.new(2011,1,1,finish_hour,finish_min)]
     }
     
-    [[24,540,Time.utc(1963,10,6,9,0),Time.utc(1963,10,6,23,59)],
-     [23,480,Time.utc(1963,10,6,9,0),Time.utc(1963,10,6,22,59)],
-     [25,600,Time.utc(1963,10,6,9,0),Time.utc(1963,10,6,24,59)]
+    [[24,480,Workpattern::MockDateTime.new(1963,10,6,9,0),Workpattern::MockDateTime.new(1963,10,6,23,59)],
+     [23,420,Workpattern::MockDateTime.new(1963,10,6,9,0),Workpattern::MockDateTime.new(1963,10,6,16,59)],
+     [25,540,Workpattern::MockDateTime.new(1963,10,6,9,0),Workpattern::MockDateTime.new(1963,10,6,24,59)]
     ].each{|hours_in_day,total,first_time,last_time|
       working_day=Workpattern::Day.new(1,hours_in_day)
       times.each{|start_time,finish_time| 
-        working_day=working_day.workpattern(start_time.hour,start_time.min,finish_time.hour,finish_time.min)
+        working_day.workpattern(start_time.hour,start_time.min,finish_time.hour,finish_time.min,0)
       } 
       assert_equal total,working_day.total, "#{hours_in_day} hour total working minutes"
-      assert_equal first_time.hour, working_hour.first_hour, "#{hours_in_day} hour first hour of the day"
-      assert_equal first_time.min, working_hour.first_min, "#{hours_in_day} hour first minute of the day"
-      assert_equal last_time.hour, working_hour.last_hour, "#{hours_in_day} hour last hour of the day"
-      assert_equal last_time.min, working_hour.last_min, "#{hours_in_day} hour last minute of the day"
+      assert_equal first_time.hour, working_day.first_hour, "#{hours_in_day} hour first hour of the day"
+      assert_equal first_time.min, working_day.first_min, "#{hours_in_day} hour first minute of the day"
+      assert_equal last_time.hour, working_day.last_hour, "#{hours_in_day} hour last hour of the day"
+      assert_equal last_time.min, working_day.last_min, "#{hours_in_day} hour last minute of the day"
     }
   end
   
