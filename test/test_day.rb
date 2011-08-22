@@ -61,14 +61,15 @@ class TestDay < Test::Unit::TestCase #:nodoc:
   end
   
   must 'add minutes in a working day' do
-    return
+  
     working_day = Workpattern::Day.new(1)
     [[0,0,3,0,3,0],
      [23,59,0,23,59,0],
      [23,59,1,23,60,0],
      [23,59,2,23,60,1],
      [9,10,33,9,43,0],
-     [9,10,60,10,10,0]
+     [9,10,60,10,10,0],
+     [9,0,931,23,60,31]
     ].each{|start_hour,start_min,duration,result_hour,result_min,result_remainder|
       hour,min,remainder = working_day.calc(start_hour,start_min,duration)
       assert_equal result_hour, hour, "result calc(#{start_hour},#{start_min},#{duration})"

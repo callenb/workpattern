@@ -8,7 +8,7 @@ module Workpattern
       hour=Workpattern::WORKING_HOUR if type==1
       hour=Workpattern::RESTING_HOUR if type==0
       @values=Array.new(hours_in_day) {|index| hour }
-      
+
       set_attributes
     end
     
@@ -29,6 +29,41 @@ module Workpattern
       set_attributes
     end
     
+    def calc(start_hour,start_min,duration)
+    
+      if (duration<0)
+        return subtract(start_hour,start_min,duration)  
+      elsif (duration>0)
+        return add(start_hour,start_min,duration)                
+      else
+        return start_hour,start_min,duration
+      end
+    
+    end
+    
+    # Returns the total number of minutes between and including two minutes
+    #
+    def minutes(start_hour,start_min,finish_hour,finish_min)
+      if (start_hour > finish_hour) || ((finish_hour==start_hour) && (start_min > finish_min))
+        start_hour,start_min,finish_hour,finish_min=finish_hour,finish_min,start_hour,finish_min 
+      end
+      
+      if (start_hour==finish_hour)
+        retval=@values[start_hour].minutes(start_min,finish_min)
+      else
+        retval=@values[start_hour].minutes(start_min,59)
+        
+        while (start_hour+1<finish_hour)
+          retval+=@values[start_hour].total
+          start_hour+=1
+        end
+        
+        retval+=@values[start_hour].minutes(0,finish_min)
+      end
+        
+      return retval
+    end
+
     private
     
     def set_attributes
@@ -44,6 +79,31 @@ module Workpattern
         @last_min=@values[index].last if (@values[index].total!=0)
         @total+=@values[index].total
       }
+    end
+    
+    def subtract(start_hour,start_min,duration)
+    
+    end
+    
+    def add(start_hour,start_min,duration)
+      maximum=minutes(start_hour,start_min,@hours-1,59)
+      return @hours-1,60,(duration-maximum) if ((duration-maximum)>=0) # not enough minutes left in the day
+      
+      return start_hour,(start_min+duration),0 if (@values[start_hour].minutes(start_min,start_min+duration-1)==duration) # enough minutes in first hour
+      
+      result_hour=start_hour
+      duration-=@values[result_hour].minutes(start_min,59)
+      until (duration==0)
+        result_hour+=1
+        total=@values[result_hour].total
+        if (total<=duration)
+          duration-=total
+        else  
+         result_min,result_remainder=@values[result_hour].calc(0,duration)
+         duration=0
+        end
+      end  
+      return result_hour,result_min,0
     end
   end
 end
