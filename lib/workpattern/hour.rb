@@ -73,18 +73,22 @@ module Workpattern
     
     private
 
+    # sets working pattern
     def working(start,finish)
       return self | mask(start,finish)
     end
     
+    # sets resting pattern
     def resting(start,finish)
       return self & ((2**60-1)-mask(start,finish))
     end
     
+    # creates a mask over the specified bits
     def mask(start,finish)
       return ((2**(finish+1)-1)-(2**start-1))
     end
     
+    # adds a duration to a time
     def add(time,duration)
       maximum=minutes(time,59)
       return 60,(duration-maximum) if ((duration-maximum)>=0) 
@@ -99,6 +103,7 @@ module Workpattern
       return start+1,0  
     end
     
+    # subtracts a duration from a time
     def subtract(time,duration)
       maximum=0
       maximum=minutes(0,time-1) if time>0
