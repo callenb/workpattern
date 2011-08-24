@@ -1,12 +1,14 @@
 module Workpattern
   module Hour
  
+    # :call-seq: total => Integer
     # Returns the total working minutes in the hour
     # 
     def total
       return minutes(0,59)
     end  
     
+    # :call-seq: workpattern(start,finish,type) => Fixnum
     # Sets the minutes to either working (type=1) or resting (type=0)
     #
     def workpattern(start,finish,type)
@@ -14,6 +16,7 @@ module Workpattern
       return resting(start,finish) if type==0
     end
     
+    # :call-seq: first => Integer
     # Returns the first working minute in the hour or 60 if there are none
     #
     def first
@@ -21,6 +24,7 @@ module Workpattern
       return 60
     end
     
+    # :call-seq: last => Integer
     # Returns the last working minute in the hour or -1 if there are none
     #
     def last
@@ -28,6 +32,7 @@ module Workpattern
       return -1
     end
     
+    # :call-seq: minute(start) => Boolean
     # Returns true if the given minute is working and false if it isn't
     #
     def minute?(start)
@@ -35,6 +40,7 @@ module Workpattern
       return false
     end
     
+    # :call-seq: minutes(start,finish) => Integer
     # Returns the total number of minutes between and including two minutes
     #
     def minutes(start,finish)
@@ -42,6 +48,7 @@ module Workpattern
       return (self & mask(start,finish)).to_s(2).count('1')
     end
     
+    # :call-seq: calc(time,duration) => Integer, Integer
     # Returns the result and remainder when adding duration to a minute
     # 60 is returned if it is really the next hour
     #
@@ -56,6 +63,7 @@ module Workpattern
       end 
     end
     
+    # :call-seq: diff(start,finish) => Integer
     # returns the number of minutes between two minutes
     #
     def diff(start,finish)
