@@ -63,13 +63,15 @@ class TestDay < Test::Unit::TestCase #:nodoc:
   must 'add minutes in a working day' do
   
     working_day = Workpattern::Day.new(1)
-    [[0,0,3,0,3,0],
-     [23,59,0,23,59,0],
-     [23,59,1,23,60,0],
-     [23,59,2,23,60,1],
-     [9,10,33,9,43,0],
-     [9,10,60,10,10,0],
-     [9,0,931,23,60,31]
+    # start  start          result  result  result
+    # hour   min  duration  hour    min     remainder  
+    [[   0,    0,        3,    0,     3,            0],
+     [  23,   59,        0,   23,    59,            0],
+     [  23,   59,        1,   23,    60,            0],
+     [  23,   59,        2,   23,    60,            1],
+     [   9,   10,       33,    9,    43,            0],
+     [   9,   10,       60,   10,    10,            0],
+     [   9,    0,      931,   23,    60,           31]
     ].each{|start_hour,start_min,duration,result_hour,result_min,result_remainder|
       hour,min,remainder = working_day.calc(start_hour,start_min,duration)
       assert_equal result_hour, hour, "result calc(#{start_hour},#{start_min},#{duration})"
@@ -80,7 +82,23 @@ class TestDay < Test::Unit::TestCase #:nodoc:
   end
   
   must 'add minutes in a resting day' do
-  
+    
+    resting_day = Workpattern::Day.new(0)
+    # start  start          result  result  result
+    # hour   min  duration  hour    min     remainder
+    [[   0,    0,        3,   23,    60,            3],
+     [  23,   59,        0,   23,    59,            0],
+     [  23,   59,        1,   23,    60,            1],
+     [  23,   59,        2,   23,    60,            2],
+     [   9,   10,       33,   23,    60,           33],
+     [   9,   10,       60,   23,    60,           60],
+     [   9,    0,      931,   23,    60,          931]
+    ].each{|start_hour,start_min,duration,result_hour,result_min,result_remainder|
+      hour,min,remainder = resting_day.calc(start_hour,start_min,duration)
+      assert_equal result_hour, hour, "result calc(#{start_hour},#{start_min},#{duration})"
+      assert_equal result_min, min, "result calc(#{start_hour},#{start_min},#{duration})"
+      assert_equal result_remainder, remainder, "result calc(#{start_hour},#{start_min},#{duration})"      
+    }
     
   end
   
@@ -89,10 +107,44 @@ class TestDay < Test::Unit::TestCase #:nodoc:
   end
   
   must 'subtract minutes in a working day' do
-
+    
+    working_day = Workpattern::Day.new(1)
+    # start  start          result  result  result
+    # hour   min  duration  hour    min     remainder  
+    [[   0,    0,       -3,    0,     0,           -3],
+     [  23,   59,        0,   23,    59,            0],
+     [  23,   59,       -1,   23,    58,            0],
+     [  23,   59,       -2,   23,    57,            0],
+     [   9,   10,      -33,    8,    37,            0],
+     [   9,   10,      -60,    8,    10,            0],
+     [   9,    0,     -931,    0,     0,           -391]
+    ].each{|start_hour,start_min,duration,result_hour,result_min,result_remainder|
+      hour,min,remainder = working_day.calc(start_hour,start_min,duration)
+      assert_equal result_hour, hour, "result calc(#{start_hour},#{start_min},#{duration})"
+      assert_equal result_min, min, "result calc(#{start_hour},#{start_min},#{duration})"
+      assert_equal result_remainder, remainder, "result calc(#{start_hour},#{start_min},#{duration})"      
+    }
   end
   
   must 'subtract minutes in a resting day' do
+  
+    resting_day = Workpattern::Day.new(0)
+    # start  start          result  result  result
+    # hour   min  duration  hour    min     remainder  
+    [[   0,    0,       -3,    0,     0,           -3],
+     [  23,   59,        0,   23,    59,            0],
+     [  23,   59,       -1,    0,     0,           -1],
+     [  23,   59,       -2,    0,     0,           -2],
+     [   9,   10,      -33,    0,     0,          -33],
+     [   9,   10,      -60,    0,     0,          -60],
+     [   9,    0,     -931,    0,     0,          -931]
+    ].each{|start_hour,start_min,duration,result_hour,result_min,result_remainder|
+      hour,min,remainder = resting_day.calc(start_hour,start_min,duration)
+      assert_equal result_hour, hour, "result calc(#{start_hour},#{start_min},#{duration})"
+      assert_equal result_min, min, "result calc(#{start_hour},#{start_min},#{duration})"
+      assert_equal result_remainder, remainder, "result calc(#{start_hour},#{start_min},#{duration})"      
+    }
+  
   end
   
   must 'subtract minutes in a patterned day' do

@@ -5,8 +5,8 @@ module Workpattern
     
     def initialize(type=1,hours_in_day=24)
       @hours=hours_in_day
-      hour=Workpattern::WORKING_HOUR if type==1
-      hour=Workpattern::RESTING_HOUR if type==0
+      hour=WORKING_HOUR if type==1
+      hour=RESTING_HOUR if type==0
       @values=Array.new(hours_in_day) {|index| hour }
 
       set_attributes
@@ -81,8 +81,33 @@ module Workpattern
       }
     end
     
-    def subtract(start_hour,start_min,duration)
     
+    def subtract(start_hour,start_min,duration)
+
+      maximum=0
+      if (start_hour>0 || start_min>0)
+        maximum=minutes(0,0,start_hour,start_min-1) if (start_min>0)
+        maximum=minutes(0,0,start_hour-1,59) if (start_min==0)
+      end
+      
+      return 0,0,(duration+maximum) if ((duration+maximum)<=0) # not enough minutes left in the day
+      return start_hour,(start_min+duration),0 if (@values[start_hour].minutes(start_min+duration,start_min-1)==duration.abs) # enough minutes in first hour
+      
+      result_hour=start_hour
+      duration+=@values[result_hour].minutes(0,start_min-1) if start_min>0
+
+      until (duration==0)
+        result_hour-=1
+        total=@values[result_hour].total
+        if (total<=duration.abs)
+          duration+=total
+        else  
+         result_min,result_remainder=@values[result_hour].calc(60,duration)
+         duration=0
+        end
+      end  
+      
+      return result_hour,result_min,0
     end
     
     def add(start_hour,start_min,duration)
