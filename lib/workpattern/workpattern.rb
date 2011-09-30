@@ -39,7 +39,19 @@ module Workpattern
       @@workpatterns.to_a
     end
     
+    def self.get(name)
+      return @@workpatterns[name] if @@workpatterns.key?(name) 
+      raise(NameError, "Workpattern '#{name}' doesn't exist so can't be retrieved")
+    end
+    
+    def self.delete(name)
+      if @@workpatterns.delete(name).nil?
+        return false
+      else
+        return true
+      end        
+    end
+    
   end
-  
 end
     

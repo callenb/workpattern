@@ -47,23 +47,39 @@ class TestWorkpatternModule < Test::Unit::TestCase #:nodoc:
   end
   
   must "return existing workpattern" do
-    assert true
+    names =%w{fred harry sally}
+    names.each {|name| wp=Workpattern.new(name)}
+    
+    names.each {|name|
+      wp=Workpattern.get(name)
+      }
   end
   
   must "raise error when workpattern does not exist" do
-    assert true
+    names =%w{fred harry sally}
+    names.each {|name| wp=Workpattern.new(name)}
+    assert_raise NameError do
+      wp=Workpattern.get('missing')
+    end
   end
   
-  must "delete existing workpattern" do
-    assert true
+  must "delete existing workpattern returning true" do
+    names =%w{fred harry sally}
+    names.each {|name| wp=Workpattern.new(name)}
+    names.each {|name| assert Workpattern.delete(name)}
   end
   
-  must "be silent deleting workpattern that does not exist" do
-    assert true
+  must "return false deleting workpattern that does not exist" do
+    names =%w{fred harry sally}
+    names.each {|name| wp=Workpattern.new(name)}
+    assert !Workpattern.delete('missing')
   end
   
   must "delete all workpatterns" do
-    assert true
+    names =%w{fred harry sally}
+    names.each {|name| wp=Workpattern.new(name)}
+    Workpattern.clear
+    assert Workpattern.to_a.empty?
   end
   
   
