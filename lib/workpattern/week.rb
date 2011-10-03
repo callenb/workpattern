@@ -1,5 +1,6 @@
 module Workpattern
-  class Day
+  class Week
+    
     
   end
 end
