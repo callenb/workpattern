@@ -26,7 +26,7 @@ module Workpattern
       @to = Time.new(@from.year + span.abs - 1,12,31,23,59)
       
       #@weeks = SortedSet.new
-      #@weeks << WeekPattern.new(@start,@finish)
+      #@weeks << Week.new(@start,@finish)
       
       @@workpatterns[name]=self
     end

@@ -9,6 +9,7 @@ $:.unshift(File.dirname(__FILE__)) unless
 require 'rubygems'
 require 'workpattern/hour'
 require 'workpattern/day'
+require 'workpattern/week'
 require 'workpattern/workpattern'
 
 #
