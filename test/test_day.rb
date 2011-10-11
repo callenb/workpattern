@@ -6,7 +6,7 @@ class TestDay < Test::Unit::TestCase #:nodoc:
   def setup
   end
   
-  must "ceate a working day" do
+  must "create a working day" do
     working_day = Workpattern::Day.new(1,24)
     assert_equal 1440, working_day.total,"24 hour working total minutes"
     
