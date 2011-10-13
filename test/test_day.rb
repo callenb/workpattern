@@ -60,6 +60,79 @@ class TestDay < Test::Unit::TestCase #:nodoc:
     }
   end
   
+  must "duplicate all of day" do
+    day=Workpattern::Day.new(1,24)
+    new_day = day.duplicate
+    assert_equal 1440, new_day.total,"24 hour duplicate working total minutes"
+    # start  start          result  result  result
+    # hour   min  duration  hour    min     remainder  
+    [[   0,    0,        3,    0,     3,            0],
+     [  23,   59,        0,   23,    59,            0],
+     [  23,   59,        1,   23,    60,            0],
+     [  23,   59,        2,   23,    60,            1],
+     [   9,   10,       33,    9,    43,            0],
+     [   9,   10,       60,   10,    10,            0],
+     [   9,    0,      931,   23,    60,           31]
+    ].each{|start_hour,start_min,duration,result_hour,result_min,result_remainder|
+      hour,min,remainder = new_day.calc(start_hour,start_min,duration)
+      assert_equal result_hour, hour, "result calc(#{start_hour},#{start_min},#{duration})"
+      assert_equal result_min, min, "result calc(#{start_hour},#{start_min},#{duration})"
+      assert_equal result_remainder, remainder, "result calc(#{start_hour},#{start_min},#{duration})"      
+    }
+    
+    day = Workpattern::Day.new(0,24)
+    new_day=day.duplicate
+    assert_equal 0, new_day.total,"24 hour resting total minutes"
+    # start  start          result  result  result
+    # hour   min  duration  hour    min     remainder
+    [[   0,    0,        3,   23,    60,            3],
+     [  23,   59,        0,   23,    59,            0],
+     [  23,   59,        1,   23,    60,            1],
+     [  23,   59,        2,   23,    60,            2],
+     [   9,   10,       33,   23,    60,           33],
+     [   9,   10,       60,   23,    60,           60],
+     [   9,    0,      931,   23,    60,          931]
+    ].each{|start_hour,start_min,duration,result_hour,result_min,result_remainder|
+      hour,min,remainder = new_day.calc(start_hour,start_min,duration)
+      assert_equal result_hour, hour, "result calc(#{start_hour},#{start_min},#{duration})"
+      assert_equal result_min, min, "result calc(#{start_hour},#{start_min},#{duration})"
+      assert_equal result_remainder, remainder, "result calc(#{start_hour},#{start_min},#{duration})"      
+    }
+    
+    times=Array.new()
+    [[0,0,8,59],
+     [12,0,12,59],
+     [17,0,22,59]
+    ].each {|start_hour,start_min,finish_hour,finish_min|
+      times<<[Workpattern::MockDateTime.new(2011,1,1,start_hour,start_min),Workpattern::MockDateTime.new(2011,1,1,finish_hour,finish_min)]
+    }
+    
+    [[24,480,Workpattern::MockDateTime.new(1963,10,6,9,0),Workpattern::MockDateTime.new(1963,10,6,23,59)],
+     [23,420,Workpattern::MockDateTime.new(1963,10,6,9,0),Workpattern::MockDateTime.new(1963,10,6,16,59)],
+     [25,540,Workpattern::MockDateTime.new(1963,10,6,9,0),Workpattern::MockDateTime.new(1963,10,6,24,59)]
+    ].each{|hours_in_day,total,first_time,last_time|
+      day=Workpattern::Day.new(1,hours_in_day)
+      times.each{|start_time,finish_time| 
+        day.workpattern(start_time.hour,start_time.min,finish_time.hour,finish_time.min,0)
+      } 
+      new_day=day.duplicate
+      
+      assert_equal total,new_day.total, "#{hours_in_day} hour total working minutes"
+      assert_equal first_time.hour, new_day.first_hour, "#{hours_in_day} hour first hour of the day"
+      assert_equal first_time.min, new_day.first_min, "#{hours_in_day} hour first minute of the day"
+      assert_equal last_time.hour, new_day.last_hour, "#{hours_in_day} hour last hour of the day"
+      assert_equal last_time.min, new_day.last_min, "#{hours_in_day} hour last minute of the day"
+      
+      new_day.workpattern(13,0,13,0,0)
+      
+      assert_equal total,day.total, "#{hours_in_day} hour total original working minutes"
+      
+      assert_equal total-1,new_day.total, "#{hours_in_day} hour total new working minutes"
+      
+    }
+    
+  end
+  
   must 'add minutes in a working day' do
   
     working_day = Workpattern::Day.new(1)

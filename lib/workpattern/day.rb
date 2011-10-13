@@ -12,6 +12,27 @@ module Workpattern
       set_attributes
     end
     
+    def duplicate
+      duplicate_day = Day.new()
+      duplicate_values=Array.new(@values.size)
+      @values.each_index {|index|
+        duplicate_values[index]=@values[index]
+        }
+      duplicate_day.values=duplicate_values
+      duplicate_day.hours = @hours
+      duplicate_day.first_hour=@first_hour
+      duplicate_day.first_min=@first_min
+      duplicate_day.last_hour=@last_hour
+      duplicate_day.last_min=@last_min
+      duplicate_day.total = @total
+      duplicate_day.refresh
+      return duplicate_day
+    end
+    
+    def refresh
+      set_attributes
+    end
+      
     def workpattern(start_hour,start_min,finish_hour,finish_min,type)
     
       if start_hour==finish_hour
