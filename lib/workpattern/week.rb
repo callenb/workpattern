@@ -1,13 +1,20 @@
 module Workpattern
+  
+  # Represents working and resting times of each day in a week from one date to another.
+  # The two dates could be the same day or they could be several weeks or years apart.
+  #
   class Week
     
     attr_accessor :values, :days, :start, :finish, :week_total, :total
     
+    # :call-seq: new(start,finish,type, hours_in_days_in_week) => Week
+    #  
+    #
     def initialize(start,finish,type=1,hours_in_days_in_week=[24,24,24,24,24,24,24])
       @days=hours_in_days_in_week.size
       @values=Array.new(7) {|index| Day.new(type,hours_in_days_in_week[index])}
-      @start=Time.new(start.year,start.month,start.day)
-      @finish=Time.new(finish.year,finish.month,finish.day)
+      @start=DateTime.new(start.year,start.month,start.day)
+      @finish=DateTime.new(finish.year,finish.month,finish.day)
         
       set_attributes
     end
@@ -33,8 +40,8 @@ module Workpattern
     end
     
     def adjust(start,finish)
-      @start=Time.new(start.year,start.month,start.day)
-      @finish=Time.new(finish.year,finish.month,finish.day)
+      @start=DateTime.new(start.year,start.month,start.day)
+      @finish=DateTime.new(finish.year,finish.month,finish.day)
       refresh
     end
     
@@ -43,16 +50,10 @@ module Workpattern
       refresh
     end
     
-    def calc(start_date,duration)
-    
-      if (duration<0)
-        return subtract(start_date,duration)  
-      elsif (duration>0)
-        return add(start_date,duration)                
-      else
-        return start_date,duration
-      end
-    
+    def calc(start,duration)
+      return start,duration if duration==0
+      return add(start,duration) if duration > 0
+      return subtract(start,duration) if duration <0  
     end
     
     private
@@ -60,8 +61,7 @@ module Workpattern
     def set_attributes
       @total=0
       @week_total=0
-      days=(@finish-@start)/60/60/24+1
-      
+      days=(@finish-@start).to_i + 1 #/60/60/24+1 
       if (7-@start.wday) < days and days < 8
         @total+=total_hours(@start.wday,@finish.wday)
         @week_total=@total
@@ -85,6 +85,70 @@ module Workpattern
       return total
     end
     
-        
+    def add(start,duration)
+      #
+      # step 1: calculate to the end of the current day
+      # step 2: find out the week day of the last date in the week class & calculate to the end of it
+      # step 3: do a whole week thing
+      #
+      start_min = 0
+      # aim to calculate to the end of the day
+      while (duration !=0) && (start_min !=60)
+        puts "A"
+        start_hour,start_min,duration = @values[start.wday].calc(start.hour,start.min,duration)
+      end
+      
+      puts "A start_hour=#{start_hour}, start_min=#{start_min}, duration=#{duration}"
+      # aim to calculate to the end of the next week day that is the same as @finish
+      if (start_min==60)
+        puts "B"
+        start=start.next_day
+        start=DateTime.civil(start.year,start.month,start.day,start_hour=0,start_min=0)
+        # calculate to end of next week day
+        while (duration>=@values[start.wday].total) && (start.wday!=@finish.next_day.wday)
+          puts "C"
+          duration = duration - @values[start.wday].total
+          start=start.next_day
+        end
+      else
+        start=DateTime.civil(start.year,start.month,start.day,start_hour,start_min)  
+      end
+      
+      #while duration accomodates full weeks
+      while (duration>=@week_total) && ((start+7)<@finish.next_day)
+        puts "D"
+        duration=duration - @week_total
+        start=start+7
+      end
+      
+      #while duration accomodates full days
+      while (duration>=@values[start.wday].total) && (start<@finish.next_day)
+        puts "E"
+        duration = duration - @values[start.wday].total
+        start=start.next_day
+      end
+      
+      
+      #calculate in day
+      if ((duration !=0) && (start<@finish.next_day)) 
+        puts "F"
+        start_hour,start_min,duration = @values[start.wday].calc(start.hour,start.min,duration)
+        puts "F start_hour=#{start_hour}, start_min=#{start_min}, duration=#{duration}"
+        start=DateTime.civil(start.year,start.month,start.day,start_hour,start_min)
+      end
+       
+##      while (duration !=0) && (start<@finish.next_day)
+##        start_hour,start_min,duration = @values[start.wday].calc(start.hour,start.min,duration)       
+##        if start_min==60
+##          start=start.next_day
+##          start=DateTime.civil(start.year,start.month,start.day,start_hour=0,start_min=0)
+##        else
+##          start=DateTime.civil(start.year,start.month,start.day,start_hour,start_min)  
+##        end
+##            
+##      end
+      return start, duration 
+    end
+
   end
 end

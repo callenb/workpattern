@@ -2,11 +2,14 @@
 
 module Workpattern
   require 'set'
-  # Represents the 60 minutes of an hour using a <tt>Fixnum</tt> or <tt>Bignum</tt>
+  
+  # Represents the working and resting periods across a number of whole years.  The #base year
+  # is the first year and the #span is the number of years including that year that is covered.
+  # The #Workpattern is given a unique name so it can be easily identified amongst other Workpatterns.
   #
   class Workpattern
     
-    # holds collection of <tt>Workpattern</tt> objects  
+    # Holds collection of <tt>Workpattern</tt> objects  
     @@workpatterns = Hash.new()
     
     attr_accessor :name, :base, :span, :from, :to, :weeks
@@ -24,8 +27,8 @@ module Workpattern
       @name = name
       @base = base_year
       @span = span
-      @from = Time.new(base_year.abs - offset)
-      @to = Time.new(@from.year + span.abs - 1,12,31,23,59)
+      @from = DateTime.new(base_year.abs - offset)
+      @to = DateTime.new(@from.year + span.abs - 1,12,31,23,59)
       @weeks = SortedSet.new
       @weeks << Week.new(@from,@to,1,[24,24,24,24,24,24,24])
      
@@ -98,7 +101,7 @@ module Workpattern
       type= args[:work_type] || Workpattern::WORK
       
       while (upd_start <= upd_finish)
-        current_wp=find_workpattern(upd_start)
+        current_wp=find_weekpattern(upd_start)
         if (current_wp.start == upd_start)
           if (current_wp.finish > upd_finish)
             clone_wp=current_wp.duplicate
@@ -132,26 +135,42 @@ module Workpattern
       end
     end
     
+    # :call-seq: calc(start,duration) => DateTime
+    # Calculates the resulting date when #duration is added to #start date using the #Workpattern.
+    # Duration is always in whole minutes and can be a negative number, in which case it subtracts 
+    # the minutes from the date.
+    #
+    def calc(start,duration)
+      return start if duration==0 
+    
+      while (duration !=0)
+        week=find_workpattern(start)
+        week=find_workpattern(start-1) if (week.start==start) && (duration<0)
+        start,duration=week.calc(start,duration)
+      end 
+    end
+    
     private
     
     # Retrieve the correct pattern for the supplied date
     #
-    def find_workpattern(date)
+    def find_weekpattern(date)
       # find the pattern that fits the date
       # TODO: What if there is no pattern?
       #
-      date = Time.new(date.year,date.month,date.day)
+      date = DateTime.new(date.year,date.month,date.day)
 
       @weeks.find {|week| week.start <= date and week.finish >= date}
       
     end
     
+        
     def dmy_date(date)
-      return Time.new(date.year,date.month,date.day)
+      return DateTime.new(date.year,date.month,date.day)
     end
       
     def hhmn_date(date)
-      return Time.new(2000,1,1,date.hour,date.min)
+      return DateTime.new(2000,1,1,date.hour,date.min)
     end
     
   end

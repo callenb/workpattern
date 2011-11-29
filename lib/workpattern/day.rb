@@ -131,6 +131,10 @@ module Workpattern
       return result_hour,result_min,0
     end
     
+    # 
+    # Returns the result of adding #duration to the specified time represented by #start_hour amd #start_min.
+    # When there are not enough minutes in the day it returns 60 as the #result_min
+    #
     def add(start_hour,start_min,duration)
       maximum=minutes(start_hour,start_min,@hours-1,59)
       return @hours-1,60,(duration-maximum) if ((duration-maximum)>=0) # not enough minutes left in the day
