@@ -26,13 +26,14 @@ require 'workpattern/workpattern'
 #
 # The core Ruby classes that represent date and time allow calculations by
 # adding a duration such as days or minutes to a date and returning the new
-# #Date or #DateTime as the result. 
+# <tt>Date</tt> or <tt>DateTime</tt> as the result. 
 #
 # Although there are 60 seconds in every minute and 60 minutes in every hour, there
 # aren't always 24 hours in every day, and if there was, we still wouldn't
-# be working during all of them.  We'll would be doing other things like eating,
-# sleeping, travelling and having a bit of leisure time.  Workpattern calls this 
-# Resting.
+# be working during all of them.  We would be doing other things like eating,
+# sleeping, travelling and having a bit of leisure time.  Workpattern refers to this 
+# time as Resting time.  It refers to the time when we're busy doing stuff as
+# Working time.
 #
 # When it comes to scheduling work, whether part of a project, teachers in a 
 # classroom or even bed availability in a hospital, the working day can have
@@ -40,11 +41,11 @@ require 'workpattern/workpattern'
 # is something like 7.5 or 8 hours a day except weekends, public holidays and
 # vacations when no work takes place.
 #
-# The #Workpattern library was born to allow date related calculations to take 
+# The <tt>Workpattern</tt> library was born to allow date related calculations to take 
 # into account real life working and resting times.  It gets told about working
 # and resting periods and can then perform calculations on a given date.  It can
 # add and subtract a number of minutes, calculate the working minutes between
-# two dates and say with a specific minute is working or resting.
+# two dates and say whether a specific minute is working or resting.
 #
 # == Illustration
 #
@@ -52,12 +53,12 @@ require 'workpattern/workpattern'
 # write a document.  If we started on a Thursday at 9:00am we wouldn't be
 # working 32 hours without interruption (let's pretend we're not software
 # developers for this one!).  We'd go home at the end of one working day and
-# not return until the next.  We'd also not do anything on the weekend.  We
-# would probably work 8 hours on Thursday, Friday, Monday and Tuesday to
-# complete the work.
+# not return until the next.  The weekend would not include working on the 
+# document either.  We would probably work 8 hours on Thursday, Friday, Monday 
+# and Tuesday to complete the work.
 #
-# This library will be able to tell you that if you started at 9:00 am on
-# Thursday, you should be finished at 6:00 pm on Tuesday - allowing an hour
+# The <tt>Workpattern</tt> library will be able to tell you that if you started at 
+# 9:00 am on Thursday, you should be finished at 6:00 pm on Tuesday - allowing an hour
 # for lunch each day!  For it to do that it has to know when you can work and
 # when you are resting.
 #
@@ -69,23 +70,24 @@ require 'workpattern/workpattern'
 # day starts at 9:00am,finishes at 6:00pm and I take an hour for lunch. I don't work 
 # on the weekend.
 #
-# The first step is to create a #Workpattern to hold all the working and resting times.
+# The first step is to create a <tt>Workpattern</tt> to hold all the working and resting times.
 # I'll start in 2011 and let it run for 10 years.
 #
 #  mywp=Workpattern.new('My Workpattern',2011,10)
 #
-# My #Workpattern will be created as a 24 hour a day full working time.  Now it has to 
+# My <tt>Workpattern</tt> will be created as a 24 hour a day full working time.  Now it has to 
 # be told about the resting periods.  First the weekends.
 #
 #  mywp.resting(:days => :weekend)
 # 
-# then the days in the week ...
+# then the days in the week have specific working and resting times using the 
+# <tt>Time::hm</tt> method added by <tt>Workpattern</tt> ...
 #
-#  mywp.resting(:Weekday, :from_time=>'0:0',:to_time=>'8:59')
-#  mywp.resting(:Weekday, :from_time=>'12:0',:to_time=>'12:59')
-#  mywp.resting(:Weekday, :from_time=>'18:0',:to_time=>'23:59')
+#  mywp.resting(:Weekday, :from_time=>Time.hm(0,0),:to_time=>Time.hm(8,59))
+#  mywp.resting(:Weekday, :from_time=>Time.hm(12,0),:to_time=>Time.hm(12,59))
+#  mywp.resting(:Weekday, :from_time=>Time.hm(18,0),:to_time=>Time.hm(23,59))
 #
-# Now we have the working and resting periodssetup we can just add 32 hours as 
+# Now we have the working and resting periods setup we can just add 32 hours as 
 # minutes (115,200) to our date.
 #
 #  mydate=DateTime.civil(2011,09,01,9,0)
@@ -99,8 +101,8 @@ require 'workpattern/workpattern'
 # * given a date it can return the resulting date after adding or subtracting a number of minutes
 # * calculate the number of working minutes between two dates
 # * report whether a specific minute in time is working or resting
-# This is what I consider to be the basics, butthere are a number of functional and 
-# non-functial areas I would like to address in a future version
+# This is what I consider to be the basics, but there are a number of functional and 
+# non-functial areas I would like to address in a future version.
 #
 # === Functional
 #
@@ -113,12 +115,12 @@ require 'workpattern/workpattern'
 # === Non-Functional
 #
 # * Improve the documentation and introduce real world use as an example
-# * Write better Ruby code
+# * Improve my ability to write Ruby code
 #
 module Workpattern
   
   # Workpattern version number
-  VERSION = '0.0.1'
+  VERSION = '0.1.0'
   # Represents a full working hour
   WORKING_HOUR = 2**60-1
   # Represents a full resting hour
@@ -145,7 +147,7 @@ module Workpattern
               
   # :call-seq: new(name, base, span) => workpattern 
   #
-  # Covenience method to obtain a new #Workpattern::Workpattern 
+  # Covenience method to obtain a new <tt>Workpattern::Workpattern</tt> 
   #
   # ==== Parameters
   #
@@ -164,7 +166,7 @@ module Workpattern
   
   # :call-seq: to_a => array 
   #
-  # Covenience method to obtain an Array of all the known Workpattern::Workpattern objects
+  # Covenience method to obtain an Array of all the known <tt>Workpattern::Workpattern</tt> objects
   #
   def self.to_a()
     return Workpattern.to_a
@@ -172,7 +174,7 @@ module Workpattern
 
   # :call-seq: get(name) => workpattern 
   #
-  # Covenience method to obtain an existing Workpattern::Workpattern 
+  # Covenience method to obtain an existing <tt>Workpattern::Workpattern</tt> 
   #
   # ==== Parameters
   #
@@ -184,7 +186,7 @@ module Workpattern
   
   # :call-seq: delete(name) => boolean 
   #
-  # Convenience method to delete the named Workpattern::Workpattern
+  # Convenience method to delete the named <tt>Workpattern::Workpattern</tt>
   #
   # === Parameters
   #
