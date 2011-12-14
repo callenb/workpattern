@@ -83,15 +83,15 @@ require 'workpattern/workpattern'
 # then the days in the week have specific working and resting times using the 
 # <tt>Time::hm</tt> method added by <tt>Workpattern</tt> ...
 #
-#  mywp.resting(:Weekday, :from_time=>Time.hm(0,0),:to_time=>Time.hm(8,59))
-#  mywp.resting(:Weekday, :from_time=>Time.hm(12,0),:to_time=>Time.hm(12,59))
-#  mywp.resting(:Weekday, :from_time=>Time.hm(18,0),:to_time=>Time.hm(23,59))
+#  mywp.resting(:days =>:Weekday, :from_time=>Time.hm(0,0),:to_time=>Time.hm(8,59))
+#  mywp.resting(:days =>:Weekday, :from_time=>Time.hm(12,0),:to_time=>Time.hm(12,59))
+#  mywp.resting(:days =>:Weekday, :from_time=>Time.hm(18,0),:to_time=>Time.hm(23,59))
 #
 # Now we have the working and resting periods setup we can just add 32 hours as 
-# minutes (115,200) to our date.
+# minutes (1920) to our date.
 #
 #  mydate=DateTime.civil(2011,09,01,9,0)
-#  mywp.calc(mydate,115200) # => 6/9/11@18:00
+#  mywp.calc(mydate,1920) # => 6/9/11@18:00
 #
 # == Things To Do
 #
