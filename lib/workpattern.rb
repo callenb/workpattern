@@ -131,6 +131,10 @@ module Workpattern
   DEFAULT_BASE_YEAR = 2000
   # The default span in years
   DEFAULT_SPAN = 100
+  # Hour in terms of days
+  HOUR = Rational(1,24)
+  # Minute in terms of days
+  MINUTE = Rational(1,1440)
   # Represents the days of the week to be used in applying working and resting patterns.
   #
   # ==== Valid Values

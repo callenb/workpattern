@@ -93,33 +93,52 @@ module Workpattern
     
     # adds a duration to a time
     def add(time,duration)
-      maximum=minutes(time,59)
-      return 60,(duration-maximum) if ((duration-maximum)>=0) 
-      return (time+duration),0 if (minutes(time,time+duration-1)==duration)
-      
-      start = time + duration
-      duration-=minutes(time,time+duration)
-      until (duration==0)
-        start+=1
-        duration-=minutes(start,start)
-      end
-      return start+1,0  
+      start = time.min
+      available_minutes=minutes(start,59)
+
+      if ((duration-available_minutes)>=0)
+        result_date = time + HOUR - (MINUTE*start)
+        result_remainder = duration-available_minutes
+      elsif (minutes(start,start+duration-1)==duration)
+        result_date = time + (MINUTE*duration)
+        result_remainder = 0
+      else
+        step = start + duration
+        duration-=minutes(start,step)
+        until (duration==0)
+          step+=1
+          duration-=minutes(step,step)
+        end
+        step+=1
+        result_date = time + (MINUTE*step)
+        result_remainder = 0
+      end  
+      return result_date, result_remainder  
     end
     
     # subtracts a duration from a time
     def subtract(time,duration)
-      maximum=0
-      maximum=minutes(0,time-1) if time>0
-      return 0,(duration+maximum) if ((duration + maximum)<=0)
-      return (time+duration),0 if (minutes(time+duration,time-1)==duration)
+      start=time.min
+      available_minutes=0
+      available_minutes = minutes(0,start-1) if start > 0
       
-      start = time + duration
-      duration+=minutes(time+duration,time-1)
-      until (duration==0)
-        start-=1
-        duration+=minutes(start-1,start-1)
-      end
-      return start,0
+      if ((duration + available_minutes)<=0)
+        result_date = time - (MINUTE*start)
+        result_remainder = duration+available_minutes
+      elsif (minutes(start+duration,start-1)==duration)
+        result_date = time + (MINUTE*duration)
+        result_remainder = 0
+      else     
+        step = start + duration
+        duration+=minutes(step,start-1)
+        until (duration==0)
+          step-=1
+          duration+=minutes(step-1,step-1)
+        end
+        result_date = time -(MINUTE * (start-step))
+        result_remainder = 0
+      end  
+      return result_date, result_remainder  
       
     end
   end
