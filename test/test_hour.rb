@@ -114,107 +114,49 @@ class TestHour < Test::Unit::TestCase #:nodoc:
   end
   
   must 'subtract minutes in a resting hour' do
-    return if true
     resting_hour = Workpattern::RESTING_HOUR
-    result,remainder = resting_hour.calc(0,-3)
-    assert_equal 0, result, "result calc(0,-3)"
-    assert_equal(-3, remainder, "remainder calc(0,-3)")
+    [
+     [2000,1,1,0,10,-3,2000,1,1,0,0,-3],
+     [2000,1,1,0,10,0,2000,1,1,0,10,0],
+     [2000,1,1,0,59,0,2000,1,1,0,59,0],
+     [2000,1,1,0,11,-3,2000,1,1,0,0,-3],
+     [2000,1,1,0,10,-60,2000,1,1,0,0,-60],
+     [2000,1,1,0,10,-61,2000,1,1,0,0,-61],
+     [2000,1,1,0,30,-60,2000,1,1,0,0,-60],
+     [2001,1,1,0,0,-1,2001,1,1,0,0,-1]
+    ].each{|y,m,d,h,n,add,yr,mr,dr,hr,nr,rem|
+      start=DateTime.new(y,m,d,h,n)
+      result,remainder = resting_hour.calc(start,add)
+      assert_equal DateTime.new(yr,mr,dr,hr,nr), result, "result calc(#{start},#{add})"
+      assert_equal rem, remainder, "remainder calc(#{start},#{add})"  
+    }
     
-    result,remainder = resting_hour.calc(0,0)
-    assert_equal 0, result, "result calc(0,0)"
-    assert_equal 0, remainder, "remainder calc(0,0)"
-    
-    result,remainder = resting_hour.calc(59,0)
-    assert_equal 59, result, "result calc(59,0)"
-    assert_equal 0, remainder, "remainder calc(59,0)"
-    
-    result,remainder = resting_hour.calc(11,0)
-    assert_equal 11, result, "result calc(11,0)"
-    assert_equal 0, remainder, "remainder calc(11,0)"
-    
-    result,remainder = resting_hour.calc(0,-60)
-    assert_equal 0, result, "result calc(0,-60)"
-    assert_equal(-60, remainder, "remainder calc(0,-60)")
-    
-    result,remainder = resting_hour.calc(0,-61)
-    assert_equal 0, result, "result calc(0,-61)"
-    assert_equal(-61, remainder, "remainder calc(0,-61)")
-    
-    result,remainder = resting_hour.calc(30,-60)
-    assert_equal 0, result, "result calc(30,-60)"
-    assert_equal(-60, remainder, "remainder calc(30,-60)")
-  
-    result,remainder = resting_hour.calc(60,0)
-    assert_equal 60, result, "result calc(60,0)"
-    assert_equal 0, remainder, "remainder calc(60,0)"
-    
-    result,remainder = resting_hour.calc(60,-10)
-    assert_equal 0, result, "result calc(60,-10)"
-    assert_equal(-10, remainder, "remainder calc(60,-10)")
-    
-    result,remainder = resting_hour.calc(60,-60)
-    assert_equal 0, result, "result calc(60,-60)"
-    assert_equal(-60, remainder, "remainder calc(60,-60)")
-    
-    result,remainder = resting_hour.calc(60,-61)
-    assert_equal 0, result, "result calc(60,-61)"
-    assert_equal(-61, remainder, "remainder calc(60,-61)")
   end
   
   must 'subtract minutes in a patterned hour' do
-    return if true
+  
     pattern_hour = Workpattern::WORKING_HOUR
     pattern_hour = pattern_hour.workpattern(1,10,0)
     pattern_hour = pattern_hour.workpattern(55,59,0)
-    
-    result,remainder = pattern_hour.calc(0,-3)
-    assert_equal 0, result, "result calc(0,-3)"
-    assert_equal(-3, remainder, "remainder calc(0,-3)")
-    
-    result,remainder = pattern_hour.calc(0,0)
-    assert_equal 0, result, "result calc(0,0)"
-    assert_equal 0, remainder, "remainder calc(0,0)"
-    
-    result,remainder = pattern_hour.calc(59,0)
-    assert_equal 59, result, "result calc(59,0)"
-    assert_equal 0, remainder, "remainder calc(59,0)"
-    
-    result,remainder = pattern_hour.calc(11,0)
-    assert_equal 11, result, "result calc(11,0)"
-    assert_equal 0, remainder, "remainder calc(11,0)"
-    
-    result,remainder = pattern_hour.calc(0,-60)
-    assert_equal 0, result, "result calc(0,-60)"
-    assert_equal(-60, remainder, "remainder calc(0,-60)")
-    
-    result,remainder = pattern_hour.calc(0,-61)
-    assert_equal 0, result, "result calc(0,-61)"
-    assert_equal(-61, remainder, "remainder calc(0,-61)")
-    
-    result,remainder = pattern_hour.calc(30,-60)
-    assert_equal 0, result, "result calc(30,-60)"
-    assert_equal(-40, remainder, "remainder calc(30,-60)")
-  
-    result,remainder = pattern_hour.calc(60,0)
-    assert_equal 60, result, "result calc(60,0)"
-    assert_equal 0, remainder, "remainder calc(60,0)"
-    
-    result,remainder = pattern_hour.calc(60,-10)
-    assert_equal 45, result, "result calc(60,-10)"
-    assert_equal 0, remainder, "remainder calc(60,-10)"
-    
-    result,remainder = pattern_hour.calc(60,-60)
-    assert_equal 0, result, "result calc(60,-60)"
-    assert_equal(-15, remainder, "remainder calc(60,-60)")
-    
-    result,remainder = pattern_hour.calc(60,-61)
-    assert_equal 0, result, "result calc(60,-61)"
-    assert_equal(-16, remainder, "remainder calc(60,-61)")
+    [
+     [2000,1,1,0,0,-3,2000,1,1,0,0,-3],
+     [2000,1,1,0,0,0,2000,1,1,0,0,0],
+     [2000,1,1,0,59,0,2000,1,1,0,59,0],
+     [2000,1,1,0,11,-2,2000,1,1,0,0,-1],
+     [2000,1,1,0,0,-60,2000,1,1,0,0,-60],
+     [2000,1,1,0,0,-61,2000,1,1,0,0,-61],
+     [2000,1,1,0,30,-60,2000,1,1,0,0,-40],
+     [2001,1,1,23,59,-1,2001,1,1,23,54,0]
+    ].each{|y,m,d,h,n,add,yr,mr,dr,hr,nr,rem|
+      start=DateTime.new(y,m,d,h,n)
+      result,remainder = pattern_hour.calc(start,add)
+      assert_equal DateTime.new(yr,mr,dr,hr,nr), result, "result calc(#{start},#{add})"
+      assert_equal rem, remainder, "remainder calc(#{start},#{add})"  
+    }
   end
   
   
   must 'create complex patterns' do
-    return if true
     working_hour = Workpattern::WORKING_HOUR
     control=Array.new(60) {|i| 1}
     j=0
@@ -245,7 +187,7 @@ class TestHour < Test::Unit::TestCase #:nodoc:
   end
 
   must "calculate difference between minutes in working hour" do
-    return if true
+
     working_hour = Workpattern::WORKING_HOUR
     [[0,0,0],
      [0,1,1],
@@ -260,7 +202,6 @@ class TestHour < Test::Unit::TestCase #:nodoc:
   end
 
   must "calculate difference between minutes in resting hour" do
-    return if true
     resting_hour = Workpattern::RESTING_HOUR
     [[0,0,0],
      [0,1,0],
@@ -275,7 +216,7 @@ class TestHour < Test::Unit::TestCase #:nodoc:
   end
 
   must "calculate difference between minutes in pattern hour" do
-    return if true
+
     pattern_hour = Workpattern::WORKING_HOUR
     pattern_hour = pattern_hour.workpattern(1,10,0)
     pattern_hour = pattern_hour.workpattern(55,59,0)

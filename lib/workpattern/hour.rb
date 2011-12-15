@@ -51,9 +51,10 @@ module Workpattern
       return (self & mask(start,finish)).to_s(2).count('1')
     end
     
-    # :call-seq: calc(time,duration) => Integer, Integer
-    # Returns the result and remainder when adding duration to a minute
-    # 60 is returned if it is really the next hour
+    # :call-seq: calc(datetime,duration) => DateTime, Integer
+    # Returns the DateTime and remainding minutes when adding or subtracting duration 
+    # to/from a minute in an hour.
+    # Subtraction with a remainder returns the time of the current date as 00:00.
     #
     def calc(time,duration)
     
@@ -133,7 +134,7 @@ module Workpattern
         duration+=minutes(step,start-1)
         until (duration==0)
           step-=1
-          duration+=minutes(step-1,step-1)
+          duration+=minutes(step,step)
         end
         result_date = time -(MINUTE * (start-step))
         result_remainder = 0
