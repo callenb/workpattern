@@ -50,14 +50,14 @@ module Workpattern
       set_attributes
     end
     
-    def calc(start_hour,start_min,duration)
+    def calc(time,duration)
     
       if (duration<0)
-        return subtract(start_hour,start_min,duration)  
+        return subtract(time,duration)  
       elsif (duration>0)
-        return add(start_hour,start_min,duration)                
+        return add(time,duration)                
       else
-        return start_hour,start_min,duration
+        return time,duration
       end
     
     end
@@ -135,25 +135,31 @@ module Workpattern
     # Returns the result of adding #duration to the specified time represented by #start_hour amd #start_min.
     # When there are not enough minutes in the day it returns 60 as the #result_min
     #
-    def add(start_hour,start_min,duration)
-      maximum=minutes(start_hour,start_min,@hours-1,59)
-      return @hours-1,60,(duration-maximum) if ((duration-maximum)>=0) # not enough minutes left in the day
+    def add(time,duration)
+      available_minutes=minutes(time.hour,time.min,@hours-1,59)
       
-      return start_hour,(start_min+duration),0 if (@values[start_hour].minutes(start_min,start_min+duration-1)==duration) # enough minutes in first hour
-      
-      result_hour=start_hour
-      duration-=@values[result_hour].minutes(start_min,59)
-      until (duration==0)
-        result_hour+=1
-        total=@values[result_hour].total
-        if (total<=duration)
-          duration-=total
+      if ((duration-available_minutes)>0) # not enough minutes left in the day
+        result_date= time.next_day - (HOUR*time.hour) - (MINUTE*time.min)
+        duration = duration - available_minutes
+      else
+        total=@values[time.hour].minutes(time.min,59)
+        if (total==duration) # this hour satisfies
+          result_date=time + HOUR - (MINUTE*time.min)
+          duration = 0
         else  
-         result_min,result_remainder=@values[result_hour].calc(0,duration)
-         duration=0
+          result_date = time
+          until (duration==0)
+            if (total<=duration)
+              duration-=total
+              result_date=result_date + HOUR - (MINUTE*result_date.min)
+            else
+              result_date,duration=@values[result_date.hour].calc(result_date,duration) 
+            end
+            total=@values[result_date.hour].total
+          end
         end
-      end  
-      return result_hour,result_min,0
+      end    
+      return result_date,duration
     end
   end
 end

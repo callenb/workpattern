@@ -7,7 +7,7 @@ class TestDay < Test::Unit::TestCase #:nodoc:
   end
   
   must "create a working day" do
-    return if true
+  
     working_day = Workpattern::Day.new(1,24)
     assert_equal 1440, working_day.total,"24 hour working total minutes"
     
@@ -22,7 +22,7 @@ class TestDay < Test::Unit::TestCase #:nodoc:
   end
     
   must "ceate a resting day" do
-    return if true
+
     resting_day = Workpattern::Day.new(0,24)
     assert_equal 0, resting_day.total,"24 hour resting total minutes"
     
@@ -37,7 +37,7 @@ class TestDay < Test::Unit::TestCase #:nodoc:
   end
   
   must "set patterns correctly" do
-    return if true
+
     times=Array.new()
     [[0,0,8,59],
      [12,0,12,59],
@@ -63,7 +63,7 @@ class TestDay < Test::Unit::TestCase #:nodoc:
   end
   
   must "duplicate all of day" do
-    return if true
+
     day=Workpattern::Day.new(1,24)
     new_day = day.duplicate
     assert_equal 1440, new_day.total,"24 hour duplicate working total minutes"
@@ -71,16 +71,17 @@ class TestDay < Test::Unit::TestCase #:nodoc:
     # hour   min  duration  hour    min     remainder  
     [[   0,    0,        3,    0,     3,            0],
      [  23,   59,        0,   23,    59,            0],
-     [  23,   59,        1,   23,    60,            0],
-     [  23,   59,        2,   23,    60,            1],
+     [  23,   59,        1,    0,     0,            0],
+     [  23,   59,        2,    0,     0,            1],
      [   9,   10,       33,    9,    43,            0],
      [   9,   10,       60,   10,    10,            0],
-     [   9,    0,      931,   23,    60,           31]
+     [   9,    0,      931,    0,    0,            31]
     ].each{|start_hour,start_min,duration,result_hour,result_min,result_remainder|
-      hour,min,remainder = new_day.calc(start_hour,start_min,duration)
-      assert_equal result_hour, hour, "result calc(#{start_hour},#{start_min},#{duration})"
-      assert_equal result_min, min, "result calc(#{start_hour},#{start_min},#{duration})"
-      assert_equal result_remainder, remainder, "result calc(#{start_hour},#{start_min},#{duration})"      
+      start_date=DateTime.new(2000,1,1,start_hour,start_min)
+      result_date,remainder = new_day.calc(start_date,duration)
+      assert_equal result_hour, result_date.hour, "working result hour calc(#{start_hour},#{start_min},#{duration})"
+      assert_equal result_min, result_date.min, "working result min calc(#{start_hour},#{start_min},#{duration})"
+      assert_equal result_remainder, remainder, "working result remainder calc(#{start_hour},#{start_min},#{duration})"      
     }
     
     day = Workpattern::Day.new(0,24)
@@ -88,18 +89,19 @@ class TestDay < Test::Unit::TestCase #:nodoc:
     assert_equal 0, new_day.total,"24 hour resting total minutes"
     # start  start          result  result  result
     # hour   min  duration  hour    min     remainder
-    [[   0,    0,        3,   23,    60,            3],
+    [[   0,    0,        3,    0,     0,            3],
      [  23,   59,        0,   23,    59,            0],
-     [  23,   59,        1,   23,    60,            1],
-     [  23,   59,        2,   23,    60,            2],
-     [   9,   10,       33,   23,    60,           33],
-     [   9,   10,       60,   23,    60,           60],
-     [   9,    0,      931,   23,    60,          931]
+     [  23,   59,        1,    0,     0,            1],
+     [  23,   59,        2,    0,     0,            2],
+     [   9,   10,       33,    0,     0,           33],
+     [   9,   10,       60,    0,     0,           60],
+     [   9,    0,      931,    0,     0,          931]
     ].each{|start_hour,start_min,duration,result_hour,result_min,result_remainder|
-      hour,min,remainder = new_day.calc(start_hour,start_min,duration)
-      assert_equal result_hour, hour, "result calc(#{start_hour},#{start_min},#{duration})"
-      assert_equal result_min, min, "result calc(#{start_hour},#{start_min},#{duration})"
-      assert_equal result_remainder, remainder, "result calc(#{start_hour},#{start_min},#{duration})"      
+      start_date=DateTime.new(2000,1,1,start_hour,start_min)
+      result_date,remainder = new_day.calc(start_date,duration)
+      assert_equal result_hour, result_date.hour, "resting result hour calc(#{start_hour},#{start_min},#{duration})"
+      assert_equal result_min, result_date.min, "resting result min calc(#{start_hour},#{start_min},#{duration})"
+      assert_equal result_remainder, remainder, "resting result remainder calc(#{start_hour},#{start_min},#{duration})"      
     }
     
     times=Array.new()
@@ -137,42 +139,45 @@ class TestDay < Test::Unit::TestCase #:nodoc:
   end
   
   must 'add minutes in a working day' do
-    return if true
+  
     working_day = Workpattern::Day.new(1)
-    # start  start          result  result  result
-    # hour   min  duration  hour    min     remainder  
-    [[   0,    0,        3,    0,     3,            0],
-     [  23,   59,        0,   23,    59,            0],
-     [  23,   59,        1,   23,    60,            0],
-     [  23,   59,        2,   23,    60,            1],
-     [   9,   10,       33,    9,    43,            0],
-     [   9,   10,       60,   10,    10,            0],
-     [   9,    0,      931,   23,    60,           31]
-    ].each{|start_hour,start_min,duration,result_hour,result_min,result_remainder|
-      hour,min,remainder = working_day.calc(start_hour,start_min,duration)
-      assert_equal result_hour, hour, "result calc(#{start_hour},#{start_min},#{duration})"
-      assert_equal result_min, min, "result calc(#{start_hour},#{start_min},#{duration})"
-      assert_equal result_remainder, remainder, "result calc(#{start_hour},#{start_min},#{duration})"      
+    [
+     [2000,1,1,0,0,3,2000,1,1,0,3,0],
+     [2000,1,1,0,0,0,2000,1,1,0,0,0],
+     [2000,1,1,0,59,0,2000,1,1,0,59,0],
+     [2000,1,1,0,11,3,2000,1,1,0,14,0],
+     [2000,1,1,0,0,60,2000,1,1,1,0,0],
+     [2000,1,1,0,0,61,2000,1,1,1,1,0],
+     [2000,1,1,0,30,60,2000,1,1,1,30,0],
+     [2000,12,31,23,59,1,2001,1,1,0,0,0],
+     [2000,1,1,9,10,33,2000,1,1,9,43,0],
+     [2000,1,1,9,10,60,2000,1,1,10,10,0],
+     [2000,1,1,9,0,931,2000,1,2,0,0,31]
+    ].each{|y,m,d,h,n,add,yr,mr,dr,hr,nr,rem|
+      start=DateTime.new(y,m,d,h,n)
+      result,remainder = working_day.calc(start,add)
+      assert_equal DateTime.new(yr,mr,dr,hr,nr), result, "result calc(#{start},#{add})"
+      assert_equal rem, remainder, "remainder calc(#{start},#{add})"  
     }
-    
   end
   
   must 'add minutes in a resting day' do
-    return if true
+
     resting_day = Workpattern::Day.new(0)
     # start  start          result  result  result
     # hour   min  duration  hour    min     remainder
-    [[   0,    0,        3,   23,    60,            3],
+    [[   0,    0,        3,    0,     0,            3],
      [  23,   59,        0,   23,    59,            0],
-     [  23,   59,        1,   23,    60,            1],
-     [  23,   59,        2,   23,    60,            2],
-     [   9,   10,       33,   23,    60,           33],
-     [   9,   10,       60,   23,    60,           60],
-     [   9,    0,      931,   23,    60,          931]
+     [  23,   59,        1,    0,     0,            1],
+     [  23,   59,        2,    0,     0,            2],
+     [   9,   10,       33,    0,     0,           33],
+     [   9,   10,       60,    0,     0,           60],
+     [   9,    0,      931,    0,     0,          931]
     ].each{|start_hour,start_min,duration,result_hour,result_min,result_remainder|
-      hour,min,remainder = resting_day.calc(start_hour,start_min,duration)
-      assert_equal result_hour, hour, "result calc(#{start_hour},#{start_min},#{duration})"
-      assert_equal result_min, min, "result calc(#{start_hour},#{start_min},#{duration})"
+      start_date=DateTime.new(2000,1,1,start_hour,start_min)
+      result_date,remainder = resting_day.calc(start_date,duration)
+      assert_equal result_hour, result_date.hour, "result calc(#{start_hour},#{start_min},#{duration})"
+      assert_equal result_min, result_date.min, "result calc(#{start_hour},#{start_min},#{duration})"
       assert_equal result_remainder, remainder, "result calc(#{start_hour},#{start_min},#{duration})"      
     }
     
