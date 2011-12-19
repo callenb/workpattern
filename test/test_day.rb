@@ -140,8 +140,8 @@ class TestDay < Test::Unit::TestCase #:nodoc:
   
   must 'add minutes in a working day' do
   
-    working_day = Workpattern::Day.new(1)
-    [
+    day = Workpattern::Day.new(1)
+    tests=[
      [2000,1,1,0,0,3,2000,1,1,0,3,0],
      [2000,1,1,0,0,0,2000,1,1,0,0,0],
      [2000,1,1,0,59,0,2000,1,1,0,59,0],
@@ -153,34 +153,26 @@ class TestDay < Test::Unit::TestCase #:nodoc:
      [2000,1,1,9,10,33,2000,1,1,9,43,0],
      [2000,1,1,9,10,60,2000,1,1,10,10,0],
      [2000,1,1,9,0,931,2000,1,2,0,0,31]
-    ].each{|y,m,d,h,n,add,yr,mr,dr,hr,nr,rem|
-      start=DateTime.new(y,m,d,h,n)
-      result,remainder = working_day.calc(start,add)
-      assert_equal DateTime.new(yr,mr,dr,hr,nr), result, "result calc(#{start},#{add})"
-      assert_equal rem, remainder, "remainder calc(#{start},#{add})"  
-    }
+    ]
+    clue = "add minutes in a working day"
+    calc_test(day,tests,clue)
+    
   end
   
   must 'add minutes in a resting day' do
 
-    resting_day = Workpattern::Day.new(0)
-    # start  start          result  result  result
-    # hour   min  duration  hour    min     remainder
-    [[   0,    0,        3,    0,     0,            3],
-     [  23,   59,        0,   23,    59,            0],
-     [  23,   59,        1,    0,     0,            1],
-     [  23,   59,        2,    0,     0,            2],
-     [   9,   10,       33,    0,     0,           33],
-     [   9,   10,       60,    0,     0,           60],
-     [   9,    0,      931,    0,     0,          931]
-    ].each{|start_hour,start_min,duration,result_hour,result_min,result_remainder|
-      start_date=DateTime.new(2000,1,1,start_hour,start_min)
-      result_date,remainder = resting_day.calc(start_date,duration)
-      assert_equal result_hour, result_date.hour, "result calc(#{start_hour},#{start_min},#{duration})"
-      assert_equal result_min, result_date.min, "result calc(#{start_hour},#{start_min},#{duration})"
-      assert_equal result_remainder, remainder, "result calc(#{start_hour},#{start_min},#{duration})"      
-    }
-    
+    day = Workpattern::Day.new(0)
+    tests=[
+     [2000,1,1,0,0,3,2000,1,2,0,0,3],
+     [2000,1,1,23,59,0,2000,1,1,23,59,0],
+     [2000,1,1,23,59,1,2000,1,2,0,0,1],
+     [2000,1,1,23,59,2,2000,1,2,0,0,2],
+     [2000,1,1,9,10,33,2000,1,2,0,0,33],
+     [2000,1,1,9,10,60,2000,1,2,0,0,60],
+     [2000,1,1,9,0,931,2000,1,2,0,0,931]
+    ]
+    clue="add minutes in a resting day"
+    calc_test(day,tests,clue)
   end
   
   must 'add minutes in a patterned day' do
@@ -247,6 +239,20 @@ class TestDay < Test::Unit::TestCase #:nodoc:
 
   must "calculate difference between minutes in pattern day" do
 
+  end
+  
+  private
+
+  def calc_test(day,tests,clue)
+    
+    tests.each{|y,m,d,h,n,add,yr,mr,dr,hr,nr,rem|
+      start_date=DateTime.new(y,m,d,h,n)
+      result_date,remainder = day.calc(start_date,add)
+      assert_equal DateTime.new(yr,mr,dr,hr,nr), result_date, "result date calc(#{start_date},#{add}) for #{clue}"
+      assert_equal rem, remainder, "result remainder calc(#{start_date},#{add}) for #{clue}"  
+    }
+  
+  
   end
 
 end
