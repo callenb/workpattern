@@ -63,46 +63,36 @@ class TestDay < Test::Unit::TestCase #:nodoc:
   end
   
   must "duplicate all of day" do
-
     day=Workpattern::Day.new(1,24)
     new_day = day.duplicate
     assert_equal 1440, new_day.total,"24 hour duplicate working total minutes"
-    # start  start          result  result  result
-    # hour   min  duration  hour    min     remainder  
-    [[   0,    0,        3,    0,     3,            0],
-     [  23,   59,        0,   23,    59,            0],
-     [  23,   59,        1,    0,     0,            0],
-     [  23,   59,        2,    0,     0,            1],
-     [   9,   10,       33,    9,    43,            0],
-     [   9,   10,       60,   10,    10,            0],
-     [   9,    0,      931,    0,    0,            31]
-    ].each{|start_hour,start_min,duration,result_hour,result_min,result_remainder|
-      start_date=DateTime.new(2000,1,1,start_hour,start_min)
-      result_date,remainder = new_day.calc(start_date,duration)
-      assert_equal result_hour, result_date.hour, "working result hour calc(#{start_hour},#{start_min},#{duration})"
-      assert_equal result_min, result_date.min, "working result min calc(#{start_hour},#{start_min},#{duration})"
-      assert_equal result_remainder, remainder, "working result remainder calc(#{start_hour},#{start_min},#{duration})"      
-    }
+
+    tests=[[2000,1,1,0,0,3,2000,1,1,0,3,0],
+     [2000,1,1,23,59,0,2000,1,1,23,59,0],
+     [2000,1,1,23,59,1,2000,1,2,0,0,0],
+     [2000,1,1,23,59,2,2000,1,2,0,0,1],
+     [2000,1,1,9,10,33,2000,1,1,9,43,0],
+     [2000,1,1,9,10,60,2000,1,1,10,10,0],
+     [2000,1,1,9,0,931,2000,1,2,0,0,31]
+    ]
+    clue="duplicate working pattern"
+    calc_test(new_day,tests,clue)
     
     day = Workpattern::Day.new(0,24)
     new_day=day.duplicate
     assert_equal 0, new_day.total,"24 hour resting total minutes"
-    # start  start          result  result  result
-    # hour   min  duration  hour    min     remainder
-    [[   0,    0,        3,    0,     0,            3],
-     [  23,   59,        0,   23,    59,            0],
-     [  23,   59,        1,    0,     0,            1],
-     [  23,   59,        2,    0,     0,            2],
-     [   9,   10,       33,    0,     0,           33],
-     [   9,   10,       60,    0,     0,           60],
-     [   9,    0,      931,    0,     0,          931]
-    ].each{|start_hour,start_min,duration,result_hour,result_min,result_remainder|
-      start_date=DateTime.new(2000,1,1,start_hour,start_min)
-      result_date,remainder = new_day.calc(start_date,duration)
-      assert_equal result_hour, result_date.hour, "resting result hour calc(#{start_hour},#{start_min},#{duration})"
-      assert_equal result_min, result_date.min, "resting result min calc(#{start_hour},#{start_min},#{duration})"
-      assert_equal result_remainder, remainder, "resting result remainder calc(#{start_hour},#{start_min},#{duration})"      
-    }
+
+    tests=[[2000,1,1,0,0,3,2000,1,2,0,0,3],
+     [2000,1,1,23,59,0,2000,1,1,23,59,0],
+     [2000,1,1,23,59,1,2000,1,2,0,0,1],
+     [2000,1,1,23,59,2,2000,1,2,0,0,2],
+     [2000,1,1,9,10,33,2000,1,2,0,0,33],
+     [2000,1,1,9,10,60,2000,1,2,0,0,60],
+     [2000,1,1,9,0,931,2000,1,2,0,0,931]
+    ]
+    clue="duplicate resting pattern"
+    calc_test(new_day,tests,clue)
+    
     
     times=Array.new()
     [[0,0,8,59],
