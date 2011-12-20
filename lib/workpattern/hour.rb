@@ -56,10 +56,10 @@ module Workpattern
     # to/from a minute in an hour.
     # Subtraction with a remainder returns the time of the current date as 00:00.
     #
-    def calc(time,duration)
+    def calc(time,duration,next_hour=false)
     
       if (duration<0)
-        return subtract(time,duration)  
+        return subtract(time,duration, next_hour)  
       elsif (duration>0)
         return add(time,duration)                
       else
@@ -118,10 +118,19 @@ module Workpattern
     end
     
     # subtracts a duration from a time
-    def subtract(time,duration)
-      start=time.min
-      available_minutes=0
-      available_minutes = minutes(0,start-1) if start > 0
+    def subtract(time,duration,next_hour)
+      if next_hour
+        available_minutes=total
+        if minute?(59)
+          available_minutes-=1  
+          duration+=1 
+        end  
+        start=59
+      else  
+        start=time.min  
+        available_minutes=0
+        available_minutes = minutes(0,start-1) if start > 0
+      end
       
       if ((duration + available_minutes)<=0)
         result_date = time - (MINUTE*start)
@@ -136,7 +145,7 @@ module Workpattern
           step-=1
           duration+=minutes(step,step)
         end
-        result_date = time -(MINUTE * (start-step))
+        result_date = time - (MINUTE * (start-step))
         result_remainder = 0
       end  
       return result_date, result_remainder  

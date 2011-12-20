@@ -65,6 +65,7 @@ module Workpattern
     # Returns the total number of minutes between and including two minutes
     #
     def minutes(start_hour,start_min,finish_hour,finish_min)
+      return 0 if (start_hour==finish_hour && start_hour==0 && start_min==finish_min && start_min==0)
       if (start_hour > finish_hour) || ((finish_hour==start_hour) && (start_min > finish_min))
         start_hour,start_min,finish_hour,finish_min=finish_hour,finish_min,start_hour,finish_min 
       end
@@ -103,32 +104,38 @@ module Workpattern
     end
     
     
-    def subtract(start_hour,start_min,duration)
-
-      maximum=0
-      if (start_hour>0 || start_min>0)
-        maximum=minutes(0,0,start_hour,start_min-1) if (start_min>0)
-        maximum=minutes(0,0,start_hour-1,59) if (start_min==0)
-      end
-      
-      return 0,0,(duration+maximum) if ((duration+maximum)<=0) # not enough minutes left in the day
-      return start_hour,(start_min+duration),0 if (@values[start_hour].minutes(start_min+duration,start_min-1)==duration.abs) # enough minutes in first hour
-      
-      result_hour=start_hour
-      duration+=@values[result_hour].minutes(0,start_min-1) if start_min>0
-
-      until (duration==0)
-        result_hour-=1
-        total=@values[result_hour].total
-        if (total<=duration.abs)
-          duration+=total
-        else  
-         result_min,result_remainder=@values[result_hour].calc(60,duration)
-         duration=0
-        end
+    def subtract(time,duration)
+      if (time.hour==0 && time.min==0)
+        available_minutes = 0
+      elsif (time.min>0)
+        available_minutes=minutes(0,0,time.hour,time.min-1) 
+      else  
+        available_minutes=minutes(0,0,time.hour-1,59)
       end  
-      
-      return result_hour,result_min,0
+      if ((duration+available_minutes)<=0) # not enough minutes in the day
+        result_date = time - (HOUR*time.hour) - (MINUTE*time.min)    
+        duration = duration + available_minutes
+      else
+        total=@values[time.hour].minutes(0,time.min)
+        if (total==duration.abs) # this hour satisfies
+          result_date=time - (MINUTE*time.min)
+          duration = 0
+        else
+          test_hour=time.hour
+          until (duration==0)
+            if (total<=duration.abs)     
+              duration+=total
+            else
+              result_date = time - (HOUR*(time.hour-test_hour)) - (MINUTE*time.min) + (MINUTE*59)
+              next_hour = (test_hour!=result_date.hour)
+              result_date,duration=@values[test_hour].calc(result_date,duration, next_hour)
+            end    
+            test_hour = test_hour - 1 if duration<0
+            total=@values[test_hour].total if duration<0  
+          end
+        end
+      end        
+      return result_date,duration
     end
     
     # 

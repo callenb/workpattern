@@ -170,23 +170,18 @@ class TestDay < Test::Unit::TestCase #:nodoc:
   end
   
   must 'subtract minutes in a working day' do
-    return if true
-    working_day = Workpattern::Day.new(1)
-    # start  start          result  result  result
-    # hour   min  duration  hour    min     remainder  
-    [[   0,    0,       -3,    0,     0,           -3],
-     [  23,   59,        0,   23,    59,            0],
-     [  23,   59,       -1,   23,    58,            0],
-     [  23,   59,       -2,   23,    57,            0],
-     [   9,   10,      -33,    8,    37,            0],
-     [   9,   10,      -60,    8,    10,            0],
-     [   9,    0,     -931,    0,     0,           -391]
-    ].each{|start_hour,start_min,duration,result_hour,result_min,result_remainder|
-      hour,min,remainder = working_day.calc(start_hour,start_min,duration)
-      assert_equal result_hour, hour, "result calc(#{start_hour},#{start_min},#{duration})"
-      assert_equal result_min, min, "result calc(#{start_hour},#{start_min},#{duration})"
-      assert_equal result_remainder, remainder, "result calc(#{start_hour},#{start_min},#{duration})"      
-    }
+
+    day = Workpattern::Day.new(1)
+    tests=[[2000,1,1,0,0,-3,2000,1,1,0,0,-3],
+     [2000,1,1,23,59,0,2000,1,1,23,59,0],
+     [2000,1,1,23,59,-1,2000,1,1,23,58,0],
+     [2000,1,1,23,59,-2,2000,1,1,23,57,0],
+     [2000,1,1,9,10,-33,2000,1,1,8,37,0],
+     [2000,1,1,9,10,-60,2000,1,1,8,10,0],
+     [2000,1,1,9,0,-931,2000,1,1,0,0,-391]
+    ]
+    clue="subtract minutes in a workiing day"
+    calc_test(day,tests,clue)
   end
   
   must 'subtract minutes in a resting day' do
