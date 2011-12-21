@@ -43,7 +43,7 @@ module Workpattern
         
         while ((test_hour+1)<finish_time.hour)
           test_hour+=1
-          @values[test_hour]=@values[test_hour].workpattern(0,59,type)
+          @values[test_hour]=@values[test_hour].workpattern(0,59,type)     
         end
         
         @values[finish_time.hour]=@values[finish_time.hour].workpattern(0,finish_time.min,type)
@@ -74,14 +74,13 @@ module Workpattern
       if (start_hour==finish_hour)
         retval=@values[start_hour].minutes(start_min,finish_min)
       else
+    
         retval=@values[start_hour].minutes(start_min,59)
-        
-        while (start_hour+1<finish_hour)
-          retval+=@values[start_hour].total
+        while (start_hour+1<finish_hour)        
+          retval+=@values[start_hour+1].total     
           start_hour+=1
         end
-        
-        retval+=@values[start_hour].minutes(0,finish_min)
+        retval+=@values[finish_hour].minutes(0,finish_min)
       end
         
       return retval
@@ -145,10 +144,9 @@ module Workpattern
     #
     def add(time,duration)
       available_minutes=minutes(time.hour,time.min,@hours-1,59)
-      
-      if ((duration-available_minutes)>0) # not enough minutes left in the day
+      if ((duration-available_minutes)>0) # not enough minutes left in the day      
         result_date= time.next_day - (HOUR*time.hour) - (MINUTE*time.min)
-        duration = duration - available_minutes
+        duration = duration - available_minutes      
       else
         total=@values[time.hour].minutes(time.min,59)
         if (total==duration) # this hour satisfies
@@ -161,7 +159,7 @@ module Workpattern
               duration-=total
               result_date=result_date + HOUR - (MINUTE*result_date.min)
             else
-              result_date,duration=@values[result_date.hour].calc(result_date,duration) 
+              result_date,duration=@values[result_date.hour].calc(result_date,duration)     
             end
             total=@values[result_date.hour].total
           end

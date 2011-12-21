@@ -162,7 +162,34 @@ class TestDay < Test::Unit::TestCase #:nodoc:
   end
   
   must 'add minutes in a patterned day' do
-
+ 
+    day = Workpattern::Day.new(1)
+    [[0,0,8,59],
+     [12,0,12,59],
+     [17,0,22,59]
+    ].each {|start_hour,start_min,finish_hour,finish_min|
+      day.workpattern(Workpattern::Clock.new(start_hour, start_min),
+                      Workpattern::Clock.new(finish_hour, finish_min),
+                      0)
+    }
+    assert_equal 480, day.total, "minutes in patterned day should be 480"
+    tests=[
+     [2000,1,1,0,0,3,2000,1,1,9,3,0],
+     [2000,1,1,0,0,0,2000,1,1,0,0,0],
+     [2000,1,1,0,59,0,2000,1,1,0,59,0],
+     [2000,1,1,0,11,3,2000,1,1,9,3,0],
+     [2000,1,1,0,0,60,2000,1,1,10,0,0],
+     [2000,1,1,0,0,61,2000,1,1,10,1,0],
+     [2000,1,1,9,30,60,2000,1,1,10,30,0],
+     [2000,12,31,22,59,1,2000,12,31,23,1,0],
+     [2000,1,1,9,10,33,2000,1,1,9,43,0],
+     [2000,1,1,9,10,60,2000,1,1,10,10,0],
+     [2000,1,1,9,0,931,2000,1,2,0,0,451],
+     [2000,1,1,12,0,1,2000,1,1,13,1,0],
+     [2000,1,1,12,59,1,2000,1,1,13,1,0]
+    ]
+    clue = "add minutes in a patterned day"
+    calc_test(day,tests,clue)  
   end
   
   must 'subtract minutes in a working day' do
