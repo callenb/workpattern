@@ -43,12 +43,10 @@ class TestDay < Test::Unit::TestCase #:nodoc:
      [12,0,12,59],
      [17,0,22,59]
     ].each {|start_hour,start_min,finish_hour,finish_min|
-      times<<[Workpattern::MockDateTime.new(2011,1,1,start_hour,start_min),Workpattern::MockDateTime.new(2011,1,1,finish_hour,finish_min)]
+      times<<[Workpattern::Clock.new(start_hour,start_min),Workpattern::Clock.new(finish_hour,finish_min)]
     }
     
-    [[24,480,Workpattern::MockDateTime.new(1963,10,6,9,0),Workpattern::MockDateTime.new(1963,10,6,23,59)],
-     [23,420,Workpattern::MockDateTime.new(1963,10,6,9,0),Workpattern::MockDateTime.new(1963,10,6,16,59)],
-     [25,540,Workpattern::MockDateTime.new(1963,10,6,9,0),Workpattern::MockDateTime.new(1963,10,6,24,59)]
+    [[24,480,Workpattern::Clock.new(9,0),Workpattern::Clock.new(23,59)]
     ].each{|hours_in_day,total,first_time,last_time|
       working_day=Workpattern::Day.new(1,hours_in_day)
       times.each{|start_time,finish_time| 
@@ -99,12 +97,10 @@ class TestDay < Test::Unit::TestCase #:nodoc:
      [12,0,12,59],
      [17,0,22,59]
     ].each {|start_hour,start_min,finish_hour,finish_min|
-      times<<[Workpattern::MockDateTime.new(2011,1,1,start_hour,start_min),Workpattern::MockDateTime.new(2011,1,1,finish_hour,finish_min)]
+      times<<[Workpattern::Clock.new(start_hour,start_min),Workpattern::Clock.new(finish_hour,finish_min)]
     }
     
-    [[24,480,Workpattern::MockDateTime.new(1963,10,6,9,0),Workpattern::MockDateTime.new(1963,10,6,23,59)],
-     [23,420,Workpattern::MockDateTime.new(1963,10,6,9,0),Workpattern::MockDateTime.new(1963,10,6,16,59)],
-     [25,540,Workpattern::MockDateTime.new(1963,10,6,9,0),Workpattern::MockDateTime.new(1963,10,6,24,59)]
+    [[24,480,Workpattern::Clock.new(9,0),Workpattern::Clock.new(23,59)]
     ].each{|hours_in_day,total,first_time,last_time|
       day=Workpattern::Day.new(1,hours_in_day)
       times.each{|start_time,finish_time| 
