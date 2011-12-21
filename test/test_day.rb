@@ -50,7 +50,7 @@ class TestDay < Test::Unit::TestCase #:nodoc:
     ].each{|hours_in_day,total,first_time,last_time|
       working_day=Workpattern::Day.new(1,hours_in_day)
       times.each{|start_time,finish_time| 
-        working_day.workpattern(start_time.hour,start_time.min,finish_time.hour,finish_time.min,0)
+        working_day.workpattern(start_time,finish_time,0)
       } 
       assert_equal total,working_day.total, "#{hours_in_day} hour total working minutes"
       assert_equal first_time.hour, working_day.first_hour, "#{hours_in_day} hour first hour of the day"
@@ -104,7 +104,7 @@ class TestDay < Test::Unit::TestCase #:nodoc:
     ].each{|hours_in_day,total,first_time,last_time|
       day=Workpattern::Day.new(1,hours_in_day)
       times.each{|start_time,finish_time| 
-        day.workpattern(start_time.hour,start_time.min,finish_time.hour,finish_time.min,0)
+        day.workpattern(start_time,finish_time,0)
       } 
       new_day=day.duplicate
       
@@ -114,7 +114,7 @@ class TestDay < Test::Unit::TestCase #:nodoc:
       assert_equal last_time.hour, new_day.last_hour, "#{hours_in_day} hour last hour of the day"
       assert_equal last_time.min, new_day.last_min, "#{hours_in_day} hour last minute of the day"
       
-      new_day.workpattern(13,0,13,0,0)
+      new_day.workpattern(Workpattern::Clock.new(13,0),Workpattern::Clock.new(13,0),0)
       
       assert_equal total,day.total, "#{hours_in_day} hour total original working minutes"
       
@@ -162,7 +162,7 @@ class TestDay < Test::Unit::TestCase #:nodoc:
   end
   
   must 'add minutes in a patterned day' do
-    
+
   end
   
   must 'subtract minutes in a working day' do

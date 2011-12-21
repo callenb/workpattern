@@ -33,19 +33,20 @@ module Workpattern
       set_attributes
     end
       
-    def workpattern(start_hour,start_min,finish_hour,finish_min,type)
+    def workpattern(start_time,finish_time,type)
     
-      if start_hour==finish_hour
-        @values[start_hour]=@values[start_hour].workpattern(start_min,finish_min,type)
+      if start_time.hour==finish_time.hour
+        @values[start_time.hour]=@values[start_time.hour].workpattern(start_time.min,finish_time.min,type)
       else
-        @values[start_hour]=@values[start_hour].workpattern(start_min,59,type)
+        test_hour=start_time.hour
+        @values[test_hour]=@values[test_hour].workpattern(start_time.min,59,type)
         
-        while ((start_hour+1)<finish_hour)
-          start_hour+=1
-          @values[start_hour]=@values[start_hour].workpattern(0,59,type)
+        while ((test_hour+1)<finish_time.hour)
+          test_hour+=1
+          @values[test_hour]=@values[test_hour].workpattern(0,59,type)
         end
         
-        @values[finish_hour]=@values[finish_hour].workpattern(0,finish_min,type)
+        @values[finish_time.hour]=@values[finish_time.hour].workpattern(0,finish_time.min,type)
       end
       set_attributes
     end
