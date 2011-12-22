@@ -1,13 +1,15 @@
 module Workpattern
+  # Represents the 24 hours of a day using module <tt>hour</tt>
+  #
   class Day
     
     attr_accessor :values, :hours, :first_hour, :first_min, :last_hour, :last_min, :total
     
-    def initialize(type=1,hours_in_day=24)
-      @hours=hours_in_day
+    def initialize(type=1)
+      @hours=24
       hour=WORKING_HOUR if type==1
       hour=RESTING_HOUR if type==0
-      @values=Array.new(hours_in_day) {|index| hour }
+      @values=Array.new(@hours) {|index| hour }
 
       set_attributes
     end

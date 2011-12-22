@@ -8,32 +8,14 @@ class TestDay < Test::Unit::TestCase #:nodoc:
   
   must "create a working day" do
   
-    working_day = Workpattern::Day.new(1,24)
+    working_day = Workpattern::Day.new(1)
     assert_equal 1440, working_day.total,"24 hour working total minutes"
-    
-    working_day = Workpattern::Day.new(1,23)
-    assert_equal 1380, working_day.total,"23 hour working total minutes"
-    
-    working_day = Workpattern::Day.new(1,25)
-    assert_equal 1500, working_day.total,"25 hour working total minutes"
-    
-    working_day = Workpattern::Day.new(1,3)
-    assert_equal 180, working_day.total,"3 hour working total minutes"
   end
     
   must "ceate a resting day" do
 
-    resting_day = Workpattern::Day.new(0,24)
+    resting_day = Workpattern::Day.new(0)
     assert_equal 0, resting_day.total,"24 hour resting total minutes"
-    
-    resting_day = Workpattern::Day.new(0,23)
-    assert_equal 0, resting_day.total,"23 hour resting total minutes"
-    
-    resting_day = Workpattern::Day.new(0,25)
-    assert_equal 0, resting_day.total,"25 hour resting total minutes"
-    
-    resting_day = Workpattern::Day.new(0,3)
-    assert_equal 0, resting_day.total,"3 hour resting total minutes"
   end
   
   must "set patterns correctly" do
@@ -48,7 +30,7 @@ class TestDay < Test::Unit::TestCase #:nodoc:
     
     [[24,480,Workpattern::Clock.new(9,0),Workpattern::Clock.new(23,59)]
     ].each{|hours_in_day,total,first_time,last_time|
-      working_day=Workpattern::Day.new(1,hours_in_day)
+      working_day=Workpattern::Day.new(1)
       times.each{|start_time,finish_time| 
         working_day.workpattern(start_time,finish_time,0)
       } 
@@ -61,7 +43,7 @@ class TestDay < Test::Unit::TestCase #:nodoc:
   end
   
   must "duplicate all of day" do
-    day=Workpattern::Day.new(1,24)
+    day=Workpattern::Day.new(1)
     new_day = day.duplicate
     assert_equal 1440, new_day.total,"24 hour duplicate working total minutes"
 
@@ -76,7 +58,7 @@ class TestDay < Test::Unit::TestCase #:nodoc:
     clue="duplicate working pattern"
     calc_test(new_day,tests,clue)
     
-    day = Workpattern::Day.new(0,24)
+    day = Workpattern::Day.new(0)
     new_day=day.duplicate
     assert_equal 0, new_day.total,"24 hour resting total minutes"
 
@@ -102,7 +84,7 @@ class TestDay < Test::Unit::TestCase #:nodoc:
     
     [[24,480,Workpattern::Clock.new(9,0),Workpattern::Clock.new(23,59)]
     ].each{|hours_in_day,total,first_time,last_time|
-      day=Workpattern::Day.new(1,hours_in_day)
+      day=Workpattern::Day.new(1)
       times.each{|start_time,finish_time| 
         day.workpattern(start_time,finish_time,0)
       } 
