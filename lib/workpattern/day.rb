@@ -89,14 +89,14 @@ module Workpattern
     private
     
     def set_attributes
-      @first_hour=@hours
-      @first_min=60
-      @last_hour=(-1)
-      @last_min=(-1)
+      @first_hour=nil
+      @first_min=nil
+      @last_hour=nil
+      @last_min=nil
       @total=0
       0.upto(@hours-1) {|index|
-        @first_hour=index if ((@first_hour==@hours) && (@values[index].total!=0))
-        @first_min=@values[index].first if ((@first_min==60) && (@values[index].first!=60))        
+        @first_hour=index if ((@first_hour.nil?) && (@values[index].total!=0))
+        @first_min=@values[index].first if ((@first_min.nil?) && (!@values[index].first.nil?))        
         @last_hour=index if (@values[index].total!=0)
         @last_min=@values[index].last if (@values[index].total!=0)
         @total+=@values[index].total

@@ -24,7 +24,7 @@ module Workpattern
     #
     def first
       0.upto(59) {|minute| return minute if self.minutes(minute,minute)==1}
-      return 60
+      return nil
     end
     
     # :call-seq: last => Integer
@@ -32,7 +32,7 @@ module Workpattern
     #
     def last
       59.downto(0) {|minute| return minute if self.minutes(minute,minute)==1}
-      return -1
+      return nil
     end
     
     # :call-seq: minute(start) => Boolean

@@ -166,7 +166,7 @@ class TestHour < Test::Unit::TestCase #:nodoc:
      [1,15,0,28,31,58],
      [2,5,1,32,2,58],
      [0,59,1,60,0,59],
-     [0,59,0,0,60,-1],
+     [0,59,0,0,nil,nil],
      [0,0,1,1,0,0],
      [59,59,1,2,0,59]
     ].each{|start,finish,type,total,first,last|
