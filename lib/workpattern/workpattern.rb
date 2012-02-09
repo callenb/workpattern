@@ -108,7 +108,7 @@ module Workpattern
             current_wp.adjust(upd_finish+1,current_wp.finish)
             clone_wp.adjust(upd_start,upd_finish)
             clone_wp.workpattern(days,from_time,to_time,type)
-            @weeks<<clone_wp
+            @weeks<< clone_wp
             upd_start=upd_finish+1
           else # (current_wp.finish == upd_finish)
             current_wp.workpattern(days,from_time,to_time,type)
@@ -120,15 +120,15 @@ module Workpattern
           clone_wp.adjust(upd_start,clone_wp.finish)          
           if (clone_wp.finish <= upd_finish)
             clone_wp.workpattern(days,from_time,to_time,type)
-            @weeks<<clone_wp
+            @weeks<< clone_wp
             upd_start=clone_wp.finish+1
           else
             after_wp=clone_wp.duplicate
             after_wp.adjust(upd_finish+1,after_wp.finish)
-            @weeks<<after_wp
+            @weeks<< after_wp
             clone_wp.adjust(upd_start,upd_finish)
             clone_wp.workpattern(days,from_time,to_time,type)
-            @weeks<<clone_wp
+            @weeks<< clone_wp
             upd_start=clone_wp.finish+1
           end
         end    
