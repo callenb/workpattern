@@ -5,6 +5,10 @@ module Workpattern
     
     attr_accessor :values, :hours, :first_hour, :first_min, :last_hour, :last_min, :total
     
+    # :call-seq: new(type=1) => Day
+    # Creates a 24 hour day defaulting to a working day.
+    # Pass 0 to create a non-working day.
+    #
     def initialize(type=1)
       @hours=24
       hour=WORKING_HOUR if type==1
@@ -14,6 +18,9 @@ module Workpattern
       set_attributes
     end
     
+    # :call-seq: duplicate => Day
+    # Creates a duplicate of the current <tt>Day</tt> instance.
+    #
     def duplicate
       duplicate_day = Day.new()
       duplicate_values=Array.new(@values.size)
@@ -31,10 +38,21 @@ module Workpattern
       return duplicate_day
     end
     
+    # :call-seq: refresh
+    # Recalculates characteristics for this day
+    #
     def refresh
       set_attributes
     end
-      
+    
+    # :call-seq: workpattern(start_time,finish_time,type)
+    # Sets all minutes in a date range to be working or resting.
+    # The <tt>start_time</tt> and <tt>finish_time</tt> need to have 
+    # <tt>#hour</tt> and <tt>#min</tt> methods to return the time 
+    # in hours and minutes respectively.
+    #
+    # Pass 1 as the <tt>type</tt> for working and 0 for resting.
+    # 
     def workpattern(start_time,finish_time,type)
     
       if start_time.hour==finish_time.hour
@@ -53,6 +71,16 @@ module Workpattern
       set_attributes
     end
     
+    # :call-seq: calc(time,duration) => time, duration
+    #
+    # Calculates the result of adding <tt>duration</tt> to
+    # <tt>time</tt>.  The <tt>duration</tt> can be negative in
+    # which case it subtracts from <tt>time</tt>.
+    #
+    # An addition where there are less working minutes left in 
+    # the day than are being added will result in the time 
+    # returned having 60 as the value in <tt>min</tt>. 
+    # 
     def calc(time,duration)
     
       if (duration<0)
@@ -65,8 +93,9 @@ module Workpattern
     
     end
     
-    # Returns the total number of minutes between and including two minutes
-    #
+    # :call-seq: minutes(start_hour,start_min,finish_hour,finish_min) => duration    
+    # Returns the total number of minutes between and including two minutes.
+    # 
     def minutes(start_hour,start_min,finish_hour,finish_min)
       return 0 if (start_hour==finish_hour && start_hour==0 && start_min==finish_min && start_min==0)
       if (start_hour > finish_hour) || ((finish_hour==start_hour) && (start_min > finish_min))
