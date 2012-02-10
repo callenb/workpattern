@@ -7,7 +7,6 @@ class TestWeek < Test::Unit::TestCase #:nodoc:
   end
   
   must "create a working week" do
-    return if true
     start=DateTime.new(2000,1,1,11,3)
     finish=DateTime.new(2005,12,31,16,41)
     working_week=Workpattern::Week.new(start,finish,1)
@@ -17,7 +16,6 @@ class TestWeek < Test::Unit::TestCase #:nodoc:
   end
     
   must "create a resting week" do
-    return if true
     start=DateTime.new(2000,1,1,11,3)
     finish=DateTime.new(2005,12,31,16,41)
     resting_week=Workpattern::Week.new(start,finish,0)
@@ -28,7 +26,6 @@ class TestWeek < Test::Unit::TestCase #:nodoc:
   end
   
   must 'duplicate all of a week' do
-    return if true
     start=DateTime.new(2000,1,1,11,3)
     finish=DateTime.new(2005,12,31,16,41)
     week=Workpattern::Week.new(start,finish,1)
@@ -40,7 +37,6 @@ class TestWeek < Test::Unit::TestCase #:nodoc:
   end
   
   must "set patterns correctly" do
-    return if true
     start=DateTime.new(2000,1,1,0,0)
     finish=DateTime.new(2005,12,31,8,59)
     working_week=Workpattern::Week.new(start,finish,1)
@@ -67,7 +63,6 @@ class TestWeek < Test::Unit::TestCase #:nodoc:
   end
   
   must 'add minutes in a working week' do
-    return if true
     start=DateTime.new(2000,1,1,0,0)
     finish=DateTime.new(2005,12,31,8,59)
     working_week=Workpattern::Week.new(start,finish,1)
@@ -88,7 +83,17 @@ class TestWeek < Test::Unit::TestCase #:nodoc:
   end
   
   must 'subtract minutes in a working week' do
-    assert true
+    start=DateTime.new(2000,1,1,0,0)
+    finish=DateTime.new(2005,12,31,8,59)
+    working_week=Workpattern::Week.new(start,finish,1)
+    result_date, result_duration= working_week.calc(start,0)
+    assert_equal start,result_date, "#{start} + #{0}"
+    result_date,result_duration=working_week.calc(finish,0)
+    assert_equal finish,result_date, "#{finish} + #{0}"
+    result_date,result_duration=working_week.calc(finish,-10)
+    assert_equal DateTime.new(2005,12,31,8,49),result_date, "#{finish} + #{10}"
+    result_date,result_duration=working_week.calc(DateTime.new(2005,12,31,0,0),-10)
+    assert_equal DateTime.new(2005,12,30,23,50),result_date, "#{finish} - #{10}"
   end
   
   must 'subtract minutes in a resting week' do

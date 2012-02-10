@@ -7,12 +7,13 @@ module Workpattern
     
     attr_accessor :values, :days, :start, :finish, :week_total, :total
     
-    # :call-seq: new(start,finish,type, hours_in_days_in_week) => Week
+    # :call-seq: new(start,finish,type) => Week
     #  
     #
-    def initialize(start,finish,type=1,hours_in_days_in_week=[24,24,24,24,24,24,24])
+    def initialize(start,finish,type=1)
+      hours_in_days_in_week=[24,24,24,24,24,24,24]
       @days=hours_in_days_in_week.size
-      @values=Array.new(7) {|index| Day.new(type,hours_in_days_in_week[index])}
+      @values=Array.new(7) {|index| Day.new(type)}
       @start=DateTime.new(start.year,start.month,start.day)
       @finish=DateTime.new(finish.year,finish.month,finish.day)
         
@@ -46,7 +47,7 @@ module Workpattern
     end
     
     def workpattern(days,from_time,to_time,type)
-      DAYNAMES[days].each {|day| @values[day].workpattern(from_time.hour,from_time.min,to_time.hour,to_time.min,type)}  
+      DAYNAMES[days].each {|day| @values[day].workpattern(from_time,to_time,type)}  
       refresh
     end
     
@@ -86,50 +87,93 @@ module Workpattern
     end
     
     def add(start,duration)
-      #
-      # step 1: calculate to the end of the current day
-      # step 2: find out the week day of the last date in the week class & calculate to the end of it
-      # step 3: do a whole week thing
-      #
-      start_min = 0
+     
       # aim to calculate to the end of the day
-      while (duration !=0) && (start_min !=60)
-        start_hour,start_min,duration = @values[start.wday].calc(start.hour,start.min,duration)
-      end
+      start,duration = @values[start.wday].calc(start,duration)
+      return start,duration if (duration==0) || (start.jd > @finish.jd) 
 
       # aim to calculate to the end of the next week day that is the same as @finish
-      if (start_min==60)
-        start=start.next_day
-        start=DateTime.civil(start.year,start.month,start.day,start_hour=0,start_min=0)
-        # calculate to end of next week day
-        while (duration>=@values[start.wday].total) && (start.wday!=@finish.next_day.wday)
+      while((duration!=0) && (start.wday!=@finish.next_day.wday) && (start.jd <= @finish.jd))
+        if (duration>=@values[start.wday].total)
           duration = duration - @values[start.wday].total
           start=start.next_day
+        else
+          start,duration = @values[start.wday].calc(start,duration)
         end
-      else
-        start=DateTime.civil(start.year,start.month,start.day,start_hour,start_min)  
       end
       
+      return start,duration if (duration==0) || (start.jd > @finish.jd) 
+      
       #while duration accomodates full weeks
-      while (duration>=@week_total) && ((start+7)<@finish.next_day)
+      while ((duration!=0) && (duration>=@week_total) && ((start.jd+6) <= @finish.jd))
         duration=duration - @week_total
         start=start+7
       end
-      
+
+      return start,duration if (duration==0) || (start.jd > @finish.jd) 
+
       #while duration accomodates full days
-      while (duration>=@values[start.wday].total) && (start<@finish.next_day)
-        duration = duration - @values[start.wday].total
-        start=start.next_day
-      end
-      
-      
-      #calculate in day
-      if ((duration !=0) && (start<@finish.next_day)) 
-        start_hour,start_min,duration = @values[start.wday].calc(start.hour,start.min,duration)
-        start=DateTime.civil(start.year,start.month,start.day,start_hour,start_min)
+      while ((duration!=0) && (start.jd<= @finish.jd))
+        if (duration>=@values[start.wday].total)
+          duration = duration - @values[start.wday].total
+          start=start.next_day
+        else
+          start,duration = @values[start.wday].calc(start,duration)
+        end
       end
        
       return start, duration 
+      
+    end
+
+    def subtract(start,duration)
+
+      # Handle subtraction from start of day
+      if (start.hour==0) &&(start.min==0)
+        if (start.prev_day > @start)
+          duration += @values[start.prev_day.wday].minutes(23,59,23,59)
+          start-=MINUTE
+        else
+          return start, duration
+        end
+      end
+      
+      # aim to calculate to the start of the day
+      start,duration = @values[start.wday].calc(start,duration)
+      return start,duration if (duration==0) || (start.jd ==@start.jd) 
+
+      # aim to calculate to the start of the previous week day that is the same as @start
+      while((duration!=0) && (start.wday!=@start.wday) && (start.jd >= @start.jd))
+        if (duration.abs>=@values[start.wday].total)
+          duration = duration + @values[start.wday].total
+          start=start.prev_day
+        else
+          start,duration = @values[start.wday].calc(start,duration)
+        end
+      end
+      
+      return start,duration if (duration==0) || (start.jd ==@start.jd) 
+      
+      #while duration accomodates full weeks
+      while ((duration!=0) && (duration.abs>=@week_total) && ((start.jd-6) >= @start.jd))
+        duration=duration + @week_total
+        start=start-7
+      end
+
+      return start,duration if (duration==0) || (start.jd ==@start.jd) 
+
+      #while duration accomodates full days
+      while ((duration!=0) && (start.jd>= @start.jd))
+        if (duration.abs>=@values[start.wday].total)
+          duration = duration + @values[start.wday].total
+          start=start.prev_day
+        else
+          start,duration = @values[start.wday].calc(start,duration)
+        end
+      end
+       
+      return start, duration 
+      
     end
 
   end
