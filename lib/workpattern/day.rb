@@ -170,8 +170,9 @@ module Workpattern
     end
     
     # 
-    # Returns the result of adding #duration to the specified time represented by #start_hour amd #start_min.
-    # When there are not enough minutes in the day it returns 60 as the #result_min
+    # Returns the result of adding #duration to the specified time
+    # When there are not enough minutes in the day it returns the date
+    # for the start of the following
     #
     def add(time,duration)
       available_minutes=minutes(time.hour,time.min,@hours-1,59)
