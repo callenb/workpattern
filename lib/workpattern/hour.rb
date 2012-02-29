@@ -120,12 +120,11 @@ module Workpattern
     # subtracts a duration from a time
     def subtract(time,duration,next_hour)
       if next_hour
-        available_minutes=total
         if minute?(59)
-          available_minutes-=1  
-          duration+=1 
+          duration+=1
+          time=time+(MINUTE*59)
+          return calc(time,duration)
         end  
-        start=59
       else  
         start=time.min  
         available_minutes=0
@@ -135,7 +134,7 @@ module Workpattern
       if ((duration + available_minutes)<=0)
         result_date = time - (MINUTE*start)
         result_remainder = duration+available_minutes
-      elsif (minutes(start+duration,start-1)==duration)
+      elsif (minutes(start+duration,start-1)==duration.abs)
         result_date = time + (MINUTE*duration)
         result_remainder = 0
       else     

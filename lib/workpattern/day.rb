@@ -135,7 +135,7 @@ module Workpattern
     end
     
     
-    def subtract(time,duration)
+    def subtract(time,duration)    
       if (time.hour==0 && time.min==0)
         available_minutes = 0
       elsif (time.min>0)
@@ -144,29 +144,24 @@ module Workpattern
         available_minutes=minutes(0,0,time.hour-1,59)
       end  
       if ((duration+available_minutes)<=0) # not enough minutes in the day
-        result_date = time - (HOUR*time.hour) - (MINUTE*time.min)    
+        time = time - (HOUR*time.hour) - (MINUTE*time.min)    
         duration = duration + available_minutes
       else
-        total=@values[time.hour].minutes(0,time.min)
-        if (total==duration.abs) # this hour satisfies
-          result_date=time - (MINUTE*time.min)
-          duration = 0
-        else
-          test_hour=time.hour
-          until (duration==0)
-            if (total<=duration.abs)     
-              duration+=total
-            else
-              result_date = time - (HOUR*(time.hour-test_hour)) - (MINUTE*time.min) + (MINUTE*59)
-              next_hour = (test_hour!=result_date.hour)
-              result_date,duration=@values[test_hour].calc(result_date,duration, next_hour)
-            end    
-            test_hour = test_hour - 1 if duration<0
-            total=@values[test_hour].total if duration<0  
+        minutes_this_hour=@values[time.hour].minutes(0,time.min-1)
+        this_hour=time.hour
+        until (duration==0)
+          if (minutes_this_hour<=duration.abs)     
+            duration+=minutes_this_hour
+            time = time - (MINUTE*time.min) - HOUR
+            this_hour-=1
+            minutes_this_hour=@values[this_hour].total
+          else
+            next_hour=(time.min==0)
+            time,duration=@values[this_hour].calc(time,duration, next_hour)
           end
         end
-      end        
-      return result_date,duration
+      end  
+      return time,duration
     end
     
     # 
