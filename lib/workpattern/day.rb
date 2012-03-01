@@ -81,16 +81,24 @@ module Workpattern
     # the day than are being added will result in the time 
     # returned having 60 as the value in <tt>min</tt>. 
     # 
-    def calc(time,duration)
+    def calc(time,duration,next_day=false)
     
       if (duration<0)
-        return subtract(time,duration)  
+        return subtract(time,duration, next_day)  
       elsif (duration>0)
         return add(time,duration)                
       else
         return time,duration
       end
     
+    end
+    
+    # :call-seq: minute(start) => Boolean
+    # Returns true if the given minute is working and false if it isn't
+    #
+    def minute?(start)
+      return true if minutes(start.hour,start.min,start.hour,start.min)==1
+      return false
     end
     
     # :call-seq: minutes(start_hour,start_min,finish_hour,finish_min) => duration    
@@ -102,7 +110,7 @@ module Workpattern
         start_hour,start_min,finish_hour,finish_min=finish_hour,finish_min,start_hour,finish_min 
       end
       
-      if (start_hour==finish_hour)
+      if (start_hour==finish_hour)     
         retval=@values[start_hour].minutes(start_min,finish_min)
       else
     
@@ -135,8 +143,13 @@ module Workpattern
     end
     
     
-    def subtract(time,duration)    
+    def subtract(time,duration,next_day=false)    
       if (time.hour==0 && time.min==0)
+        if next_day      
+          duration+=minutes(23,59,23,59)
+          time=time+(HOUR*23)+(MINUTE*59)
+          return calc(time,duration)
+        end
         available_minutes = 0
       elsif (time.min>0)
         available_minutes=minutes(0,0,time.hour,time.min-1) 
@@ -150,7 +163,7 @@ module Workpattern
         minutes_this_hour=@values[time.hour].minutes(0,time.min-1)
         this_hour=time.hour
         until (duration==0)
-          if (minutes_this_hour<=duration.abs)     
+          if (minutes_this_hour<duration.abs)     
             duration+=minutes_this_hour
             time = time - (MINUTE*time.min) - HOUR
             this_hour-=1
