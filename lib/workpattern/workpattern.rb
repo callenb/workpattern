@@ -30,7 +30,7 @@ module Workpattern
       @from = DateTime.new(base_year.abs - offset)
       @to = DateTime.new(@from.year + span.abs - 1,12,31,23,59)
       @weeks = SortedSet.new
-      @weeks << Week.new(@from,@to,1,[24,24,24,24,24,24,24])
+      @weeks << Week.new(@from,@to,1)
      
       
       @@workpatterns[name]=self
@@ -79,28 +79,29 @@ module Workpattern
     def workpattern(args={})
       
       #
-      upd_start = args[:start] || @start
+      upd_start = args[:start] || @from
       upd_start = dmy_date(upd_start)
       args[:start] = upd_start
       
-      upd_finish = args[:finish] || @finish
+      upd_finish = args[:finish] || @to
       upd_finish = dmy_date(upd_finish)
       args[:finish] = upd_finish
       
       #args[:days]  = args[:days] || :all
       days= args[:days] || :all
-      from_time = args[:from_time] || Workpattern::FIRST_TIME_IN_DAY
+      from_time = args[:from_time] || FIRST_TIME_IN_DAY
       from_time = hhmn_date(from_time)
       #args[:from_time] = upd_from_time
       
-      to_time = args[:to_time] || Workpattern::LAST_TIME_IN_DAY
+      to_time = args[:to_time] || LAST_TIME_IN_DAY
       to_time = hhmn_date(to_time)
       #args[:to_time] = upd_to_time
       
-      args[:work_type] = args[:work_type] || Workpattern::WORK
-      type= args[:work_type] || Workpattern::WORK
+      args[:work_type] = args[:work_type] || WORK
+      type= args[:work_type] || WORK
       
       while (upd_start <= upd_finish)
+
         current_wp=find_weekpattern(upd_start)
         if (current_wp.start == upd_start)
           if (current_wp.finish > upd_finish)

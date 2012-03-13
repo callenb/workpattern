@@ -136,6 +136,10 @@ module Workpattern
   HOUR = Rational(1,24)
   # Minute in terms of days
   MINUTE = Rational(1,1440)
+  # earliest or first time in the day
+  FIRST_TIME_IN_DAY=Clock.new(0,0)
+  # latest or last time in the day
+  LAST_TIME_IN_DAY=Clock.new(23,59)
   # Represents the days of the week to be used in applying working and resting patterns.
   #
   # ==== Valid Values
