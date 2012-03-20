@@ -49,25 +49,45 @@ class TestWorkpattern < Test::Unit::TestCase #:nodoc:
   end
   
   must 'add minutes in a working workpattern' do
-    start=DateTime.new(2000,1,1,0,0)
-    finish=DateTime.new(2005,12,31,8,59)
-    working_week=Workpattern::Week.new(start,finish,1)
-    result_date, result_duration= working_week.calc(start,0)
-    assert_equal start,result_date, "#{start} + #{0}"
-    result_date,result_duration=working_week.calc(finish,0)
-    assert_equal finish,result_date, "#{finish} + #{0}"
-    result_date,result_duration=working_week.calc(finish,10)
-    assert_equal DateTime.new(2005,12,31,9,9),result_date, "#{finish} + #{10}"
-    
-    
-     
+    name='mypattern'
+    base=1999
+    span=11
+    wp=Workpattern::Workpattern.new(name,base,span)
+    tests=[[2000,1,1,0,0,3,2000,1,1,0,3],
+     [2000,1,1,23,59,0,2000,1,1,23,59],
+     [2000,1,1,23,59,1,2000,1,2,0,0],
+     [2000,1,1,23,59,2,2000,1,2,0,1],
+     [2000,1,1,9,10,33,2000,1,1,9,43],
+     [2000,1,1,9,10,60,2000,1,1,10,10],
+     [2000,1,1,9,0,931,2000,1,2,0,31],
+     [2000,1,1,0,0,3,2000,1,1,0,3]
+    ]
+    clue="add minutes in a working workpattern"
+    calc_test(wp,tests,clue) 
   end
   
-  must 'add minutes in a resting week' do
-    assert true
+  must 'add minutes in a resting workpattern' do
+    name='mypattern'
+    base=1999
+    span=11
+    wp=Workpattern::Workpattern.new(name,base,span)
+    start=DateTime.new(1999,6,11,0,0)
+    finish=DateTime.new(2003,6,8,0,0)
+    wp.workpattern(:days=>:all,:start=> start, :finish=>finish, :work_type=>0 )
+    tests=[[2000,1,1,0,0,3,2003,6,9,0,3],
+     [2000,1,1,23,59,0,2000,1,1,23,59],
+     [2000,1,1,23,59,1,2003,6,9,0,1],
+     [2000,1,1,23,59,2,2003,6,9,0,2],
+     [2000,1,1,9,10,33,2003,6,9,0,33],
+     [2000,1,1,9,10,60,2003,6,9,1,0],
+     [2000,1,1,9,0,931,2003,6,9,15,31],
+     [2000,1,1,0,0,3,2003,6,9,0,3]
+    ]
+    clue="add minutes in a resting workpattern"
+    calc_test(wp,tests,clue) 
   end
   
-  must 'add minutes in a patterned week' do
+  must 'add minutes in a patterned workpattern' do
     assert true
   end
   
@@ -89,28 +109,41 @@ class TestWorkpattern < Test::Unit::TestCase #:nodoc:
     calc_test(wp,tests,clue) 
   end
   
-  must 'subtract minutes in a resting week' do
+  must 'subtract minutes in a resting workpattern' do
+    name='mypattern'
+    base=1999
+    span=11
+    wp=Workpattern::Workpattern.new(name,base,span)
+    start=DateTime.new(1999,6,11,0,0)
+    finish=DateTime.new(2003,6,8,0,0)
+    wp.workpattern(:days=>:all,:start=> start, :finish=>finish, :work_type=>0 )
+    tests=[[2000,1,1,0,0,-3,1999,6,10,23,57],
+     [2000,1,1,23,59,0,2000,1,1,23,59],
+     [2000,1,1,23,59,-1,1999,6,10,23,59],
+     [2000,1,1,23,59,-2,1999,6,10,23,58],
+     [2000,1,1,9,10,-33,1999,6,10,23,27],
+     [2000,1,1,9,10,-60,1999,6,10,23,0],
+     [2000,1,1,9,0,-931,1999,6,10,8,29],
+     [2000,1,1,0,0,-3,1999,6,10,23,57]
+    ]
+    clue="subtract minutes in a resting workpattern"
+    calc_test(wp,tests,clue)
+  end
+  
+  must 'subtract minutes in a patterned workpattern' do
     assert true
   end
   
-  must 'subtract minutes in a patterned week' do
-    assert true
-  end
   
-  
-  must 'create complex patterns' do
+  must "calculate difference between minutes in workpattern" do
     assert true
   end
 
-  must "calculate difference between minutes in working week" do
+  must "calculate difference between minutes in resting workpattern" do
     assert true
   end
 
-  must "calculate difference between minutes in resting week" do
-    assert true
-  end
-
-  must "calculate difference between minutes in pattern week" do
+  must "calculate difference between minutes in pattern workpattern" do
     assert true 
   end
 

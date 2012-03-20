@@ -149,7 +149,7 @@ module Workpattern
         next_day=false
         week=find_weekpattern(start)
         if (week.start==start) && (duration<0)
-          week=find_workpattern(start-1)
+          week=find_weekpattern(start-1)
           next_day=true
         end    
         

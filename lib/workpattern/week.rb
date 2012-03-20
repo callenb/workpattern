@@ -57,6 +57,15 @@ module Workpattern
       return subtract(start,duration, next_day) if duration <0  
     end
     
+    def <=>(obj)
+      if @start < obj.start
+        return -1
+      elsif @start == obj.start
+        return 0
+      else
+        return 1
+      end      
+    end
     private
     
     def set_attributes
