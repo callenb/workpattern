@@ -51,10 +51,10 @@ module Workpattern
       refresh
     end
     
-    def calc(start,duration)
+    def calc(start,duration, next_day=false)
       return start,duration if duration==0
       return add(start,duration) if duration > 0
-      return subtract(start,duration) if duration <0  
+      return subtract(start,duration, next_day) if duration <0  
     end
     
     private
@@ -126,34 +126,33 @@ module Workpattern
       
     end
 
-    def subtract(start,duration)
+    def subtract(start,duration,next_day)
 
       # Handle subtraction from start of day
-      if (start.hour==0) &&(start.min==0)
-        if (start.prev_day > @start)
-          duration += @values[start.prev_day.wday].minutes(23,59,23,59)
-          start-=MINUTE
-        else
-          return start, duration
-        end
+      if next_day
+        start,duration=end_of_day(start,duration)
       end
-      
+
       # aim to calculate to the start of the day
       start,duration = @values[start.wday].calc(start,duration)
       return start,duration if (duration==0) || (start.jd ==@start.jd) 
 
       # aim to calculate to the start of the previous week day that is the same as @start
       while((duration!=0) && (start.wday!=@start.wday) && (start.jd >= @start.jd))
+
         if (duration.abs>=@values[start.wday].total)
+
           duration = duration + @values[start.wday].total
           start=start.prev_day
         else
+
+          start,duration=end_of_day(start,duration)             
           start,duration = @values[start.wday].calc(start,duration)
         end
       end
-      
+
       return start,duration if (duration==0) || (start.jd ==@start.jd) 
-      
+
       #while duration accomodates full weeks
       while ((duration!=0) && (duration.abs>=@week_total) && ((start.jd-6) >= @start.jd))
         duration=duration + @week_total
@@ -163,18 +162,23 @@ module Workpattern
       return start,duration if (duration==0) || (start.jd ==@start.jd) 
 
       #while duration accomodates full days
-      while ((duration!=0) && (start.jd>= @start.jd))
+      while ((duration!=0) && (start.jd>= @start.jd))    
         if (duration.abs>=@values[start.wday].total)
           duration = duration + @values[start.wday].total
           start=start.prev_day
         else
+          start,duration=end_of_day(start,duration)       
           start,duration = @values[start.wday].calc(start,duration)
         end
-      end
-       
+      end            
       return start, duration 
       
     end
-
+    
+    def end_of_day(start,duration)
+      duration += @values[start.wday].minutes(23,59,23,59)
+      start-=MINUTE
+      return start,duration
+    end  
   end
 end

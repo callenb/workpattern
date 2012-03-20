@@ -145,10 +145,18 @@ module Workpattern
       return start if duration==0 
     
       while (duration !=0)
-        week=find_workpattern(start)
-        week=find_workpattern(start-1) if (week.start==start) && (duration<0)
-        start,duration=week.calc(start,duration)
+      
+        next_day=false
+        week=find_weekpattern(start)
+        if (week.start==start) && (duration<0)
+          week=find_workpattern(start-1)
+          next_day=true
+        end    
+        
+        start,duration=week.calc(start,duration,next_day)
       end 
+      
+      return start
     end
     
     private
