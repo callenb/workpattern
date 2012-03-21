@@ -1,5 +1,4 @@
 require File.dirname(__FILE__) + '/test_helper.rb'
-require File.dirname(__FILE__) + '/mock_date_time.rb'
 
 class TestDay < Test::Unit::TestCase #:nodoc:
 
