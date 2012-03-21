@@ -24,10 +24,10 @@ class TestDay < Test::Unit::TestCase #:nodoc:
      [12,0,12,59],
      [17,0,22,59]
     ].each {|start_hour,start_min,finish_hour,finish_min|
-      times<<[Workpattern::Clock.new(start_hour,start_min),Workpattern::Clock.new(finish_hour,finish_min)]
+      times<<[clock(start_hour,start_min),clock(finish_hour,finish_min)]
     }
     
-    [[24,480,Workpattern::Clock.new(9,0),Workpattern::Clock.new(23,59)]
+    [[24,480,clock(9,0),clock(23,59)]
     ].each{|hours_in_day,total,first_time,last_time|
       working_day=Workpattern::Day.new(1)
       times.each{|start_time,finish_time| 
@@ -81,7 +81,7 @@ class TestDay < Test::Unit::TestCase #:nodoc:
       times<<[Workpattern::Clock.new(start_hour,start_min),Workpattern::Clock.new(finish_hour,finish_min)]
     }
     
-    [[24,480,Workpattern::Clock.new(9,0),Workpattern::Clock.new(23,59)]
+    [[24,480,clock(9,0),clock(23,59)]
     ].each{|hours_in_day,total,first_time,last_time|
       day=Workpattern::Day.new(1)
       times.each{|start_time,finish_time| 
@@ -95,7 +95,7 @@ class TestDay < Test::Unit::TestCase #:nodoc:
       assert_equal last_time.hour, new_day.last_hour, "#{hours_in_day} hour last hour of the day"
       assert_equal last_time.min, new_day.last_min, "#{hours_in_day} hour last minute of the day"
       
-      new_day.workpattern(Workpattern::Clock.new(13,0),Workpattern::Clock.new(13,0),0)
+      new_day.workpattern(clock(13,0),clock(13,0),0)
       
       assert_equal total,day.total, "#{hours_in_day} hour total original working minutes"
       
@@ -149,8 +149,8 @@ class TestDay < Test::Unit::TestCase #:nodoc:
      [12,0,12,59],
      [17,0,22,59]
     ].each {|start_hour,start_min,finish_hour,finish_min|
-      day.workpattern(Workpattern::Clock.new(start_hour, start_min),
-                      Workpattern::Clock.new(finish_hour, finish_min),
+      day.workpattern(clock(start_hour, start_min),
+                      clock(finish_hour, finish_min),
                       0)
     }
     assert_equal 480, day.total, "minutes in patterned day should be 480"
@@ -225,8 +225,8 @@ class TestDay < Test::Unit::TestCase #:nodoc:
      [12,0,12,59],
      [17,0,22,59]
     ].each {|start_hour,start_min,finish_hour,finish_min|
-      day.workpattern(Workpattern::Clock.new(start_hour, start_min),
-                      Workpattern::Clock.new(finish_hour, finish_min),
+      day.workpattern(clock(start_hour, start_min),
+                      clock(finish_hour, finish_min),
                       0)
     }
     assert_equal 480, day.total, "minutes in patterned day should be 480"
@@ -288,6 +288,9 @@ class TestDay < Test::Unit::TestCase #:nodoc:
   
   
   end
-
+  
+  def clock(hour,min)
+    return Workpattern.clock(hour,min)
+  end 
 end
 

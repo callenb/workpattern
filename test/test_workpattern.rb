@@ -10,7 +10,7 @@ class TestWorkpattern < Test::Unit::TestCase #:nodoc:
     name='mywp'
     base=2001
     span=11
-    wp=Workpattern::Workpattern.new(name,base,span)
+    wp=Workpattern.new(name,base,span)
     assert_equal name, wp.name
     assert_equal base, wp.base
     assert_equal span, wp.span
@@ -22,10 +22,10 @@ class TestWorkpattern < Test::Unit::TestCase #:nodoc:
     name='mypattern'
     base=2000
     span=11
-    wp=Workpattern::Workpattern.new(name,base,span)
+    wp=Workpattern.new(name,base,span)
  
-    start=DateTime.new(2000,1,1,0,0)
-    finish=DateTime.new(2005,12,31,8,59)
+    start=clock(0,0)
+    finish=clock(8,59)    
     assert_equal 10080, get_week(wp.weeks).week_total
     wp.workpattern(:days=>:all,:from_time=>start,:to_time=>finish,:work_type=>0)
     assert_equal 6300, get_week(wp.weeks).week_total
@@ -33,17 +33,17 @@ class TestWorkpattern < Test::Unit::TestCase #:nodoc:
     assert_equal 6840, get_week(wp.weeks).week_total
     wp.workpattern(:days=>:mon,:from_time=>start,:to_time=>finish,:work_type=>1)
     assert_equal 7380, get_week(wp.weeks).week_total
-    wp.workpattern(:days=>:all,:from_time=>DateTime.new(2000,1,1,18,0),:to_time=>DateTime.new(2000,1,1,18,19),:work_type=>0)
+    wp.workpattern(:days=>:all,:from_time=>clock(18,0),:to_time=>clock(18,19),:work_type=>0)
     assert_equal 7240, get_week(wp.weeks).week_total
-    wp.workpattern(:days=>:all,:from_time=>DateTime.new(2000,1,1,0,0),:to_time=>DateTime.new(2000,1,1,23,59),:work_type=>0)
+    wp.workpattern(:days=>:all,:from_time=>clock(0,0),:to_time=>clock(23,59),:work_type=>0)
     assert_equal 0, get_week(wp.weeks).week_total
-    wp.workpattern(:days=>:all,:from_time=>DateTime.new(2000,1,1,0,0),:to_time=>DateTime.new(2000,1,1,0,0),:work_type=>1)
+    wp.workpattern(:days=>:all,:from_time=>clock(0,0),:to_time=>clock(0,0),:work_type=>1)
     assert_equal 7, get_week(wp.weeks).week_total
-    wp.workpattern(:days=>:all,:from_time=>DateTime.new(2000,1,1,23,59),:to_time=>DateTime.new(2000,1,1,23,59),:work_type=>1)
+    wp.workpattern(:days=>:all,:from_time=>clock(23,59),:to_time=>clock(23,59),:work_type=>1)
     assert_equal 14, get_week(wp.weeks).week_total
-    wp.workpattern(:days=>:all,:from_time=>DateTime.new(2000,1,1,0,0),:to_time=>DateTime.new(2000,1,1,23,59),:work_type=>1)
+    wp.workpattern(:days=>:all,:from_time=>clock(0,0),:to_time=>clock(23,59),:work_type=>1)
     assert_equal 10080, get_week(wp.weeks).week_total
-    wp.workpattern(:days=>:weekend,:from_time=>DateTime.new(2000,1,1,0,0),:to_time=>DateTime.new(2000,1,1,23,59),:work_type=>0)
+    wp.workpattern(:days=>:weekend,:from_time=>clock(0,0),:to_time=>clock(23,59),:work_type=>0)
     assert_equal 7200, get_week(wp.weeks).week_total
     
   end
@@ -52,7 +52,7 @@ class TestWorkpattern < Test::Unit::TestCase #:nodoc:
     name='mypattern'
     base=1999
     span=11
-    wp=Workpattern::Workpattern.new(name,base,span)
+    wp=Workpattern.new(name,base,span)
     tests=[[2000,1,1,0,0,3,2000,1,1,0,3],
      [2000,1,1,23,59,0,2000,1,1,23,59],
      [2000,1,1,23,59,1,2000,1,2,0,0],
@@ -70,7 +70,7 @@ class TestWorkpattern < Test::Unit::TestCase #:nodoc:
     name='mypattern'
     base=1999
     span=11
-    wp=Workpattern::Workpattern.new(name,base,span)
+    wp=Workpattern.new(name,base,span)
     start=DateTime.new(1999,6,11,0,0)
     finish=DateTime.new(2003,6,8,0,0)
     wp.workpattern(:days=>:all,:start=> start, :finish=>finish, :work_type=>0 )
@@ -95,7 +95,7 @@ class TestWorkpattern < Test::Unit::TestCase #:nodoc:
     name='mypattern'
     base=1999
     span=11
-    wp=Workpattern::Workpattern.new(name,base,span)
+    wp=Workpattern.new(name,base,span)
     tests=[[2000,1,1,0,0,-3,1999,12,31,23,57],
      [2000,1,1,23,59,0,2000,1,1,23,59],
      [2000,1,1,23,59,-1,2000,1,1,23,58],
@@ -113,7 +113,7 @@ class TestWorkpattern < Test::Unit::TestCase #:nodoc:
     name='mypattern'
     base=1999
     span=11
-    wp=Workpattern::Workpattern.new(name,base,span)
+    wp=Workpattern.new(name,base,span)
     start=DateTime.new(1999,6,11,0,0)
     finish=DateTime.new(2003,6,8,0,0)
     wp.workpattern(:days=>:all,:start=> start, :finish=>finish, :work_type=>0 )
@@ -162,8 +162,8 @@ class TestWorkpattern < Test::Unit::TestCase #:nodoc:
       result_date = wp.calc(start_date,add)
       assert_equal DateTime.new(yr,mr,dr,hr,nr), result_date, "result date calc(#{start_date},#{add}) for #{clue}"
     }
-  
-  
+  end
+  def clock(hour,min)
+    return Workpattern.clock(hour,min)
   end
 end
-

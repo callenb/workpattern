@@ -1,6 +1,6 @@
 require 'stringio'
 require 'test/unit'
-require File.dirname(__FILE__) + '/../lib/workpattern'
+require File.dirname(__FILE__) + '/../lib/workpattern.rb'
 
 module Test::Unit
   # Used to fix a minor minitest/unit incompatibility in flexmock 
