@@ -120,8 +120,6 @@ require 'workpattern/workpattern'
 #
 module Workpattern
   
-  # Workpattern version number
-  VERSION = '0.1.0'
   # Represents a full working hour
   WORKING_HOUR = 2**60-1
   # Represents a full resting hour
