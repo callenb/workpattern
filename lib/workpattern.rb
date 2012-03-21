@@ -211,5 +211,11 @@ module Workpattern
     Workpattern.clear
   end
   
-  
+  # :call-seq: clock(hour,min)
+  #
+  # Convenience method to create a Clock object.  This can be used for specifying times.
+  # 
+  def self.clock(hour,min)
+    return Clock.new(hour,min)
+  end
 end
