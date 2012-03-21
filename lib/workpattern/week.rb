@@ -96,11 +96,9 @@ module Workpattern
     end
     
     def add(start,duration)
-     
       # aim to calculate to the end of the day
       start,duration = @values[start.wday].calc(start,duration)
       return start,duration if (duration==0) || (start.jd > @finish.jd) 
-
       # aim to calculate to the end of the next week day that is the same as @finish
       while((duration!=0) && (start.wday!=@finish.next_day.wday) && (start.jd <= @finish.jd))
         if (duration>=@values[start.wday].total)
@@ -123,14 +121,13 @@ module Workpattern
 
       #while duration accomodates full days
       while ((duration!=0) && (start.jd<= @finish.jd))
-        if (duration>=@values[start.wday].total)
+        if (duration>@values[start.wday].total)
           duration = duration - @values[start.wday].total
           start=start.next_day
         else
           start,duration = @values[start.wday].calc(start,duration)
         end
-      end
-       
+      end    
       return start, duration 
       
     end

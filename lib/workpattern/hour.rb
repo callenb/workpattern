@@ -100,6 +100,9 @@ module Workpattern
       if ((duration-available_minutes)>=0)
         result_date = time + HOUR - (MINUTE*start)
         result_remainder = duration-available_minutes
+      elsif ((duration-available_minutes)==0)
+        result_date = time - (MINUTE*start) + last + 1 
+        result_remainder = 0
       elsif (minutes(start,start+duration-1)==duration)
         result_date = time + (MINUTE*duration)
         result_remainder = 0

@@ -84,15 +84,15 @@ require 'workpattern/workpattern'
 # then the days in the week have specific working and resting times using the 
 # <tt>Time::hm</tt> method added by <tt>Workpattern</tt> ...
 #
-#  mywp.resting(:days =>:Weekday, :from_time=>Time.hm(0,0),:to_time=>Time.hm(8,59))
-#  mywp.resting(:days =>:Weekday, :from_time=>Time.hm(12,0),:to_time=>Time.hm(12,59))
-#  mywp.resting(:days =>:Weekday, :from_time=>Time.hm(18,0),:to_time=>Time.hm(23,59))
+#  mywp.resting(:days =>:weekday, :from_time=>Workpattern.clock(0,0),:to_time=>Workpattern.clock(8,59))
+#  mywp.resting(:days =>:weekday, :from_time=>Workpattern.clock(12,0),:to_time=>Workpattern.clock(12,59))
+#  mywp.resting(:days =>:weekday, :from_time=>Workpattern.clock(18,0),:to_time=>Workpattern.clock(23,59))
 #
 # Now we have the working and resting periods setup we can just add 32 hours as 
 # minutes (1920) to our date.
 #
-#  mydate=DateTime.civil(2011,09,01,9,0)
-#  mywp.calc(mydate,1920) # => 6/9/11@18:00
+#  mydate=DateTime.civil(2011,9,1,9,0)
+#  result_date = mywp.calc(mydate,1920) # => 6/9/11@18:00
 #
 # == Things To Do
 #
@@ -138,6 +138,10 @@ module Workpattern
   FIRST_TIME_IN_DAY=Clock.new(0,0)
   # latest or last time in the day
   LAST_TIME_IN_DAY=Clock.new(23,59)
+  # specifies a working pattern
+  WORK = 1
+  # specifies a resting pattern
+  REST = 0
   # Represents the days of the week to be used in applying working and resting patterns.
   #
   # ==== Valid Values

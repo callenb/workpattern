@@ -147,6 +147,16 @@ class TestWorkpattern < Test::Unit::TestCase #:nodoc:
     assert true 
   end
 
+  must "follow the example in workpattern" do
+    mywp=Workpattern.new('My Workpattern',2011,10)
+    mywp.resting(:days => :weekend)
+    mywp.resting(:days =>:weekday, :from_time=>Workpattern.clock(0,0),:to_time=>Workpattern.clock(8,59))
+    mywp.resting(:days =>:weekday, :from_time=>Workpattern.clock(12,0),:to_time=>Workpattern.clock(12,59))
+    mywp.resting(:days =>:weekday, :from_time=>Workpattern.clock(18,0),:to_time=>Workpattern.clock(23,59))
+    mydate=DateTime.civil(2011,9,1,9,0)
+    result_date = mywp.calc(mydate,1920) # => 6/9/11@18:00
+    assert_equal DateTime.civil(2011,9,6,18,0), result_date, 'example in workpattern'
+  end
   private
   
   def get_week(ss)

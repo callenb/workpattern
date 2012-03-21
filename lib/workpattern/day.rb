@@ -195,7 +195,7 @@ module Workpattern
         else  
           result_date = time
           until (duration==0)
-            if (total<=duration)
+            if (total<duration)
               duration-=total
               result_date=result_date + HOUR - (MINUTE*result_date.min)
             else

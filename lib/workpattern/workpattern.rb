@@ -59,6 +59,9 @@ module Workpattern
     
     # Sets a work or resting pattern in the _Workpattern_.
     #
+    # Can also use <tt>resting</tt> and <tt>working</tt> methods leaving off the 
+    # :work_type
+    #
     # === Parameters
     #
     # * <tt>:start</tt> - The first date to apply the pattern.  Defaults
@@ -75,6 +78,9 @@ module Workpattern
     # * <tt>:finish_time</tt> - The last time in the selected days to apply the pattern.
     #   Must implement #hour and #min to get the Hours and Minutes for the time.  It will default to
     #   to the last time in the day <tt>23:59</tt>.
+    # * <tt>:work_type</tt> - type of pattern is either working (1 or <tt>Workpattern::WORK</tt>) or
+    #   resting (0 or <tt>Workpattern::REST</tt>).  Alternatively make use of the <tt>working</tt>
+    #   or <tt>resting</tt> methods that will set this value for you
     #
     def workpattern(args={})
       
@@ -134,6 +140,22 @@ module Workpattern
           end
         end    
       end
+    end
+    
+    # Identical to the <tt>workpattern</tt> method apart from it always creates
+    # resting patterns so there is no need to set the <tt>:work_type</tt> argument
+    #
+    def resting(args={})
+      args[:work_type]=REST
+      workpattern(args)
+    end
+    
+    # Identical to the <tt>workpattern</tt> method apart from it always creates
+    # working patterns so there is no need to set the <tt>:work_type</tt> argument
+    #
+    def working(args={})
+      args[:work_type]=WORK
+      workpattern(args)
     end
     
     # :call-seq: calc(start,duration) => DateTime
