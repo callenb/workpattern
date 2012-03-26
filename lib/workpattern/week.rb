@@ -101,9 +101,12 @@ module Workpattern
       return start,duration if (duration==0) || (start.jd > @finish.jd) 
       # aim to calculate to the end of the next week day that is the same as @finish
       while((duration!=0) && (start.wday!=@finish.next_day.wday) && (start.jd <= @finish.jd))
-        if (duration>=@values[start.wday].total)
+        if (duration>@values[start.wday].total)
           duration = duration - @values[start.wday].total
           start=start.next_day
+        elsif (duration==@values[start.wday].total)
+          start=after_last_work(start)
+          duration = 0
         else
           start,duration = @values[start.wday].calc(start,duration)
         end
@@ -186,5 +189,16 @@ module Workpattern
       start-=MINUTE
       return start,duration
     end  
+    
+    def after_last_work(start)
+      if @values[start.wday].last_hour.nil?
+        return start.next_day
+      else  
+        start = start + HOUR * (@values[start.wday].last_hour - start.hour)
+        start = start + MINUTE * (@values[start.wday].last_min - start.min + 1)
+        return start
+        #return start + (HOUR *(@values[start.wday].last_hour - start.hour)) + (MINUTE *(@values[start.wday].last_min - start.min))
+      end  
+    end
   end
 end

@@ -142,6 +142,15 @@ module Workpattern
       }
     end
     
+    def first_working_minute(time)
+      if @first_hour.nil?
+        return time - (HOUR*time.hour) - (MINUTE*time.min)
+      else  
+        time = time - HOUR * (time.hour - @first_hour)
+        time = time - MINUTE * (time.min - @first_min )
+        return time
+      end  
+    end
     
     def subtract(time,duration,next_day=false)    
       if (time.hour==0 && time.min==0)
@@ -156,9 +165,12 @@ module Workpattern
       else  
         available_minutes=minutes(0,0,time.hour-1,59)
       end  
-      if ((duration+available_minutes)<=0) # not enough minutes in the day
+      if ((duration+available_minutes)<0) # not enough minutes in the day
         time = time - (HOUR*time.hour) - (MINUTE*time.min)    
         duration = duration + available_minutes
+      elsif ((duration+available_minutes)==0)
+        duration=0
+        time=first_working_minute(time)  
       else
         minutes_this_hour=@values[time.hour].minutes(0,time.min-1)
         this_hour=time.hour

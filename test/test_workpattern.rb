@@ -157,13 +157,44 @@ class TestWorkpattern < Test::Unit::TestCase #:nodoc:
     result_date = mywp.calc(mydate,1920) # => 6/9/11@18:00
     assert_equal DateTime.civil(2011,9,6,18,0), result_date, 'example in workpattern'
   end
+  
+  must "calculate across week patterns" do
+    name='mypattern'
+    base=2011
+    span=11
+    wp=Workpattern.new(name,base,span)
+    3/8 - 14/10
+    start=DateTime.new(2012,9,24,0,0)
+    finish=DateTime.new(2012,10,14,0,0)
+    wp.resting(:days =>:all,:start=> start, :finish=>finish)    
+    wp.working(:days =>:mon,:start=> start, :finish=>finish, :from_time=>Workpattern.clock(1,0),:to_time=>Workpattern.clock(1,59))        
+    wp.working(:days =>:tue,:start=> start, :finish=>finish, :from_time=>Workpattern.clock(2,0),:to_time=>Workpattern.clock(2,59))        
+    wp.working(:days =>:wed,:start=> start, :finish=>finish, :from_time=>Workpattern.clock(3,0),:to_time=>Workpattern.clock(3,59))        
+    wp.working(:days =>:thu,:start=> start, :finish=>finish, :from_time=>Workpattern.clock(4,0),:to_time=>Workpattern.clock(4,59))        
+    wp.working(:days =>:fri,:start=> start, :finish=>finish, :from_time=>Workpattern.clock(5,0),:to_time=>Workpattern.clock(5,59))        
+    wp.working(:days =>:sat,:start=> start, :finish=>finish, :from_time=>Workpattern.clock(6,0),:to_time=>Workpattern.clock(6,59))        
+    wp.working(:days =>:sun,:start=> start, :finish=>finish, :from_time=>Workpattern.clock(0,0),:to_time=>Workpattern.clock(23,59))        
+
+    tests=[[2012,10,1,1,0,1,2012,10,1,1,1],
+     [2012,10,14,23,59,1,2012,10,15,0,0],
+     [2012,10,1,1,0,60*60+1,2012,10,15,0,1],
+     [2012,10,1,2,0,-1,2012,10,1,1,59],
+     [2012,10,2,3,0,-61,2012,10,1,1,59],
+     [2012,9,24,1,1,-2,2012,9,23,23,59],
+     [2012,10,1,1,59,61,2012,10,2,3,0],
+     [2012,10,1,1,1,-1,2012,10,1,1,0],
+     [2012,10,1,1,0,-1,2012,9,30,0,0]          
+    ]
+    clue="calculate across week patterns"
+    calc_test(wp,tests,clue)
+  end
+  
   private
   
   def get_week(ss)
     ss.each {|obj|  return obj}
   end  
   
-  private
 
   def calc_test(wp,tests,clue)
     
