@@ -1,5 +1,6 @@
 CHANGELOG.md
 Manifest.txt
+README.md
 README.rdoc
 Rakefile
 config/website.yml
