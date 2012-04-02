@@ -91,9 +91,9 @@ class TestWeek < Test::Unit::TestCase #:nodoc:
     result_date,result_duration=working_week.calc(finish,0)
     assert_equal finish,result_date, "#{finish} + #{0}"
     result_date,result_duration=working_week.calc(finish,-10)
-    assert_equal DateTime.new(2005,12,31,8,49),result_date, "#{finish} + #{10}"
+    assert_equal DateTime.new(2005,12,31,8,49),result_date, "#{finish} - #{10}"
     result_date,result_duration=working_week.calc(DateTime.new(2005,12,31,0,0),-10)
-    assert_equal DateTime.new(2005,12,30,23,50),result_date, "#{finish} - #{10}"
+    assert_equal DateTime.new(2005,12,30,23,50),result_date, "#{DateTime.new(2005,12,31,0,0)} - #{10}"
   end
   
   must 'subtract minutes in a resting week' do

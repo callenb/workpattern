@@ -51,10 +51,10 @@ module Workpattern
       refresh
     end
     
-    def calc(start,duration, next_day=false)
+    def calc(start,duration, midnight=false)
       return start,duration if duration==0
       return add(start,duration) if duration > 0
-      return subtract(start,duration, next_day) if duration <0  
+      return subtract(start,duration, midnight) if duration <0  
     end
     
     def <=>(obj)
@@ -135,16 +135,29 @@ module Workpattern
       
     end
 
-    def subtract(start,duration,next_day)
-
+    def subtract(start,duration,midnight=false)
+puts "### subtract(#{start},#{duration},#{midnight})"
+      
       # Handle subtraction from start of day
-      if next_day
-        start,duration=end_of_day(start,duration)
+      if midnight
+        start,duration=minute_b4_midnight(start,duration)
+        midnight=false
       end
-
+puts "### A: start=#{start},duration=#{duration},midnight=#{midnight}"
       # aim to calculate to the start of the day
-      start,duration = @values[start.wday].calc(start,duration)
-      return start,duration if (duration==0) || (start.jd ==@start.jd) 
+      start,duration, midnight = @values[start.wday].calc(start,duration)
+puts "### B: start=#{start},duration=#{duration},midnight=#{midnight}"      
+      if midnight && (start.jd >= @start.jd)
+        start,duration=minute_b4_midnight(start,duration)
+puts "### B1: start=#{start},duration=#{duration},midnight=#{midnight}"          
+        return subtract(start,duration, false)
+      elsif midnight
+puts "### B2: start=#{start},duration=#{duration},midnight=#{midnight}"        
+        return start,duration,midnight
+      elsif  (duration==0) || (start.jd ==@start.jd) 
+puts "### B3: start=#{start},duration=#{duration},midnight=#{midnight}"        
+        return start,duration, midnight
+      end  
 
       # aim to calculate to the start of the previous week day that is the same as @start
       while((duration!=0) && (start.wday!=@start.wday) && (start.jd >= @start.jd))
@@ -153,10 +166,12 @@ module Workpattern
 
           duration = duration + @values[start.wday].total
           start=start.prev_day
+puts "### C: start=#{start},duration=#{duration},midnight=#{midnight}"          
         else
 
-          start,duration=end_of_day(start,duration)             
+          start,duration=minute_b4_midnight(start,duration)             
           start,duration = @values[start.wday].calc(start,duration)
+puts "### D: start=#{start},duration=#{duration},midnight=#{midnight}"          
         end
       end
 
@@ -166,6 +181,7 @@ module Workpattern
       while ((duration!=0) && (duration.abs>=@week_total) && ((start.jd-6) >= @start.jd))
         duration=duration + @week_total
         start=start-7
+puts "### E: start=#{start},duration=#{duration},midnight=#{midnight}"                  
       end
 
       return start,duration if (duration==0) || (start.jd ==@start.jd) 
@@ -175,18 +191,21 @@ module Workpattern
         if (duration.abs>=@values[start.wday].total)
           duration = duration + @values[start.wday].total
           start=start.prev_day
+puts "### F: start=#{start},duration=#{duration},midnight=#{midnight}"                    
         else
-          start,duration=end_of_day(start,duration)       
+          start,duration=minute_b4_midnight(start,duration)       
           start,duration = @values[start.wday].calc(start,duration)
+puts "### G: start=#{start},duration=#{duration},midnight=#{midnight}"                    
         end
-      end            
+      end    
+puts "### Z: return(#{start},#{duration}"                                  
       return start, duration 
       
     end
     
-    def end_of_day(start,duration)
+    def minute_b4_midnight(start,duration)
       duration += @values[start.wday].minutes(23,59,23,59)
-      start-=MINUTE
+      start = start.next_day - MINUTE
       return start,duration
     end  
     
