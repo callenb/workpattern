@@ -205,7 +205,6 @@ module Workpattern
         start = start + HOUR * (@values[start.wday].last_hour - start.hour)
         start = start + MINUTE * (@values[start.wday].last_min - start.min + 1)
         return start
-        #return start + (HOUR *(@values[start.wday].last_hour - start.hour)) + (MINUTE *(@values[start.wday].last_min - start.min))
       end  
     end
   end
