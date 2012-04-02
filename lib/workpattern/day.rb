@@ -2,7 +2,7 @@ module Workpattern
   # Represents the 24 hours of a day using module <tt>hour</tt>
   #
   class Day
-    
+    include Workpattern::Utility
     attr_accessor :values, :hours, :first_hour, :first_min, :last_hour, :last_min, :total
     
     # :call-seq: new(type=1) => Day
@@ -81,14 +81,14 @@ module Workpattern
     # the day than are being added will result in the time 
     # returned having 60 as the value in <tt>min</tt>. 
     # 
-    def calc(time,duration,next_day=false)
+    def calc(time,duration,midnight=false)
     
       if (duration<0)
-        return subtract(time,duration, next_day)  
+        return subtract(time,duration, midnight)  
       elsif (duration>0)
         return add(time,duration)                
       else
-        return time,duration
+        return time,duration, false
       end
     
     end
@@ -152,22 +152,27 @@ module Workpattern
       end  
     end
     
-    def subtract(time,duration,next_day=false)    
+    def subtract(time,duration,midnight=false)    
       if (time.hour==0 && time.min==0)
-        if next_day      
+        if midnight      
           duration+=minutes(23,59,23,59)
           time=time+(HOUR*23)+(MINUTE*59)
           return calc(time,duration)
+        else
+          return midnight_before(time), duration, true  
         end
-        available_minutes = 0
+      elsif (time.hour==@first_hour && time.min==@first_min)
+        time=time-(HOUR*@first_hour) - (MINUTE*@first_min)
+        return time.prev_day, duration, true  
       elsif (time.min>0)
         available_minutes=minutes(0,0,time.hour,time.min-1) 
       else  
         available_minutes=minutes(0,0,time.hour-1,59)
       end  
-      if ((duration+available_minutes)<0) # not enough minutes in the day
-        time = time - (HOUR*time.hour) - (MINUTE*time.min)    
+      if ((duration+available_minutes)<0) # not enough minutes in the day  
+        time = midnight_before(time) 
         duration = duration + available_minutes
+        return time, duration, true
       elsif ((duration+available_minutes)==0)
         duration=0
         time=first_working_minute(time)  
@@ -186,7 +191,7 @@ module Workpattern
           end
         end
       end  
-      return time,duration
+      return time,duration, false
     end
     
     # 
@@ -217,7 +222,7 @@ module Workpattern
           end
         end
       end    
-      return result_date,duration
+      return result_date,duration, false
     end
   end
 end

@@ -8,6 +8,7 @@ $:.unshift(File.dirname(__FILE__)) unless
 
 require 'rubygems'
 require 'date'
+require 'workpattern/utility/base.rb'
 require 'workpattern/clock'
 require 'workpattern/hour'
 require 'workpattern/day'
