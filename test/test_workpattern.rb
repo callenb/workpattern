@@ -163,7 +163,6 @@ class TestWorkpattern < Test::Unit::TestCase #:nodoc:
     base=2011
     span=11
     wp=Workpattern.new(name,base,span)
-    3/8 - 14/10
     start=DateTime.new(2012,9,24,0,0)
     finish=DateTime.new(2012,10,14,0,0)
     wp.resting(:days =>:all,:start=> start, :finish=>finish)    
@@ -175,6 +174,18 @@ class TestWorkpattern < Test::Unit::TestCase #:nodoc:
     wp.working(:days =>:sat,:start=> start, :finish=>finish, :from_time=>Workpattern.clock(6,0),:to_time=>Workpattern.clock(6,59))        
     wp.working(:days =>:sun,:start=> start, :finish=>finish, :from_time=>Workpattern.clock(0,0),:to_time=>Workpattern.clock(23,59))        
 
+    # Mon Tue Wed Thu Fri Sat Sun
+    #  24  25  26  27  28  29  30
+    #   1   2   3   4   5   6   7
+    #   8   9  10  11  12  13  14
+    # Mon 01:00 - 01:59
+    # Tue 02:00 - 02:59
+    # Wed 03:00 - 03:59
+    # Thu 04:00 - 04:59
+    # Fri 05:00 - 05:59
+    # Sat 06:00 - 06:59
+    # Sun 00:00 - 23:59
+    #
     tests=[[2012,10,1,1,0,1,2012,10,1,1,1],
      [2012,10,14,23,59,1,2012,10,15,0,0],
      [2012,10,1,1,0,60*60+1,2012,10,15,0,1],
@@ -183,7 +194,7 @@ class TestWorkpattern < Test::Unit::TestCase #:nodoc:
      [2012,9,24,1,1,-2,2012,9,23,23,59],
      [2012,10,1,1,59,61,2012,10,2,3,0],
      [2012,10,1,1,1,-1,2012,10,1,1,0],
-     [2012,10,1,1,0,-1,2012,9,30,0,0]          
+     [2012,10,1,1,0,-1,2012,9,30,23,59]          
     ]
     clue="calculate across week patterns"
     calc_test(wp,tests,clue)

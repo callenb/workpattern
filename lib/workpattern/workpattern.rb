@@ -165,17 +165,17 @@ module Workpattern
     #
     def calc(start,duration)
       return start if duration==0 
-    
-      while (duration !=0)
+      midnight=false
       
-        next_day=false
+      while (duration !=0)
         week=find_weekpattern(start)
-        if (week.start==start) && (duration<0)
-          week=find_weekpattern(start-1)
-          next_day=true
+        if (week.start==start) && (duration<0) && (!midnight)
+          start=start.prev_day
+          week=find_weekpattern(start)
+          midnight=true
         end    
         
-        start,duration=week.calc(start,duration,next_day)
+        start,duration,midnight=week.calc(start,duration,midnight)
       end 
       
       return start
