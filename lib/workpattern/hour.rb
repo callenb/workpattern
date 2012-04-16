@@ -35,10 +35,10 @@ module Workpattern
       return nil
     end
     
-    # :call-seq: minute(start) => Boolean
+    # :call-seq: working?(start) => Boolean
     # Returns true if the given minute is working and false if it isn't
     #
-    def minute?(start)
+    def working?(start)
       return true if minutes(start,start)==1
       return false
     end
@@ -123,7 +123,7 @@ module Workpattern
     # subtracts a duration from a time
     def subtract(time,duration,next_hour)
       if next_hour
-        if minute?(59)
+        if working?(59)
           duration+=1
           time=time+(MINUTE*59)
           return calc(time,duration)

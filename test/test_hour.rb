@@ -25,8 +25,8 @@ class TestHour < Test::Unit::TestCase #:nodoc:
     assert_equal 38,working_hour.total, "total working minutes"
     assert_equal 1, working_hour.first, "first minute of the day"
     assert_equal 58, working_hour.last, "last minute of the day"
-    assert !working_hour.minute?(0)
-    assert working_hour.minute?(1)
+    assert !working_hour.working?(0)
+    assert working_hour.working?(1)
   end
   
   must 'add minutes in a working hour' do
@@ -177,9 +177,9 @@ class TestHour < Test::Unit::TestCase #:nodoc:
       start.upto(finish) {|i| control[i]=type}
       0.upto(59) {|i|
         if (control[i]==0)
-          assert !working_hour.minute?(i)    
+          assert !working_hour.working?(i)    
         else
-          assert working_hour.minute?(i)
+          assert working_hour.working?(i)
         end
       }
       j+=1
