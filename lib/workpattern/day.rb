@@ -93,10 +93,10 @@ module Workpattern
     
     end
     
-    # :call-seq: minute(start) => Boolean
+    # :call-seq: working?(start) => Boolean
     # Returns true if the given minute is working and false if it isn't
     #
-    def minute?(start)
+    def working?(start)
       return true if minutes(start.hour,start.min,start.hour,start.min)==1
       return false
     end

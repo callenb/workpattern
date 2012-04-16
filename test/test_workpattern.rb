@@ -200,6 +200,17 @@ class TestWorkpattern < Test::Unit::TestCase #:nodoc:
     calc_test(wp,tests,clue)
   end
   
+  must "know whether a time is working or resting" do
+    name='working?'
+    base=2011
+    span=11
+    wp=Workpattern.new(name,base,span)
+    wp.resting(:to_time=>Workpattern.clock(8,59))
+    assert wp.working?(DateTime.new(2012,1,1,9,0))
+    assert !wp.working?(DateTime.new(2012,1,1,8,59))    
+  end
+  
+  
   private
   
   def get_week(ss)

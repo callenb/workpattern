@@ -66,6 +66,15 @@ module Workpattern
         return 1
       end      
     end
+    
+    # :call-seq: working?(start) => Boolean
+    # Returns true if the given minute is working and false if it isn't
+    #
+    def working?(start)
+      @values[start.wday].working?(start)
+    end    
+    
+    
     private
     
     def set_attributes

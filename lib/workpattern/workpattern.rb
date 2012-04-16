@@ -180,7 +180,14 @@ module Workpattern
       
       return start
     end
-    
+
+    # :call-seq: working?(start) => Boolean
+    # Returns true if the given minute is working and false if it isn't
+    #
+    def working?(start)
+      return find_weekpattern(start).working?(start)
+    end    
+        
     private
     
     # Retrieve the correct pattern for the supplied date
