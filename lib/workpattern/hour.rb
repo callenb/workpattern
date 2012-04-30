@@ -71,6 +71,7 @@ module Workpattern
     # returns the number of minutes between two minutes
     #
     def diff(start,finish)
+      start,finish=finish,start if start > finish
       return 0 if start==finish
       return (self & mask(start,finish-1)).to_s(2).count('1')
     end

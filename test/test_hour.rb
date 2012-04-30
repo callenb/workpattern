@@ -194,7 +194,12 @@ class TestHour < Test::Unit::TestCase #:nodoc:
      [50,59,9],
      [50,60,10],
      [0,59,59],
-     [0,60,60]
+     [0,60,60],
+     [1,0,1],
+     [59,50,9],
+     [60,50,10],
+     [59,0,59],
+     [60,0,60]
     ].each {|start,finish,result|
       assert_equal result, working_hour.diff(start,finish),"diff(#{start},#{finish})"
     }
@@ -208,7 +213,12 @@ class TestHour < Test::Unit::TestCase #:nodoc:
      [50,59,0],
      [50,60,0],
      [0,59,0],
-     [0,60,0]
+     [0,60,0],
+     [1,0,0],
+     [59,50,0],
+     [60,50,0],
+     [59,0,0],
+     [60,0,0]
     ].each {|start,finish,result|
       assert_equal result, resting_hour.diff(start,finish),"diff(#{start},#{finish})"
     }
@@ -227,7 +237,12 @@ class TestHour < Test::Unit::TestCase #:nodoc:
      [50,59,5],
      [50,60,6],
      [0,59,45],
-     [0,60,46]
+     [0,60,46],
+     [1,0,1],
+     [59,50,5],
+     [60,50,6],
+     [59,0,45],
+     [60,0,46]
     ].each {|start,finish,result|
       assert_equal result, pattern_hour.diff(start,finish),"diff(#{start},#{finish})"
     }  
