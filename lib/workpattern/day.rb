@@ -101,6 +101,25 @@ module Workpattern
       return false
     end
     
+    # :call-seq: diff(start,finish) => Duration, Date
+    # Returns the difference in minutes between two times. if the given 
+    # minute is working and false if it isn't
+    #
+    def diff(start,finish)
+      start,finish=finish,start if ((start <=> finish))==1
+      # calculate to end of hour
+      #
+      if (start.jd==finish.jd) # same day
+        duration=minutes(start.hour,start.min,finish.hour, finish.min)
+        duration -=1 if working?(finish)
+        start=finish
+      else
+        duration=minutes(start.hour,start.min,23, 59)
+        start=start+((23-start.hour)*HOUR) +((60-start.min)*MINUTE)
+      end
+      return duration, start
+    end
+    
     # :call-seq: minutes(start_hour,start_min,finish_hour,finish_min) => duration    
     # Returns the total number of minutes between and including two minutes.
     # 
@@ -159,7 +178,7 @@ module Workpattern
           time=time+(HOUR*23)+(MINUTE*59)
           return calc(time,duration)
         else
-          return midnight_before(time), duration, true  
+          return time.prev_day, duration,true  
         end
       elsif (time.hour==@first_hour && time.min==@first_min)
         time=time-(HOUR*@first_hour) - (MINUTE*@first_min)
@@ -170,7 +189,7 @@ module Workpattern
         available_minutes=minutes(0,0,time.hour-1,59)
       end  
       if ((duration+available_minutes)<0) # not enough minutes in the day  
-        time = midnight_before(time) 
+        time = midnight_before(time.prev_day) 
         duration = duration + available_minutes
         return time, duration, true
       elsif ((duration+available_minutes)==0)
@@ -224,5 +243,17 @@ module Workpattern
       end    
       return result_date,duration, false
     end
+    
+    def next_hour(start)
+      return start+HOUR-(start.min*MINUTE) 
+    end
+    
+    def minutes_left_in_hour(start)
+      return @values[start.hour].diff(start.min,60)
+    end
+    
+    def minutes_left_in_day(start)
+      start.hour
+    end  
   end
 end

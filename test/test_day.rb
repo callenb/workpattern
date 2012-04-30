@@ -274,21 +274,116 @@ class TestDay < Test::Unit::TestCase #:nodoc:
    
   
   must "calculate difference between times in working day" do
-
-  end
-
-  must "calculate difference between minutes in resting day" do
+    day = Workpattern::Day.new(1)
     
+    [
+     [ 2000, 1, 1, 0, 0, 2000, 1, 1, 0, 0,   0,2000, 1, 1, 0, 0],
+     [ 2000, 1, 1, 0, 0, 2000, 1, 1, 0, 1,   1,2000, 1, 1, 0, 1],
+     [ 2000, 1, 1, 0,50, 2000, 1, 1, 0,59,   9,2000, 1, 1, 0,59],
+     [ 2000, 1, 1, 8,50, 2000, 1, 1, 9, 0,  10,2000, 1, 1, 9, 0],
+     [ 2000, 1, 1, 0, 0, 2000, 1, 1,23,59,1439,2000, 1, 1,23,59],
+     [ 2000, 1, 1, 0, 0, 2000, 1, 2, 0, 0,1440,2000, 1, 2, 0, 0],
+     [ 2000, 1, 1, 0, 0, 2000, 1, 2, 0, 1,1440,2000, 1, 2, 0, 0],     
+     [ 2000, 1, 1, 0, 0, 2010, 3,22, 6,11,1440,2000, 1, 2, 0, 0],
+     [ 2000, 1, 1, 0, 1, 2000, 1, 1, 0, 0,   1,2000, 1, 1, 0, 1],
+     [ 2000, 1, 1, 0,59, 2000, 1, 1, 0,50,   9,2000, 1, 1, 0,59],
+     [ 2000, 1, 1, 9, 0, 2000, 1, 1, 8,50,  10,2000, 1, 1, 9, 0],
+     [ 2000, 1, 1,23,59, 2000, 1, 1, 0, 0,1439,2000, 1, 1,23,59],
+     [ 2000, 1, 2, 0, 0, 2000, 1, 1, 0, 0,1440,2000, 1, 2, 0, 0],
+     [ 2000, 1, 2, 0, 1, 2000, 1, 1, 0, 0,1440,2000, 1, 2, 0, 0],     
+     [ 2010, 3,22, 6,11, 2000, 1, 1, 0, 0,1440,2000, 1, 2, 0, 0]
+    ].each {|start_year, start_month, start_day, start_hour,start_min,
+             finish_year, finish_month, finish_day, finish_hour,finish_min,result,
+             y,m,d,h,n|
+      start=DateTime.new(start_year, start_month, start_day, start_hour,start_min)
+      finish=DateTime.new(finish_year, finish_month, finish_day, finish_hour,finish_min)
+      expected_date=DateTime.new(y,m,d,h,n)       
+      duration, result_date=day.diff(start,finish)
+      assert_equal result, duration,"duration diff(#{start}, #{finish})"
+      assert_equal expected_date, result_date,"date diff(#{start}, #{finish})"
+    }
   end
 
-  must "calculate difference between minutes in pattern day" do
+  must "calculate difference between times in resting day" do
+  day = Workpattern::Day.new(0)
+  
+    [
+     [ 2000, 1, 1, 0, 0, 2000, 1, 1, 0, 0,   0,2000, 1, 1, 0, 0],
+     [ 2000, 1, 1, 0, 0, 2000, 1, 1, 0, 1,   0,2000, 1, 1, 0, 1],
+     [ 2000, 1, 1, 0,50, 2000, 1, 1, 0,59,   0,2000, 1, 1, 0,59],
+     [ 2000, 1, 1, 8,50, 2000, 1, 1, 9, 0,   0,2000, 1, 1, 9, 0],
+     [ 2000, 1, 1, 0, 0, 2000, 1, 1,23,59,   0,2000, 1, 1,23,59],
+     [ 2000, 1, 1, 0, 0, 2000, 1, 2, 0, 0,   0,2000, 1, 2, 0, 0],
+     [ 2000, 1, 1, 0, 0, 2000, 1, 2, 0, 1,   0,2000, 1, 2, 0, 0],     
+     [ 2000, 1, 1, 0, 0, 2010, 3,22, 6,11,   0,2000, 1, 2, 0, 0],
+     [ 2000, 1, 1, 0, 1, 2000, 1, 1, 0, 0,   0,2000, 1, 1, 0, 1],
+     [ 2000, 1, 1, 0,59, 2000, 1, 1, 0,50,   0,2000, 1, 1, 0,59],
+     [ 2000, 1, 1, 9, 0, 2000, 1, 1, 8,50,   0,2000, 1, 1, 9, 0],
+     [ 2000, 1, 1,23,59, 2000, 1, 1, 0, 0,   0,2000, 1, 1,23,59],
+     [ 2000, 1, 2, 0, 0, 2000, 1, 1, 0, 0,   0,2000, 1, 2, 0, 0],
+     [ 2000, 1, 2, 0, 1, 2000, 1, 1, 0, 0,   0,2000, 1, 2, 0, 0],     
+     [ 2010, 3,22, 6,11, 2000, 1, 1, 0, 0,   0,2000, 1, 2, 0, 0]
+    ].each {|start_year, start_month, start_day, start_hour,start_min,
+             finish_year, finish_month, finish_day, finish_hour,finish_min,result,
+             y,m,d,h,n|
+      start=DateTime.new(start_year, start_month, start_day, start_hour,start_min)
+      finish=DateTime.new(finish_year, finish_month, finish_day, finish_hour,finish_min)
+      expected_date=DateTime.new(y,m,d,h,n)       
+      duration, result_date=day.diff(start,finish)
+      assert_equal result, duration,"duration diff(#{start}, #{finish})"
+      assert_equal expected_date, result_date,"date diff(#{start}, #{finish})"
+     }
+  end
+
+  must "calculate difference between times in pattern day" do
+
+    day = Workpattern::Day.new(1)
+    [[0,0,8,59],
+     [12,0,12,59],
+     [17,0,22,59]
+    ].each {|start_hour,start_min,finish_hour,finish_min|
+      day.workpattern(clock(start_hour, start_min),
+                      clock(finish_hour, finish_min),
+                      0)
+    }
+    assert_equal 480, day.total, "minutes in patterned day should be 480"
+    assert_equal 1, day.minutes(16,59,16,59),"16:59 should be 1"
+    assert_equal 0, day.minutes(17,0,17,0),"17:00 should be 0"
+    assert_equal 0, day.minutes(22,59,22,59),"22:59 should be 0"
+    assert_equal 1, day.minutes(23,0,23,0),"23:00 should be 1"
+  
+    [
+     [ 2000, 1, 1, 0, 0, 2000, 1, 1, 0, 0,   0,2000, 1, 1, 0, 0],
+     [ 2000, 1, 1, 0, 0, 2000, 1, 1, 0, 1,   0,2000, 1, 1, 0, 1],
+     [ 2000, 1, 1, 0,50, 2000, 1, 1, 9,59,  59,2000, 1, 1, 9,59],
+     [ 2000, 1, 1, 8,50, 2000, 1, 1, 9,10,  10,2000, 1, 1, 9,10],
+     [ 2000, 1, 1, 0, 0, 2000, 1, 1,23,59, 479,2000, 1, 1,23,59],
+     [ 2000, 1, 1, 0, 0, 2000, 1, 2, 0, 0, 480,2000, 1, 2, 0, 0],
+     [ 2000, 1, 1, 0, 0, 2000, 1, 2, 0, 1, 480,2000, 1, 2, 0, 0],     
+     [ 2000, 1, 1, 0, 0, 2010, 3,22, 6,11, 480,2000, 1, 2, 0, 0],
+     [ 2000, 1, 1, 0, 1, 2000, 1, 1, 0, 0,   0,2000, 1, 1, 0, 1],
+     [ 2000, 1, 1, 9,59, 2000, 1, 1, 0,50,  59,2000, 1, 1, 9,59],
+     [ 2000, 1, 1, 9, 0, 2000, 1, 1, 8,50,   0,2000, 1, 1, 9, 0],
+     [ 2000, 1, 1,23,59, 2000, 1, 1, 0, 0, 479,2000, 1, 1,23,59],
+     [ 2000, 1, 2, 0, 0, 2000, 1, 1, 0, 0, 480,2000, 1, 2, 0, 0],
+     [ 2000, 1, 2, 0, 1, 2000, 1, 1, 0, 0, 480,2000, 1, 2, 0, 0],     
+     [ 2010, 3,22, 6,11, 2000, 1, 1, 0, 0, 480,2000, 1, 2, 0, 0]
+    ].each {|start_year, start_month, start_day, start_hour,start_min,
+             finish_year, finish_month, finish_day, finish_hour,finish_min,result,
+             y,m,d,h,n|
+      start=DateTime.new(start_year, start_month, start_day, start_hour,start_min)
+      finish=DateTime.new(finish_year, finish_month, finish_day, finish_hour,finish_min)
+      expected_date=DateTime.new(y,m,d,h,n)       
+      duration, result_date=day.diff(start,finish)
+      assert_equal result, duration,"duration diff(#{start}, #{finish})"
+      assert_equal expected_date, result_date,"date diff(#{start}, #{finish})"
+     }
 
   end
   
   private
 
   def calc_test(day,tests,clue)
-    
     tests.each{|y,m,d,h,n,dur,yr,mr,dr,hr,nr,rem, midnight, midnightr|
       start_date=DateTime.new(y,m,d,h,n)
       result_date,remainder, result_midnight = day.calc(start_date,dur, midnight)
