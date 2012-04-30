@@ -73,7 +73,24 @@ module Workpattern
     def working?(start)
       @values[start.wday].working?(start)
     end    
+
     
+    # :call-seq: diff(start,finish) => Duration, Date
+    # Returns the difference in minutes between two times.
+    #
+    def diff(start,finish)
+      start,finish=finish,start if ((start <=> finish))==1
+      # calculate to end of day
+      #
+      if (start.jd==finish.jd) # same day
+        duration, start=@values[start.wday].diff(start,finish)
+      elsif (finish.jd<=@finish.jd) #within this week
+        duration, start=diff_detail(start,finish,finish)
+      else # after this week
+        duration, start=diff_detail(start,finish,@finish)
+      end
+      return duration, start
+    end
     
     private
     
@@ -216,5 +233,29 @@ module Workpattern
         return start
       end  
     end
+    
+    def diff_detail(start,finish,finish_on)
+      duration, start=@values[start.wday].diff(start,finish)
+      #rest of week to finish day
+      while (start.wday<finish.wday) do
+        duration+=@values[start.wday].total
+        start=start.next_day
+      end
+      #weeks
+      while (start.jd+7<finish_on.jd) do
+        duration+=@week_total
+        start+=7
+      end
+      #days
+      while (start.jd < finish_on.jd) do
+        duration+=@values[start.wday].total
+        start=start.next_day
+      end
+      #day
+      day_duration, start=@values[start.wday].diff(start,finish)
+      duration+=day_duration
+      return duration, start
+    end
+    
   end
 end
