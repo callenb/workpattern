@@ -51,13 +51,13 @@ module Workpattern
       return @min % 60
     end
     
-    # :call-seq: time => Time
+    # :call-seq: time => DateTime
     # returns a <tt>Time</tt> object with the correct
     # <tt>hour</tt> and <tt>min</tt> values.  The date
     # is 10th June 1963
     # 
     def time
-      return Time.new(1963,6,10,hour,min)
+      return DateTime.new(1963,6,10,hour,min)
     end      
   end
 end

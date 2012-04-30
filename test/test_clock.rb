@@ -12,7 +12,7 @@ class TestClock < Test::Unit::TestCase #:nodoc:
     assert_equal 0, clock.hour, "default hour is zero"
     assert_equal 0, clock.min, "default minute is zero"
     time = clock.time
-    assert time.kind_of?(Time), "must return a Time object"
+    assert time.kind_of?(DateTime), "must return a DateTime object"
     assert_equal 0, time.hour, "hour in the day must be zero"
     assert_equal 0, time.min, "minute in the day must be zero"
   end
@@ -24,7 +24,7 @@ class TestClock < Test::Unit::TestCase #:nodoc:
     assert_equal 4, clock.hour, "hour is 4"
     assert_equal 20, clock.min, "minute is 20"
     time = clock.time
-    assert time.kind_of?(Time), "must return a Time object"
+    assert time.kind_of?(DateTime), "must return a DateTime object"
     assert_equal 4, time.hour, "hour in the day must be 4"
     assert_equal 20, time.min, "minute in the day must be 20"
   end
