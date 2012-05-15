@@ -135,8 +135,36 @@ class TestWorkpattern < Test::Unit::TestCase #:nodoc:
   end
   
   
-  must "calculate difference between minutes in workpattern" do
-    assert true
+  must "calculate difference between dates in working calender" do
+    name='mypattern'
+    base=1999
+    span=40
+    wp=Workpattern.new(name,base,span)
+        
+    [
+     [ 2012,10, 1, 0, 0, 2012,10, 1, 0, 0,    0],
+     [ 2012,10, 1, 0, 0, 2012,10, 1, 0, 1,    1],
+     [ 2012,10, 1, 0,50, 2012,10, 1, 0,59,    9],
+     [ 2012,10, 1, 8,50, 2012,10, 1, 9, 0,   10],
+     [ 2012,10, 1, 0, 0, 2012,10, 1,23,59, 1439],
+     [ 2012,10, 1, 0, 0, 2012,10, 2, 0, 0, 1440],
+     [ 2012,10, 1, 0, 0, 2012,10, 2, 0, 1, 1441],     
+     [ 2012,10, 1, 0, 0, 2013, 3,22, 6,11,248051],
+     [ 2012,10, 1, 0, 1, 2012,10, 1, 0, 0,    1],
+     [ 2012,10, 1, 0,59, 2012,10, 1, 0,50,    9],
+     [ 2012,10, 1, 9, 0, 2012,10, 1, 8,50,   10],
+     [ 2012,10, 1,23,59, 2012,10, 1, 0, 0, 1439],
+     [ 2012,10, 2, 0, 0, 2012,10, 1, 0, 0, 1440],
+     [ 2012,10, 2, 0, 1, 2012,10, 1, 0, 0, 1441],     
+     [ 2013, 3,22, 6,11, 2012,10, 1, 0, 0,248051],
+     [ 2012,10, 2, 6,11, 2012,10, 4, 8, 9, 2998]
+    ].each {|start_year, start_month, start_day, start_hour,start_min,
+             finish_year, finish_month, finish_day, finish_hour,finish_min,result|
+      start=DateTime.new(start_year, start_month, start_day, start_hour,start_min)
+      finish=DateTime.new(finish_year, finish_month, finish_day, finish_hour,finish_min)
+      duration, result_date=wp.diff(start,finish)
+      assert_equal result, duration,"duration diff(#{start}, #{finish})"
+    }
   end
 
   must "calculate difference between minutes in resting workpattern" do

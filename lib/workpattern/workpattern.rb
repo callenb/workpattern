@@ -11,7 +11,6 @@ module Workpattern
     
     # Holds collection of <tt>Workpattern</tt> objects  
     @@workpatterns = Hash.new()
-    
     attr_accessor :name, :base, :span, :from, :to, :weeks
     
     def initialize(name=DEFAULT_NAME,base_year=DEFAULT_BASE_YEAR,span=DEFAULT_SPAN)
@@ -187,7 +186,21 @@ module Workpattern
     def working?(start)
       return find_weekpattern(start).working?(start)
     end    
-        
+    
+    # :call-seq: diff(start,finish) => Duration
+    # Returns number of minutes between two dates
+    #
+    def diff(start,finish)
+    
+      start,finish=finish,start if finish<start
+      duration=0
+      while(start!=finish) do
+        week=find_weekpattern(start)
+        result_duration,start=week.diff(start,finish)
+        duration+=result_duration
+      end
+      return duration
+    end   
     private
     
     # Retrieve the correct pattern for the supplied date
@@ -196,10 +209,17 @@ module Workpattern
       # find the pattern that fits the date
       # TODO: What if there is no pattern?
       #
-      date = DateTime.new(date.year,date.month,date.day)
-
-      @weeks.find {|week| week.start <= date and week.finish >= date}
+      if date<@from
+        result = Week.new(DateTime.jd(0),@from-MINUTE,1)
+      elsif date>@to
+        result = Week.new(@to+MINUTE,DateTime.new(9999),1)
+      else
       
+        date = DateTime.new(date.year,date.month,date.day)
+
+        result=@weeks.find {|week| week.start <= date and week.finish >= date}
+      end
+      return result
     end
     
         
