@@ -1,3 +1,5 @@
+# Workpattern [![Build Status](https://secure.travis-ci.org/callenb/workpattern.png)](https://secure.travis-ci.org/callenb/workpattern.png)
+
 ## What?
 
 Simple addition and subtraction of minutes on dates taking account of real-life working and resting periods.
