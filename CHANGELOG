@@ -1,5 +1,6 @@
 ## Workpattern v0.3.0.beta (MMM DD, YYYY)  ##
 
+* available minutes not calculating correctly for a time of 00:01 (#6) * Barrie Callender *
 
 ## Workpattern v0.2.0 (May 31, 2012)  ##
 
