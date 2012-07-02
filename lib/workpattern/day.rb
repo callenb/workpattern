@@ -124,7 +124,7 @@ module Workpattern
     # Returns the total number of minutes between and including two minutes.
     # 
     def minutes(start_hour,start_min,finish_hour,finish_min)
-      return 0 if (start_hour==finish_hour && start_hour==0 && start_min==finish_min && start_min==0)
+      
       if (start_hour > finish_hour) || ((finish_hour==start_hour) && (start_min > finish_min))
         start_hour,start_min,finish_hour,finish_min=finish_hour,finish_min,start_hour,finish_min 
       end

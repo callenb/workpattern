@@ -66,16 +66,38 @@ class TestWeek < Test::Unit::TestCase #:nodoc:
     start=DateTime.new(2000,1,1,0,0)
     finish=DateTime.new(2005,12,31,8,59)
     working_week=week(start,finish,1)
-    result_date, result_duration= working_week.calc(start,0)
-    assert_equal start,result_date, "#{start} + #{0}"
-    result_date,result_duration=working_week.calc(finish,0)
-    assert_equal finish,result_date, "#{finish} + #{0}"
-    result_date,result_duration=working_week.calc(finish,10)
-    assert_equal DateTime.new(2005,12,31,9,9),result_date, "#{finish} + #{10}"
+      
+    [# yyyy,mm,dd,hh,mn,durtn,ryyyy,rmm,rdd,rhh,rmn,rdurtn
+     [ 2000, 1, 1, 0, 0,    0, 2000,  1,  1,  0,  0,     0],
+     [ 2005,12,31, 8,59,   10, 2005, 12, 31,  9,  9,     0],
+     [ 2005,12,31,23,59,    1, 2006,  1,  1,  0,  0,     0],
+     [ 2005,12,31,23,59,    2, 2006,  1,  1,  0,  0,     1],
+     [ 2005,11,30,23,59,    2, 2005, 12,  1,  0,  1,     0]
+    ].each {|yyyy,mm,dd,hh,mn,durtn,ryyyy,rmm,rdd,rhh,rmn,rdurtn|
+      start=DateTime.new(yyyy,mm,dd,hh,mn)
+      result_date, result_duration= working_week.calc(start,durtn)
+      assert_equal DateTime.new(ryyyy,rmm,rdd,rhh,rmn), result_date, "result_date for working_week.calc(#{start},#{durtn})"
+      assert_equal rdurtn, result_duration,"result_duration for working_week.calc(#{start},#{durtn})"
+    }
   end
   
   must 'add minutes in a resting week' do
-    assert true
+    start=DateTime.new(2000,1,1,0,0)
+    finish=DateTime.new(2005,12,31,8,59)
+    resting_week=week(start,finish,0)
+      
+    [# yyyy,mm,dd,hh,mn,durtn,ryyyy,rmm,rdd,rhh,rmn,rdurtn
+     [ 2000, 1, 1, 0, 0,    0, 2000,  1,  1,  0,  0,     0],
+     [ 2005,12,31, 8,59,   10, 2006,  1,  1,  0,  0,    10],
+     [ 2005,12,31,23,59,    1, 2006,  1,  1,  0,  0,     1],
+     [ 2005,12,31,23,59,    2, 2006,  1,  1,  0,  0,     2],
+     [ 2005,11,30,23,59,    2, 2006,  1,  1,  0,  0,     2]
+    ].each {|yyyy,mm,dd,hh,mn,durtn,ryyyy,rmm,rdd,rhh,rmn,rdurtn|
+      start=DateTime.new(yyyy,mm,dd,hh,mn)
+      result_date, result_duration= resting_week.calc(start,durtn)
+      assert_equal DateTime.new(ryyyy,rmm,rdd,rhh,rmn), result_date, "result_date for resting_week.calc(#{start},#{durtn})"
+      assert_equal rdurtn, result_duration,"result_duration for resting_week.calc(#{start},#{durtn})"
+    }
   end
   
   must 'add minutes in a patterned week' do
@@ -94,6 +116,21 @@ class TestWeek < Test::Unit::TestCase #:nodoc:
     assert_equal DateTime.new(2005,12,31,8,49),result_date, "#{finish} - #{10}"
     result_date,result_duration=working_week.calc(DateTime.new(2005,12,31,0,0),-10)
     assert_equal DateTime.new(2005,12,30,23,50),result_date, "#{DateTime.new(2005,12,31,0,0)} - #{10}"
+    [# yyyy,mm,dd,hh,mn,durtn,ryyyy,rmm,rdd,rhh,rmn,rdurtn
+     [ 2000, 1, 1, 0, 0,    0, 2000,  1,  1,  0,  0,     0],
+     [ 2005,12,31, 0, 0,  -10, 2005, 12, 30, 23, 50,     0],
+     [ 2005,12,31, 0, 0,   -1, 2005, 12, 30, 23, 59,     0],
+     [ 2005,12,31, 0, 1,   -2, 2005, 12, 30, 23, 59,     0], #Issue 6 - available minutes not calculating correctly for a time of 00:01
+     [ 2000, 1, 1, 0, 1,   -2, 1999, 12, 31,  0,  0,     -1] #Issue 6 - available minutes not calculating correctly for a time of 00:01
+    ].each {|yyyy,mm,dd,hh,mn,durtn,ryyyy,rmm,rdd,rhh,rmn,rdurtn|
+      start=DateTime.new(yyyy,mm,dd,hh,mn)
+      result_date, result_duration= working_week.calc(start,durtn)
+      assert_equal DateTime.new(ryyyy,rmm,rdd,rhh,rmn), result_date, "result_date for working_week.calc(#{start},#{durtn})"
+      assert_equal rdurtn, result_duration,"result_duration for working_week.calc(#{start},#{durtn})"
+    }
+
+
+
   end
   
   must 'subtract minutes in a resting week' do

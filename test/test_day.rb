@@ -184,6 +184,7 @@ class TestDay < Test::Unit::TestCase #:nodoc:
     # y   ,m ,d ,h ,n ,dur ,yr  ,mr,dr,hr,nr,rem ,midnight,midnightr    
     tests=[
      [2000,1 ,1 ,0 ,0 ,-3  ,1999,12,31,0 ,0 ,-3  ,false   ,true],
+     [2000,1 ,1 ,0 ,1 ,-2  ,1999,12,31,0 ,0 ,-1  ,false   ,true], #Issue 6 - available minutes not calculating correctly for a time of 00:01
      [2000,1 ,1 ,23,59,0   ,2000,1 ,1 ,23,59,0   ,false   ,false],
      [2000,1 ,1 ,23,59,-1  ,2000,1 ,1 ,23,58,0   ,false   ,false],
      [2000,1 ,1 ,23,59,-2  ,2000,1 ,1 ,23,57,0   ,false   ,false],
@@ -197,7 +198,7 @@ class TestDay < Test::Unit::TestCase #:nodoc:
      [2000,1 ,1 ,0 ,0 ,-2  ,2000,1 ,1 ,23,58,0   ,true    ,false],
      [2000,1 ,1 ,0 ,0 ,-33 ,2000,1 ,1 ,23,27,0   ,true    ,false],
      [2000,1 ,1 ,0 ,0 ,-60 ,2000,1 ,1 ,23,0 ,0   ,true    ,false],
-     [2000,1 ,1 ,0 ,0 ,-931,2000,1 ,1 ,8 ,29,0   ,true    ,false]
+     [2000,1 ,1 ,0 ,0 ,-931,2000,1 ,1 ,8 ,29,0   ,true    ,false]     
     ]
     clue="subtract minutes in a working day"
     calc_test(day,tests,clue)
