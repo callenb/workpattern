@@ -54,6 +54,7 @@ module Workpattern
     def calc(start,duration, midnight=false)
       return start,duration,false if duration==0
       return add(start,duration) if duration > 0
+      return subtract(@start,duration, midnight) if (@total==0) && (duration <0)
       return subtract(start,duration, midnight) if duration <0  
     end
     
