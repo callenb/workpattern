@@ -52,7 +52,7 @@ module Workpattern
     end
     
     def calc(start,duration, midnight=false)
-      return start,duration if duration==0
+      return start,duration,false if duration==0
       return add(start,duration) if duration > 0
       return subtract(start,duration, midnight) if duration <0  
     end
@@ -124,7 +124,7 @@ module Workpattern
     def add(start,duration)
       # aim to calculate to the end of the day
       start,duration = @values[start.wday].calc(start,duration)
-      return start,duration if (duration==0) || (start.jd > @finish.jd) 
+      return start,duration,false if (duration==0) || (start.jd > @finish.jd) 
       # aim to calculate to the end of the next week day that is the same as @finish
       while((duration!=0) && (start.wday!=@finish.next_day.wday) && (start.jd <= @finish.jd))
         if (duration>@values[start.wday].total)
@@ -138,7 +138,7 @@ module Workpattern
         end
       end
       
-      return start,duration if (duration==0) || (start.jd > @finish.jd) 
+      return start,duration,false if (duration==0) || (start.jd > @finish.jd) 
       
       #while duration accomodates full weeks
       while ((duration!=0) && (duration>=@week_total) && ((start.jd+6) <= @finish.jd))
@@ -146,7 +146,7 @@ module Workpattern
         start=start+7
       end
 
-      return start,duration if (duration==0) || (start.jd > @finish.jd) 
+      return start,duration,false if (duration==0) || (start.jd > @finish.jd) 
 
       #while duration accomodates full days
       while ((duration!=0) && (start.jd<= @finish.jd))
@@ -157,7 +157,7 @@ module Workpattern
           start,duration = @values[start.wday].calc(start,duration)
         end
       end    
-      return start, duration 
+      return start, duration, false 
       
     end
 
@@ -219,6 +219,8 @@ module Workpattern
     end
     
     def minute_b4_midnight(start,duration)
+      start -= start.hour * HOUR
+      start -= start.min * MINUTE
       duration += @values[start.wday].minutes(23,59,23,59)
       start = start.next_day - MINUTE
       return start,duration
