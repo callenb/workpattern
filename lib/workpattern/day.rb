@@ -219,14 +219,15 @@ module Workpattern
     # for the start of the following
     #
     def add(time,duration)
-      available_minutes=minutes(time.hour,time.min,@hours-1,59)
+      available_minutes=minutes(time.hour,time.min,@hours-1,59)   
       if ((duration-available_minutes)>0) # not enough minutes left in the day      
+
         result_date= time.next_day - (HOUR*time.hour) - (MINUTE*time.min)
         duration = duration - available_minutes      
       else
         total=@values[time.hour].minutes(time.min,59)
-        if (total==duration) # this hour satisfies
-          result_date=time + HOUR - (MINUTE*time.min)
+        if (total==duration) # this hour satisfies              
+          result_date=time - (MINUTE*time.min) + (MINUTE*@values[time.hour].last) + MINUTE                   
           duration = 0
         else  
           result_date = time
