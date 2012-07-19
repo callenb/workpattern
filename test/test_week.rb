@@ -66,49 +66,153 @@ class TestWeek < Test::Unit::TestCase #:nodoc:
     start=DateTime.new(2000,1,1,0,0)
     finish=DateTime.new(2005,12,31,8,59)
     working_week=week(start,finish,1)
-    result_date, result_duration= working_week.calc(start,0)
-    assert_equal start,result_date, "#{start} + #{0}"
-    result_date,result_duration=working_week.calc(finish,0)
-    assert_equal finish,result_date, "#{finish} + #{0}"
-    result_date,result_duration=working_week.calc(finish,10)
-    assert_equal DateTime.new(2005,12,31,9,9),result_date, "#{finish} + #{10}"
+      
+    [# yyyy,mm,dd,hh,mn,durtn,ryyyy,rmm,rdd,rhh,rmn,rdurtn
+     [ 2000, 1, 1, 0, 0,    0, 2000,  1,  1,  0,  0,     0],
+     [ 2005,12,31, 8,59,   10, 2005, 12, 31,  9,  9,     0],
+     [ 2005,12,31,23,59,    1, 2006,  1,  1,  0,  0,     0],
+     [ 2005,12,31,23,59,    2, 2006,  1,  1,  0,  0,     1],
+     [ 2005,11,30,23,59,    2, 2005, 12,  1,  0,  1,     0]
+    ].each {|yyyy,mm,dd,hh,mn,durtn,ryyyy,rmm,rdd,rhh,rmn,rdurtn|
+      start=DateTime.new(yyyy,mm,dd,hh,mn)
+      result_date, result_duration= working_week.calc(start,durtn)
+      assert_equal DateTime.new(ryyyy,rmm,rdd,rhh,rmn), result_date, "result_date for working_week.calc(#{start},#{durtn})"
+      assert_equal rdurtn, result_duration,"result_duration for working_week.calc(#{start},#{durtn})"
+    }
   end
   
   must 'add minutes in a resting week' do
-    assert true
+    start=DateTime.new(2000,1,1,0,0)
+    finish=DateTime.new(2005,12,31,8,59)
+    resting_week=week(start,finish,0)
+      
+    [# yyyy,mm,dd,hh,mn,durtn,midnight,ryyyy,rmm,rdd,rhh,rmn,rdurtn,rmidnight
+     [ 2000, 1, 1, 0, 0,    0,   false, 2000,  1,  1,  0,  0,     0,   false],
+     [ 2005,12,31, 8,59,   10,   false, 2006,  1,  1,  0,  0,    10,   false],
+     [ 2005,12,31,23,59,    1,   false, 2006,  1,  1,  0,  0,     1,   false],
+     [ 2005,12,31,23,59,    2,   false, 2006,  1,  1,  0,  0,     2,   false],
+     [ 2005,11,30,23,59,    2,   false, 2006,  1,  1,  0,  0,     2,   false],
+     [ 2000, 1, 1, 0, 0,    0,    true, 2000,  1,  1,  0,  0,     0,   false],
+     [ 2005,12,31, 8,59,   10,    true, 2006,  1,  1,  0,  0,    10,   false],
+     [ 2005,12,31,23,59,    1,    true, 2006,  1,  1,  0,  0,     1,   false],
+     [ 2005,12,31,23,59,    2,    true, 2006,  1,  1,  0,  0,     2,   false],
+     [ 2005,11,30,23,59,    2,    true, 2006,  1,  1,  0,  0,     2,   false]     
+    ].each {|yyyy,mm,dd,hh,mn,durtn,midnight,ryyyy,rmm,rdd,rhh,rmn,rdurtn,rmidnight|
+      start=DateTime.new(yyyy,mm,dd,hh,mn)
+      result_date, result_duration,result_midnight= resting_week.calc(start,durtn,midnight)
+      assert_equal DateTime.new(ryyyy,rmm,rdd,rhh,rmn), result_date, "result_date for resting_week.calc(#{start},#{durtn},#{midnight})"
+      assert_equal rdurtn, result_duration,"result_duration for resting_week.calc(#{start},#{durtn},#{midnight})"
+      assert_equal rmidnight, result_midnight,"result_midnight for resting_week.calc(#{start},#{durtn},#{midnight})"      
+    }
   end
   
   must 'add minutes in a patterned week' do
-    assert true
+    start=DateTime.new(2000,1,1,0,0) #saturday
+    finish=DateTime.new(2005,12,31,8,59) #saturday
+    working_week=week(start,finish,0)
+    working_week.workpattern(:sun,clock(9,0),clock(9,13),1) 
+    
+    working_week.workpattern(:weekday,clock(9,0),clock(11,59),1)
+    working_week.workpattern(:weekday,clock(13,0),clock(17,59),1)
+    
+    working_week.workpattern(:mon,clock(0,0),clock(23,59),0) 
+    working_week.workpattern(:mon,clock(9,0),clock(9,13),1)
+    working_week.workpattern(:mon,clock(10,1),clock(10,1),1)        
+    
+    
+    [# yyyy,mm,dd,hh,mn,durtn,midnight,ryyyy,rmm,rdd,rhh,rmn,rdurtn,rmidnight
+     [ 2000, 1, 1, 0, 0,    0,   false, 2000,  1,  1,  0,  0,     0,   false],
+     [ 2000, 1, 1, 0, 0,    1,   false, 2000,  1,  2,  9,  1,     0,   false],
+     [ 2000, 1, 2, 9, 0,   14,   false, 2000,  1,  2,  9,  14,     0,   false], #Issue #9 - getting wrong time when hour had exactly the right number of minutes
+     [ 2000, 1, 2, 9, 0,   15,   false, 2000,  1,  3,  9,  1,     0,   false],
+     [ 2000, 1, 2, 9, 0,   29,   false, 2000,  1,  3,  10,  2,     0,   false],     
+     [ 2000, 1, 2, 9, 0, 1950,   false, 2000,  1,  9,   9,  1,     0,   false],
+     [ 2005,12,25, 9, 0, 1950,   false, 2006,  1,  1,   0,  0,     1,   false],
+     [ 2005,12,25, 9, 0, 1949,   false, 2005, 12, 30,  18,  0,     0,   false]#,          
+    ].each {|yyyy,mm,dd,hh,mn,durtn,midnight,ryyyy,rmm,rdd,rhh,rmn,rdurtn,rmidnight|
+      start=DateTime.new(yyyy,mm,dd,hh,mn)   
+      result_date, result_duration,result_midnight= working_week.calc(start,durtn,midnight)
+      assert_equal DateTime.new(ryyyy,rmm,rdd,rhh,rmn), result_date, "result_date for working_week.calc(#{start},#{durtn},#{midnight})"
+      assert_equal rdurtn, result_duration,"result_duration for working_week.calc(#{start},#{durtn},#{midnight})"
+      assert_equal rmidnight, result_midnight,"result_midnight for working_week.calc(#{start},#{durtn},#{midnight})"      
+    }
   end
   
   must 'subtract minutes in a working week' do
     start=DateTime.new(2000,1,1,0,0)
     finish=DateTime.new(2005,12,31,8,59)
     working_week=week(start,finish,1)
-    result_date, result_duration= working_week.calc(start,0)
-    assert_equal start,result_date, "#{start} + #{0}"
-    result_date,result_duration=working_week.calc(finish,0)
-    assert_equal finish,result_date, "#{finish} + #{0}"
-    result_date,result_duration=working_week.calc(finish,-10)
-    assert_equal DateTime.new(2005,12,31,8,49),result_date, "#{finish} - #{10}"
-    result_date,result_duration=working_week.calc(DateTime.new(2005,12,31,0,0),-10)
-    assert_equal DateTime.new(2005,12,30,23,50),result_date, "#{DateTime.new(2005,12,31,0,0)} - #{10}"
+    [# yyyy,mm,dd,hh,mn,durtn,midnight,ryyyy,rmm,rdd,rhh,rmn,rdurtn,rmidnight
+     [ 2000, 1, 1, 0, 0,    0,   false, 2000,  1,  1,  0,  0,     0,   false],
+     [ 2005,12,31, 0, 0,  -10,   false, 2005, 12, 30, 23, 50,     0,   false],
+     [ 2005,12,31, 0, 0,   -1,   false, 2005, 12, 30, 23, 59,     0,   false],
+     [ 2005,12,31, 0, 1,   -2,   false, 2005, 12, 30, 23, 59,     0,   false], #Issue 6 - available minutes not calculating correctly for a time of 00:01
+     [ 2000, 1, 1, 0, 1,   -2,   false, 1999, 12, 31,  0,  0,     -1,   true], #Issue 6 - available minutes not calculating correctly for a time of 00:01
+     [ 2000, 1, 1, 0, 0,    0,    true, 2000,  1,  1,  0,  0,     0,   false],
+     [ 2005,12,31, 0, 0,  -10,    true, 2005, 12, 31, 23, 50,     0,   false],
+     [ 2005,12,31, 0, 0,   -1,    true, 2005, 12, 31, 23, 59,     0,   false],
+     [ 2005,12,31, 0, 1,   -2,    true, 2005, 12, 31, 23, 58,     0,   false],#Issue 7 - midnight flag should override hour and minutes     
+     [ 2000, 1, 1, 0, 1,   -2,    true, 2000,  1,  1, 23, 58,     0,   false] #Issue 7 - midnight flag should override hour and minutes     
+    ].each {|yyyy,mm,dd,hh,mn,durtn,midnight,ryyyy,rmm,rdd,rhh,rmn,rdurtn,rmidnight|
+      start=DateTime.new(yyyy,mm,dd,hh,mn)
+      result_date, result_duration,result_midnight= working_week.calc(start,durtn,midnight)
+      assert_equal DateTime.new(ryyyy,rmm,rdd,rhh,rmn), result_date, "result_date for working_week.calc(#{start},#{durtn},#{midnight})"
+      assert_equal rdurtn, result_duration,"result_duration for working_week.calc(#{start},#{durtn},#{midnight})"
+      assert_equal rmidnight, result_midnight,"result_midnight for working_week.calc(#{start},#{durtn},#{midnight})"      
+    }
   end
   
   must 'subtract minutes in a resting week' do
-    assert true
+    start=DateTime.new(2000,1,1,0,0)
+    finish=DateTime.new(2005,12,31,8,59)
+    resting_week=week(start,finish,0)
+    [# yyyy,mm,dd,hh,mn,durtn,midnight,ryyyy,rmm,rdd,rhh,rmn,rdurtn,rmidnight
+     [ 2000, 1, 1, 0, 0,    0,   false, 2000,  1,  1,  0,  0,     0,    false],
+     [ 2005,12,31, 0, 0,  -10,   false, 1999, 12, 31,  0,  0,   -10,     true],
+     [ 2005,12,31, 0, 0,   -1,   false, 1999, 12, 31,  0,  0,    -1,     true],
+     [ 2005,12,31, 0, 1,   -2,   false, 1999, 12, 31,  0,  0,    -2,     true],
+     [ 2000, 1, 1, 0, 1,   -2,   false, 1999, 12, 31,  0,  0,    -2,     true]
+    ].each {|yyyy,mm,dd,hh,mn,durtn,midnight,ryyyy,rmm,rdd,rhh,rmn,rdurtn,rmidnight|
+      start=DateTime.new(yyyy,mm,dd,hh,mn)
+      result_date, result_duration, result_midnight= resting_week.calc(start,durtn,midnight)
+      assert_equal DateTime.new(ryyyy,rmm,rdd,rhh,rmn), result_date, "result_date for resting_week.calc(#{start},#{durtn},#{midnight})"
+      assert_equal rdurtn, result_duration,"result_duration for resting_week.calc(#{start},#{durtn},#{midnight})"
+      assert_equal rmidnight, result_midnight,"result_midnight for resting_week.calc(#{start},#{durtn},#{midnight})"      
+    }
   end
   
   must 'subtract minutes in a patterned week' do
-    assert true
+    start=DateTime.new(2000,1,1,0,0) #saturday
+    finish=DateTime.new(2005,12,31,8,59) #saturday
+    working_week=week(start,finish,0)
+    working_week.workpattern(:sun,clock(9,0),clock(9,13),1) 
+    
+    working_week.workpattern(:weekday,clock(9,0),clock(11,59),1)
+    working_week.workpattern(:weekday,clock(13,0),clock(17,59),1)
+    
+    working_week.workpattern(:mon,clock(0,0),clock(23,59),0) 
+    working_week.workpattern(:mon,clock(9,0),clock(9,13),1)
+    working_week.workpattern(:mon,clock(10,1),clock(10,1),1)        
+    
+    
+    [# yyyy,mm,dd,hh,mn,durtn,midnight,ryyyy,rmm,rdd,rhh,rmn,rdurtn,rmidnight
+     [ 2000, 1, 1, 0, 0,    0,   false, 2000,  1,  1,  0,  0,     0,   false],
+     [ 2000, 1, 1, 0, 0,   -1,   false, 1999, 12, 31,  0,  0,     -1,   true],
+     [ 2000, 1, 2, 9, 0,   14,   false, 2000,  1,  2,  9,  14,     0,   false], 
+     [ 2000, 1, 2, 9, 0,   15,   false, 2000,  1,  3,  9,  1,     0,   false],
+     [ 2000, 1, 2, 9, 0,   29,   false, 2000,  1,  3,  10,  2,     0,   false],     
+     [ 2000, 1, 2, 9, 0, 1950,   false, 2000,  1,  9,   9,  1,     0,   false],
+     [ 2005,12,25, 9, 0, 1950,   false, 2006,  1,  1,   0,  0,     1,   false],
+     [ 2005,12,25, 9, 0, 1949,   false, 2005, 12, 30,  18,  0,     0,   false]#,          
+    ].each {|yyyy,mm,dd,hh,mn,durtn,midnight,ryyyy,rmm,rdd,rhh,rmn,rdurtn,rmidnight|
+      start=DateTime.new(yyyy,mm,dd,hh,mn)   
+      result_date, result_duration,result_midnight= working_week.calc(start,durtn,midnight)
+      assert_equal DateTime.new(ryyyy,rmm,rdd,rhh,rmn), result_date, "result_date for working_week.calc(#{start},#{durtn},#{midnight})"
+      assert_equal rdurtn, result_duration,"result_duration for working_week.calc(#{start},#{durtn},#{midnight})"
+      assert_equal rmidnight, result_midnight,"result_midnight for working_week.calc(#{start},#{durtn},#{midnight})"      
+    }
   end
   
-  
-  must 'create complex patterns' do
-    assert true
-  end
-
   must "calculate difference between dates in working week" do
     start=DateTime.new(2012,10,1)
     finish=DateTime.new(2012,10,7)
@@ -178,13 +282,15 @@ class TestWeek < Test::Unit::TestCase #:nodoc:
   end
 
   must "calculate difference between dates in pattern week" do
-    
-    day = Workpattern::Day.new(1)
+    start=DateTime.new(2000,1,1)
+    finish=DateTime.new(2012,12,31)
+    week=week(start,finish,1)
+    return
     [[0,0,8,59],
      [12,0,12,59],
      [17,0,22,59]
     ].each {|start_hour,start_min,finish_hour,finish_min|
-      day.workpattern(clock(start_hour, start_min),
+      week.workpattern(clock(start_hour, start_min),
                       clock(finish_hour, finish_min),
                       0)
     }

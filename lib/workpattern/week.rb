@@ -1,14 +1,30 @@
 module Workpattern
   
-  # Represents working and resting times of each day in a week from one date to another.
-  # The two dates could be the same day or they could be several weeks or years apart.
+  # @author Barrie Callender
+  # @!attribute values
+  #   @return [Array] each day of the week
+  # @!attribute days
+  #   @return [Fixnum] number of days in the week
+  # @!attribute start
+  #   @return [DateTime] first date in the range
+  # @!attribute finish
+  #   @return [DateTime] last date in the range
+  # @!attribute week_total
+  #   @return [Fixnum] total number of minutes in a week
+  # @!attribute total
+  #   @return [Fixnum] total number of minutes in the range
+  #  
+  # Represents working and resting periods for each day in a week for a specified date range.
   #
   class Week
     
     attr_accessor :values, :days, :start, :finish, :week_total, :total
-    
-    # :call-seq: new(start,finish,type) => Week
-    #  
+
+    # Initialises an instance of class Week
+    # @param [DateTime] start first date in the range
+    # @param [DateTime] finish last date in the range
+    # @param [Fixnum] type working (1) or resting (0)
+    # @return [Week] newly initialised Week object    
     #
     def initialize(start,finish,type=1)
       hours_in_days_in_week=[24,24,24,24,24,24,24]
@@ -20,6 +36,9 @@ module Workpattern
       set_attributes
     end
     
+    # Duplicates the current Week object
+    # @return [Week] a duplicated instance of the current Week object
+    #
     def duplicate()
       duplicate_week=Week.new(@start,@finish)
       duplicate_values=Array.new(@values.size)
@@ -36,27 +55,48 @@ module Workpattern
       return duplicate_week
     end
     
+    # Recalculates the attributes that defines a Week object.
+    # This was made public for #duplicate to work
+    #
     def refresh
       set_attributes
     end
     
+    # Changes the date range.
+    # This method calls #refresh to update the attributes.
+    #
     def adjust(start,finish)
       @start=DateTime.new(start.year,start.month,start.day)
       @finish=DateTime.new(finish.year,finish.month,finish.day)
       refresh
     end
     
+    # Sets a range of minutes in a week to be working or resting.  The parameters supplied
+    # to this method determine exactly what should be changed
+    # @param [Hash] days identifies the days to be included in the range
+    # @param [DateTime] from_time where the time portion is used to specify the first minute to be set
+    # @param [DateTime] to_time where the time portion is used to specify the last minute to be set
+    # @param [Fixnum] type where a 1 sets it to working and a 0 to resting
     def workpattern(days,from_time,to_time,type)
       DAYNAMES[days].each {|day| @values[day].workpattern(from_time,to_time,type)}  
       refresh
     end
     
+    # Calculates a new date by adding or subtracting a duration in minutes.
+    # @param [DateTime] start original date
+    # @param [Fixnum] duration minutes to add or subtract
+    # @param [Boolean] midnight flag used for subtraction that indicates the start date is midnight
+    #
     def calc(start,duration, midnight=false)
-      return start,duration if duration==0
+      return start,duration,false if duration==0
       return add(start,duration) if duration > 0
+      return subtract(@start,duration, midnight) if (@total==0) && (duration <0)
       return subtract(start,duration, midnight) if duration <0  
     end
     
+    # Comparison — Returns an integer (-1, 0, or +1) if week is less than, equal to, or greater than other_week
+    # @param [Week] other_week object to compare to
+    # @return [Integer] -1,0 or +1 if week is less than, equal to or greater than other_week
     def <=>(obj)
       if @start < obj.start
         return -1
@@ -67,16 +107,19 @@ module Workpattern
       end      
     end
     
-    # :call-seq: working?(start) => Boolean
-    # Returns true if the given minute is working and false if it isn't
+    # Returns true if the supplied DateTime is working and false if resting
+    # @param [DateTime] start DateTime to be tested
+    # @return [Boolean] true if the minute is working otherwise false if it is a resting minute
     #
     def working?(start)
       @values[start.wday].working?(start)
     end    
 
-    
-    # :call-seq: diff(start,finish) => Duration, Date
-    # Returns the difference in minutes between two times.
+    # Returns the difference in minutes between two DateTime values.
+    # @param [DateTime] start starting DateTime
+    # @param [DateTime] finish ending DateTime
+    # @return [Fixnum] number of minutes
+    # @return [DateTime] start date for rest of calculation.  The calculation is complete when this is the same as the finish date
     #
     def diff(start,finish)
       start,finish=finish,start if ((start <=> finish))==1
@@ -94,6 +137,8 @@ module Workpattern
     
     private
     
+    # Recalculates all the attributes for a Week object
+    #
     def set_attributes
       @total=0
       @week_total=0
@@ -113,6 +158,11 @@ module Workpattern
       end
     end
     
+    # Calculates the total number of minutes between two dates
+    # @param [DateTime] start is the first date in the range
+    # @param [DateTime] finish is the last date in the range
+    # @return [Fixnum] total number of minutes between supplied dates
+    #
     def total_hours(start,finish)
       total=0
       start.upto(finish) {|day|
@@ -121,10 +171,18 @@ module Workpattern
       return total
     end
     
+    # Adds a duration in minutes to a date
+    # @param [DateTime] start original date
+    # @param [Fixnum] duration minutes to add
+    # @param [Boolean] midnight flag used for subtraction that indicates the start date is midnight
+    # @return [DateTime] the calculated date
+    # @return [Fixnum] the number of minutes still to be added
+    # @return [Boolean] Always false, this is the flag used for subtraction
+    #
     def add(start,duration)
       # aim to calculate to the end of the day
-      start,duration = @values[start.wday].calc(start,duration)
-      return start,duration if (duration==0) || (start.jd > @finish.jd) 
+      start,duration = @values[start.wday].calc(start,duration)   
+      return start,duration,false if (duration==0) || (start.jd > @finish.jd) 
       # aim to calculate to the end of the next week day that is the same as @finish
       while((duration!=0) && (start.wday!=@finish.next_day.wday) && (start.jd <= @finish.jd))
         if (duration>@values[start.wday].total)
@@ -138,17 +196,17 @@ module Workpattern
         end
       end
       
-      return start,duration if (duration==0) || (start.jd > @finish.jd) 
+      return start,duration,false if (duration==0) || (start.jd > @finish.jd) 
       
-      #while duration accomodates full weeks
+      # while duration accomodates full weeks
       while ((duration!=0) && (duration>=@week_total) && ((start.jd+6) <= @finish.jd))
         duration=duration - @week_total
         start=start+7
       end
 
-      return start,duration if (duration==0) || (start.jd > @finish.jd) 
+      return start,duration,false if (duration==0) || (start.jd > @finish.jd) 
 
-      #while duration accomodates full days
+      # while duration accomodates full days
       while ((duration!=0) && (start.jd<= @finish.jd))
         if (duration>@values[start.wday].total)
           duration = duration - @values[start.wday].total
@@ -157,10 +215,18 @@ module Workpattern
           start,duration = @values[start.wday].calc(start,duration)
         end
       end    
-      return start, duration 
+      return start, duration, false 
       
     end
-
+    
+    # Subtracts a duration in minutes from a date
+    # @param [DateTime] start original date
+    # @param [Fixnum] duration minutes to subtract - always a negative
+    # @param [Boolean] midnight flag indicates the start date is midnight when true
+    # @return [DateTime] the calculated date
+    # @return [Fixnum] the number of minutes still to be subtracted
+    # @return [Boolean] When set to true indicates the time is midnight on the given date
+    #
     def subtract(start,duration,midnight=false)
       
       # Handle subtraction from start of day
@@ -218,12 +284,25 @@ module Workpattern
       
     end
     
+    # Supports calculating from midnight by updating the given duration depending on whether the
+    # last minute in the day is resting or working.  It then sets the time to this minute.
+    # @param [DateTime] start is the date whose midnight is to be used as the start date
+    # @param [Fixnum] duration is the number of minutes to subtract
+    # @return [DateTime] the date with a time of 23:59
+    # @return [Fixnum] the duration adjusted according to whether 23:59 is resting or not
+    #
     def minute_b4_midnight(start,duration)
+      start -= start.hour * HOUR
+      start -= start.min * MINUTE
       duration += @values[start.wday].minutes(23,59,23,59)
       start = start.next_day - MINUTE
       return start,duration
     end  
     
+    # Calculates the date and time after the last working minute of the current date
+    # @param [DateTime] start is the current date
+    # @return [DateTime] the new date
+    #
     def after_last_work(start)
       if @values[start.wday].last_hour.nil?
         return start.next_day
@@ -234,6 +313,13 @@ module Workpattern
       end  
     end
     
+    # Calculates the difference between two dates that exist in this Week object.
+    # @param [DateTime] start first date 
+    # @param [DateTime] finish last date
+    # @param [DateTime] finish_on the range to be used in this Week object.  
+    # @return [DateTime] new date for rest of calculation otherwise same as finish if completed calculation
+    # @return [Fixnum] total number of minutes calculated thus far.
+    #
     def diff_detail(start,finish,finish_on)
       duration, start=@values[start.wday].diff(start,finish)
       #rest of week to finish day
