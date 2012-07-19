@@ -1,5 +1,6 @@
 ## Workpattern v0.3.0.beta (MMM DD, YYYY)  ##
 
+* getting wrong time when hour had exactly the right number of minutes (#9) * Barrie Callender *
 * jruby-19mode failed with SystemStackError: stack level too deep  (#8) * Barrie Callender *
 * midnight flag should override hour and minutes  (#7) * Barrie Callender *
 * available minutes not calculating correctly for a time of 00:01 (#6) * Barrie Callender *
