@@ -1,4 +1,4 @@
-## Workpattern v0.3.0.beta (MMM DD, YYYY)  ##
+## Workpattern v0.3.0 (Jul 19, 2012)  ##
 
 * incomplete tests for week (#2) * Barrie Callender *
 * getting wrong time when hour had exactly the right number of minutes (#9) * Barrie Callender *
