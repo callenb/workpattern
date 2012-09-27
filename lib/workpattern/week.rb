@@ -94,13 +94,13 @@ module Workpattern
       return subtract(start,duration, midnight) if duration <0  
     end
     
-    # Comparison — Returns an integer (-1, 0, or +1) if week is less than, equal to, or greater than other_week
+    # Comparison Returns an integer (-1, 0, or +1) if week is less than, equal to, or greater than other_week
     # @param [Week] other_week object to compare to
     # @return [Integer] -1,0 or +1 if week is less than, equal to or greater than other_week
-    def <=>(obj)
-      if @start < obj.start
+    def <=>(other_week)
+      if @start < other_week.start
         return -1
-      elsif @start == obj.start
+      elsif @start == other_week.start
         return 0
       else
         return 1
@@ -174,7 +174,6 @@ module Workpattern
     # Adds a duration in minutes to a date
     # @param [DateTime] start original date
     # @param [Fixnum] duration minutes to add
-    # @param [Boolean] midnight flag used for subtraction that indicates the start date is midnight
     # @return [DateTime] the calculated date
     # @return [Fixnum] the number of minutes still to be added
     # @return [Boolean] Always false, this is the flag used for subtraction
