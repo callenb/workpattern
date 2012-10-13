@@ -22,7 +22,7 @@ module Workpattern
     #   First date in <tt>Workpattern</tt>
     # @!attribute [r] to
     #   Last date in <tt>Workpattern</tt>
-    # @weeks [r] weeks
+    # @!attribute [r] weeks
     #   The <tt>Week</tt> objects that make up this workpattern
     #
     attr_reader :name, :base, :span, :from, :to, :weeks
@@ -95,45 +95,36 @@ module Workpattern
     # The #resting and #working methods are convenience methods that call 
     # this with the appropriate <tt>:work_type</tt> already set.
     #
-    # @param Hash{start=>Date} The first date to apply the pattern.  Defaults
+    # @param [Hash] opts the options used to apply a workpattern
+    # @option opts [Date] :start The first date to apply the pattern.  Defaults
     #     to the <tt>start</tt> attribute.
-    # @param Hash{finish=>Date} The last date to apply the pattern.  Defaults
+    # @option opts [Date] :finish The last date to apply the pattern.  Defaults
     #     to the <tt>finish</tt> attribute.
-    # @param Hash{days=>DAYNAMES} The specific day or days the pattern will apply to.
+    # @option opts [DAYNAMES] :days The specific day or days the pattern will apply to.
     #     It defaults to <tt>:all</tt>
-    # @param Hash{start_time=>(#hour, #min)} The first time in the selected days to apply the pattern.
+    # @option opts [(#hour, #min)] :start_time The first time in the selected days to apply the pattern.
     #     Defaults to <tt>00:00</tt>.
-    # @param Hash{finish_time=>(#hour, #min)} The last time in the selected days to apply the pattern.
+    # @option opts [(#hour, #min)] :finish_time The last time in the selected days to apply the pattern.
     #     Defaults to <tt>23:59</tt>.
-    # @param Hash{work_type=>(0||1)} Either working (1 or <tt>Workpattern::WORK</tt>) or
-    #   resting (0 or <tt>Workpattern::REST</tt>).
+    # @option opts [(WORK || REST)] :work_type Either working or resting.  Defaults to working.
     # @see #working
     # @see #resting
     #
-    def workpattern(args={})
+    def workpattern(opts={})
+    
+      args={:start => @from, :finish => @to, :days => :all,
+          :from_time => FIRST_TIME_IN_DAY, :to_time => LAST_TIME_IN_DAY,
+          :work_type => WORK}   
+          
+      args.merge! opts
+
+      args[:start] = dmy_date(args[:start])
+      args[:finish] = dmy_date(args[:finish])
+      from_time = hhmn_date(args[:from_time])
+      to_time = hhmn_date(args[:to_time])
       
-      #
-      upd_start = args[:start] || @from
-      upd_start = dmy_date(upd_start)
-      args[:start] = upd_start
-      
-      upd_finish = args[:finish] || @to
-      upd_finish = dmy_date(upd_finish)
-      args[:finish] = upd_finish
-      
-      #args[:days]  = args[:days] || :all
-      days= args[:days] || :all
-      from_time = args[:from_time] || FIRST_TIME_IN_DAY
-      from_time = hhmn_date(from_time)
-      #args[:from_time] = upd_from_time
-      
-      to_time = args[:to_time] || LAST_TIME_IN_DAY
-      to_time = hhmn_date(to_time)
-      #args[:to_time] = upd_to_time
-      
-      args[:work_type] = args[:work_type] || WORK
-      type= args[:work_type] || WORK
-      
+      upd_start=args[:start]
+      upd_finish=args[:finish]
       while (upd_start <= upd_finish)
 
         current_wp=find_weekpattern(upd_start)
@@ -142,11 +133,11 @@ module Workpattern
             clone_wp=current_wp.duplicate
             current_wp.adjust(upd_finish+1,current_wp.finish)
             clone_wp.adjust(upd_start,upd_finish)
-            clone_wp.workpattern(days,from_time,to_time,type)
+            clone_wp.workpattern(args[:days],from_time,to_time,args[:work_type])
             @weeks<< clone_wp
             upd_start=upd_finish+1
           else # (current_wp.finish == upd_finish)
-            current_wp.workpattern(days,from_time,to_time,type)
+            current_wp.workpattern(args[:days],from_time,to_time,args[:work_type])
             upd_start=current_wp.finish + 1 
           end
         else
@@ -154,7 +145,7 @@ module Workpattern
           current_wp.adjust(current_wp.start,upd_start-1)
           clone_wp.adjust(upd_start,clone_wp.finish)          
           if (clone_wp.finish <= upd_finish)
-            clone_wp.workpattern(days,from_time,to_time,type)
+            clone_wp.workpattern(args[:days],from_time,to_time,args[:work_type])
             @weeks<< clone_wp
             upd_start=clone_wp.finish+1
           else
@@ -162,7 +153,7 @@ module Workpattern
             after_wp.adjust(upd_finish+1,after_wp.finish)
             @weeks<< after_wp
             clone_wp.adjust(upd_start,upd_finish)
-            clone_wp.workpattern(days,from_time,to_time,type)
+            clone_wp.workpattern(args[:days],from_time,to_time,args[:work_type])
             @weeks<< clone_wp
             upd_start=clone_wp.finish+1
           end
