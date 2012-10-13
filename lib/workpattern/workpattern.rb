@@ -30,8 +30,8 @@ module Workpattern
     # The new <tt>Workpattern</tt> object is created with all working minutes.
     #
     # @param [String] name Every workpattern has a unique name
-    # @param [Fixnum] base Workpattern starts on the 1st January of this year.
-    # @param [Fixnum] span Workpattern spans this number of years ending on 31st December.
+    # @param [Integer] base Workpattern starts on the 1st January of this year.
+    # @param [Integer] span Workpattern spans this number of years ending on 31st December.
     # @raise [NameError] if the given name already exists
     #
     def initialize(name=DEFAULT_NAME,base=DEFAULT_BASE_YEAR,span=DEFAULT_SPAN)
@@ -184,7 +184,7 @@ module Workpattern
     # negative number.
     #
     # @param [DateTime] start date to add or subtract minutes
-    # @param [Fixnum] duration in minutes to add or subtract to date
+    # @param [Integer] duration in minutes to add or subtract to date
     # @return [DateTime] the date when <tt>duration</tt> is added to <tt>start</tt>
     #
     def calc(start,duration)
@@ -218,7 +218,7 @@ module Workpattern
     #
     # @param [DateTime] start is the date to start from
     # @param [DateTime] finish is the date to end with
-    # @return [Fixnum] number of minutes between the two dates
+    # @return [Integer] number of minutes between the two dates
     #
     def diff(start,finish)
     

@@ -1,6 +1,6 @@
 module Workpattern
   
-  # Represents the 60 minutes of an hour using a <tt>Fixnum</tt> or <tt>Bignum</tt>
+  # Represents the 60 minutes of an hour using a <tt>Integer</tt>
   #
   module Hour
  

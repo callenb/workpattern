@@ -23,8 +23,8 @@ module Workpattern
     # (0-23) and 60 minutes in an hour (0-59), <tt>Clock</tt> calculates
     # the full hours and remaining minutes of whatever is supplied.
     #
-    # @param [Fixnum] hour number of hours
-    # @param [Fixnum] min number of minutes
+    # @param [Integer] hour number of hours
+    # @param [Integer] min number of minutes
     #
     def initialize(hour=0,min=0)
       @hour=hour
@@ -36,7 +36,7 @@ module Workpattern
     
     # Returns the total number of minutes
     #
-    # @return [Fixnum] total minutes represented by the Clock object
+    # @return [Integer] total minutes represented by the Clock object
     #
     def minutes
       return (@hour*60)+@min
@@ -44,7 +44,7 @@ module Workpattern
     
     # Returns the hour of the clock (0-23)
     #
-    # @return [Fixnum] hour of Clock from 0 to 23.
+    # @return [Integer] hour of Clock from 0 to 23.
     #
     def hour
       return @hour % 24
@@ -52,7 +52,7 @@ module Workpattern
     
     # Returns the minute of the clock (0-59)
     #
-    # @return [Fixnum] minute of Clock from 0 to 59
+    # @return [Integer] minute of Clock from 0 to 59
     #
     def min
       return @min % 60

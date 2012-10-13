@@ -73,8 +73,8 @@ module Workpattern
   # A negative <tt>span</tt> counts back from the <tt>base</tt> year
   #
   # @param [String] name Every workpattern has a unique name.
-  # @param [Fixnum] base Workpattern starts on the 1st January of this year.
-  # @param [Fixnum] span Workpattern spans this number of years ending on 31st December.
+  # @param [Integer] base Workpattern starts on the 1st January of this year.
+  # @param [Integer] span Workpattern spans this number of years ending on 31st December.
   # @return [Workpattern]
   def self.new(name=DEFAULT_WORKPATTERN_NAME, base=DEFAULT_BASE_YEAR, span=DEFAULT_SPAN)
     return Workpattern.new(name, base,span)
@@ -114,8 +114,8 @@ module Workpattern
   # Convenience method to create a Clock object.  This can be used for specifying times 
   # if you don't want to create a <tt>DateTime</tt> object
   # 
-  # @param [Fixnum] hour the number of hours.
-  # @param [Fixnum] min the number of minutes
+  # @param [Integer] hour the number of hours.
+  # @param [Integer] min the number of minutes
   # @return [Clock]
   # @see Clock
   #
