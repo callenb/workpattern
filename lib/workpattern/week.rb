@@ -16,6 +16,8 @@ module Workpattern
   #  
   # Represents working and resting periods for each day in a week for a specified date range.
   #
+  # @since 0.2.0
+  #
   class Week
     
     attr_accessor :values, :days, :start, :finish, :week_total, :total

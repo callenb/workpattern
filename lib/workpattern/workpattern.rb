@@ -7,6 +7,8 @@ module Workpattern
   # This and the <tt>Clock</tt> class are the only two that should be referenced by calling applications when
   # using this gem.
   #
+  # @since 0.2.0
+  #
   class Workpattern
     
     # Holds collection of <tt>Workpattern</tt> objects

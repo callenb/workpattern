@@ -2,6 +2,8 @@ module Workpattern
   
   # Represents the 60 minutes of an hour using a <tt>Integer</tt>
   #
+  # @since 0.2.0
+  #
   module Hour
  
     # :call-seq: total => Integer

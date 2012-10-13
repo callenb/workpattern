@@ -16,6 +16,8 @@ module Workpattern
   #   aClock.time #=> Time.new(1963,6,10,4,20)
   #   aClock.to_s #=> 4:20 1700
   #
+  # @since 0.2.0
+  #
   class Clock
     
     # Initialises an instance of <tt>Clock</tt> using the hours and minutes supplied

@@ -1,5 +1,6 @@
 module Workpattern
-  
+  # @since 0.2.0
+  #
   module Utility
   
     def midnight_before(adate)

@@ -1,6 +1,8 @@
 module Workpattern
   # Represents the 24 hours of a day using module <tt>hour</tt>
   #
+  # @since 0.2.0
+  #
   class Day
     include Workpattern::Utility
     attr_accessor :values, :hours, :first_hour, :first_min, :last_hour, :last_min, :total
