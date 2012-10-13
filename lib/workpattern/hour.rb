@@ -157,10 +157,6 @@ module Workpattern
   end
 end
 
-class Fixnum
+class Integer
   include Workpattern::Hour
 end
-class Bignum
-  include Workpattern::Hour
-end
-  
