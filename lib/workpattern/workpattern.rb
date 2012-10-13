@@ -1,19 +1,40 @@
-
-
 module Workpattern
   require 'set'
   
-  # Represents the working and resting periods across a number of whole years.  The #base year
-  # is the first year and the #span is the number of years including that year that is covered.
-  # The #Workpattern is given a unique name so it can be easily identified amongst other Workpatterns.
+  # Represents the working and resting periods across a given number of whole years.  Each <tt>Workpattern</tt>
+  # has a unique name so it can be easily identified amongst all the other <tt>Workpattern</tt> objects.
+  #
+  # This and the <tt>Clock</tt> class are the only two that should be referenced by calling applications when
+  # using this gem.
   #
   class Workpattern
     
-    # Holds collection of <tt>Workpattern</tt> objects  
+    # Holds collection of <tt>Workpattern</tt> objects
     @@workpatterns = Hash.new()
-    attr_accessor :name, :base, :span, :from, :to, :weeks
     
-    def initialize(name=DEFAULT_NAME,base_year=DEFAULT_BASE_YEAR,span=DEFAULT_SPAN)
+    # @!attribute [r] name
+    #   Name given to the <tt>Workpattern</tt>
+    # @!attribute [r] base
+    #   Starting year
+    # @!attribute [r] span
+    #   Number of years
+    # @!attribute [r] from
+    #   First date in <tt>Workpattern</tt>
+    # @!attribute [r] to
+    #   Last date in <tt>Workpattern</tt>
+    # @weeks [r] weeks
+    #   The <tt>Week</tt> objects that make up this workpattern
+    #
+    attr_reader :name, :base, :span, :from, :to, :weeks
+    
+    # The new <tt>Workpattern</tt> object is created with all working minutes.
+    #
+    # @param [String] name Every workpattern has a unique name
+    # @param [Fixnum] base Workpattern starts on the 1st January of this year.
+    # @param [Fixnum] span Workpattern spans this number of years ending on 31st December.
+    # @raise [NameError] if the given name already exists
+    #
+    def initialize(name=DEFAULT_NAME,base=DEFAULT_BASE_YEAR,span=DEFAULT_SPAN)
 
       raise(NameError, "Workpattern '#{name}' already exists and can't be created again") if @@workpatterns.key?(name) 
         
@@ -24,9 +45,9 @@ module Workpattern
       end
       
       @name = name
-      @base = base_year
+      @base = base
       @span = span
-      @from = DateTime.new(base_year.abs - offset)
+      @from = DateTime.new(base.abs - offset)
       @to = DateTime.new(@from.year + span.abs - 1,12,31,23,59)
       @weeks = SortedSet.new
       @weeks << Week.new(@from,@to,1)
@@ -35,19 +56,32 @@ module Workpattern
       @@workpatterns[name]=self
     end
     
+    # Deletes all <tt>Workpattern</tt> objects
+    #
     def self.clear
       @@workpatterns.clear
     end
     
+    # Returns an Array containing all the <tt>Workpattern</tt> objects
+    # @return [Array] all <tt>Workpattern</tt> objects
+    # 
     def self.to_a
       @@workpatterns.to_a
     end
     
+    # Returns the specific named <tt>Workpattern</tt>
+    # @param [String] name of the required <tt>Workpattern</tt>
+    # @raise [NameError] if a <tt>Workpattern</tt> of the supplied name does not exist
+    #
     def self.get(name)
       return @@workpatterns[name] if @@workpatterns.key?(name) 
       raise(NameError, "Workpattern '#{name}' doesn't exist so can't be retrieved")
     end
     
+    # Deletes the specific named <tt>Workpattern</tt>
+    # @param [String] name of the required <tt>Workpattern</tt>
+    # @return [Boolean] true if the named <tt>Workpattern</tt> existed or false if it doesn't
+    #
     def self.delete(name)
       if @@workpatterns.delete(name).nil?
         return false
@@ -56,30 +90,25 @@ module Workpattern
       end        
     end
     
-    # Sets a work or resting pattern in the _Workpattern_.
+    # Applys a working or resting pattern to the <tt>Workpattern</tt> object.
     #
-    # Can also use <tt>resting</tt> and <tt>working</tt> methods leaving off the 
-    # :work_type
+    # The #resting and #working methods are convenience methods that call 
+    # this with the appropriate <tt>:work_type</tt> already set.
     #
-    # === Parameters
-    #
-    # * <tt>:start</tt> - The first date to apply the pattern.  Defaults
-    #   to the _Workpattern_ <tt>start</tt>.
-    # * <tt>:finish</tt> - The last date to apply the pattern.  Defaults to
-    #   the _Workpattern_ <tt>finish</tt>.
-    # * <tt>:days</tt> - The specific day or days the pattern will apply to. This
-    #   references _Workpattern::DAYNAMES_.  It defailts to <tt>:all</tt> which is 
-    #   everyday. Valid values are <tt>:sun, :mon, :tue, :wed, :thu, :fri, :sat, 
-    #   :weekend, :weekday</tt> and <tt>:all</tt>
-    # * <tt>:start_time</tt> - The first time in the selected days to apply the pattern.
-    #   Must implement #hour and #min to get the Hours and Minutes for the time.  It will default to 
-    #   the first time in the day <tt>00:00</tt>.
-    # * <tt>:finish_time</tt> - The last time in the selected days to apply the pattern.
-    #   Must implement #hour and #min to get the Hours and Minutes for the time.  It will default to
-    #   to the last time in the day <tt>23:59</tt>.
-    # * <tt>:work_type</tt> - type of pattern is either working (1 or <tt>Workpattern::WORK</tt>) or
-    #   resting (0 or <tt>Workpattern::REST</tt>).  Alternatively make use of the <tt>working</tt>
-    #   or <tt>resting</tt> methods that will set this value for you
+    # @param Hash{start=>Date} The first date to apply the pattern.  Defaults
+    #     to the <tt>start</tt> attribute.
+    # @param Hash{finish=>Date} The last date to apply the pattern.  Defaults
+    #     to the <tt>finish</tt> attribute.
+    # @param Hash{days=>DAYNAMES} The specific day or days the pattern will apply to.
+    #     It defaults to <tt>:all</tt>
+    # @param Hash{start_time=>(#hour, #min)} The first time in the selected days to apply the pattern.
+    #     Defaults to <tt>00:00</tt>.
+    # @param Hash{finish_time=>(#hour, #min)} The last time in the selected days to apply the pattern.
+    #     Defaults to <tt>23:59</tt>.
+    # @param Hash{work_type=>(0||1)} Either working (1 or <tt>Workpattern::WORK</tt>) or
+    #   resting (0 or <tt>Workpattern::REST</tt>).
+    # @see #working
+    # @see #resting
     #
     def workpattern(args={})
       
@@ -141,26 +170,31 @@ module Workpattern
       end
     end
     
-    # Identical to the <tt>workpattern</tt> method apart from it always creates
-    # resting patterns so there is no need to set the <tt>:work_type</tt> argument
+    # Convenience method that calls <tt>#workpattern</tt> with the <tt>:work_type</tt> specified as resting.
+    #
+    # @see #workpattern
     #
     def resting(args={})
       args[:work_type]=REST
       workpattern(args)
     end
     
-    # Identical to the <tt>workpattern</tt> method apart from it always creates
-    # working patterns so there is no need to set the <tt>:work_type</tt> argument
+    # Convenience method that calls <tt>#workpattern</tt> with the <tt>:work_type</tt> specified as working.
+    #
+    # @see #workpattern
     #
     def working(args={})
       args[:work_type]=WORK
       workpattern(args)
     end
     
-    # :call-seq: calc(start,duration) => DateTime
-    # Calculates the resulting date when #duration is added to #start date using the #Workpattern.
-    # Duration is always in whole minutes and can be a negative number, in which case it subtracts 
-    # the minutes from the date.
+    # Calculates the resulting date when the <tt>duration</tt> in minutes is added to the <tt>start</tt> date.
+    # The <tt>duration</tt> is always in whole minutes and subtracts from <tt>start</tt> when it is a
+    # negative number.
+    #
+    # @param [DateTime] start date to add or subtract minutes
+    # @param [Fixnum] duration in minutes to add or subtract to date
+    # @return [DateTime] the date when <tt>duration</tt> is added to <tt>start</tt>
     #
     def calc(start,duration)
       return start if duration==0 
@@ -180,15 +214,20 @@ module Workpattern
       return start
     end
 
-    # :call-seq: working?(start) => Boolean
-    # Returns true if the given minute is working and false if it isn't
+    # Returns true if the given minute is working and false if it is resting.
+    #
+    # @param [DateTime] start DateTime being tested
+    # @return [Boolean] true if working and false if resting
     #
     def working?(start)
       return find_weekpattern(start).working?(start)
     end    
     
-    # :call-seq: diff(start,finish) => Duration
     # Returns number of minutes between two dates
+    #
+    # @param [DateTime] start is the date to start from
+    # @param [DateTime] finish is the date to end with
+    # @return [Fixnum] number of minutes between the two dates
     #
     def diff(start,finish)
     
@@ -201,13 +240,19 @@ module Workpattern
       end
       return duration
     end   
+    
     private
     
-    # Retrieve the correct pattern for the supplied date
+    # Retrieve the correct <tt>Week</tt> pattern for the supplied date.
+    #
+    # If the supplied <tt>date</tt> is outside the span of the <tt>Workpattern</tt> object
+    # then it returns an all working <tt>Week</tt> object for the calculation.
+    # 
+    # @param [DateTime] date whose containing <tt>Week</tt> pattern is required
+    # @return [Week] <tt>Week</tt> object that includes the supplied <tt>date</tt> in it's range
     #
     def find_weekpattern(date)
       # find the pattern that fits the date
-      # TODO: What if there is no pattern?
       #
       if date<@from
         result = Week.new(DateTime.jd(0),@from-MINUTE,1)
@@ -222,13 +267,22 @@ module Workpattern
       return result
     end
     
-        
+    # Strips off hours, minutes, seconds and so forth from a supplied <tt>Date</tt> or 
+    # <tt>DateTime</tt>
+    #
+    # @param [DateTime] date 
+    # @return [DateTime] with zero hours, minutes, seconds and so forth.
+    #    
     def dmy_date(date)
       return DateTime.new(date.year,date.month,date.day)
     end
-      
+    
+    # Extract the time into a <tt>Clock</tt> object
+    #
+    # @param [DateTime] date
+    # @return [Clock] 
     def hhmn_date(date)
-      return DateTime.new(2000,1,1,date.hour,date.min)
+      return Clock.new(date.hour,date.min)
     end
     
   end
