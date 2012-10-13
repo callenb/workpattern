@@ -59,6 +59,12 @@ module Workpattern
     # @return [DateTime] The time using the date of 10th June 1963 (My Birthday)
     def time
       return DateTime.new(1963,6,10,hour,min)
-    end      
+    end
+    
+    # Returns a <tt>String</tt> representation of the clock value
+    #
+    def to_s      
+      hour.to_s.concat(':').concat(min.to_s).concat(' ').concat(minutes.to_s)
+    end
   end
 end
