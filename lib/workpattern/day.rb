@@ -1,13 +1,33 @@
 module Workpattern
-  # Represents the 24 hours of a day using module <tt>hour</tt>
+  
+  # @author Barrie Callender
+  # @!attribute values
+  #   @return [Array] each hour of the day
+  # @!attribute hours
+  #   @return [Integer] number of hours in the day
+  # @!attribute first_hour
+  #   @return [Integer] first working hour in the day
+  # @!attribute first_min
+  #   @return [Integer] first working minute in first working hour in the day
+  # @!attribute last_hour
+  #   @return [Integer] last working hour in the day
+  # @!attribute last_min
+  #   @return [Integer] last working minute in last working hour in the day
+  # @!attribute total
+  #   @return [Integer] total number of minutes in the day
+  #  
+  # Represents the 24 hours of a day.
+  #
+  # @since 0.2.0
+  # @todo implement a day with different number of hours in it to support daylight saving
   #
   class Day
     include Workpattern::Utility
     attr_accessor :values, :hours, :first_hour, :first_min, :last_hour, :last_min, :total
     
-    # :call-seq: new(type=1) => Day
-    # Creates a 24 hour day defaulting to a working day.
-    # Pass 0 to create a non-working day.
+    # The new <tt>Day</tt> object can be created as either working or resting.
+    #
+    # @param [Integer] type is working (1) or resting (0)
     #
     def initialize(type=1)
       @hours=24
@@ -18,8 +38,9 @@ module Workpattern
       set_attributes
     end
     
-    # :call-seq: duplicate => Day
     # Creates a duplicate of the current <tt>Day</tt> instance.
+    #
+    # @return [Day] 
     #
     def duplicate
       duplicate_day = Day.new()
@@ -38,21 +59,18 @@ module Workpattern
       return duplicate_day
     end
     
-    # :call-seq: refresh
     # Recalculates characteristics for this day
     #
     def refresh
       set_attributes
     end
     
-    # :call-seq: workpattern(start_time,finish_time,type)
     # Sets all minutes in a date range to be working or resting.
-    # The <tt>start_time</tt> and <tt>finish_time</tt> need to have 
-    # <tt>#hour</tt> and <tt>#min</tt> methods to return the time 
-    # in hours and minutes respectively.
     #
-    # Pass 1 as the <tt>type</tt> for working and 0 for resting.
-    # 
+    # @param [(#hour,#min)] start_time is the start of the range to set
+    # @param [(#hour, #min)] finish_time is the finish of the range to be set
+    # @param [Integer] type is either working (1) or resting (0)
+    #
     def workpattern(start_time,finish_time,type)
     
       if start_time.hour==finish_time.hour
@@ -71,15 +89,22 @@ module Workpattern
       set_attributes
     end
     
-    # :call-seq: calc(time,duration) => time, duration
-    #
     # Calculates the result of adding <tt>duration</tt> to
     # <tt>time</tt>.  The <tt>duration</tt> can be negative in
     # which case it subtracts from <tt>time</tt>.
     #
     # An addition where there are less working minutes left in 
     # the day than are being added will result in the time 
-    # returned having 60 as the value in <tt>min</tt>. 
+    # returned being 00:00 on the following day.
+    #
+    # A subtraction where there are less working minutes left in
+    # the day than are being added will result in the time 
+    # returned being the previous day with the <tt>midnight</tt> flag set to true.
+    #
+    # @param [DateTime] time when the calculation starts from
+    # @param [Integer] duration is the number of minutes to add or subtract if it is negative
+    # @param [Boolean] midnight is a flag used in subtraction to pretend the time is actually midnight
+    # @return [DateTime,Integer,Boolean] Calculated time along with any remaining duration and the midnight flag
     # 
     def calc(time,duration,midnight=false)
     
@@ -93,17 +118,21 @@ module Workpattern
     
     end
     
-    # :call-seq: working?(start) => Boolean
-    # Returns true if the given minute is working and false if it isn't
+    # Returns true if the given minute is working and false if it is resting
+    #
+    # @param [(#hour, #min)] start is the time in the day to inspect
+    # @return [Boolean] true if the time is working and false if it is resting
     #
     def working?(start)
       return true if minutes(start.hour,start.min,start.hour,start.min)==1
       return false
     end
     
-    # :call-seq: diff(start,finish) => Duration, Date
-    # Returns the difference in minutes between two times. if the given 
-    # minute is working and false if it isn't
+    # Returns the difference in working minutes between two times.
+    #
+    # @param [(#hour, #min)] start start time in the range
+    # @param [(#hour, #min)] finish finish time in the range
+    # @return [Integer] number of working minutes
     #
     def diff(start,finish)
       start,finish=finish,start if ((start <=> finish))==1
@@ -120,9 +149,16 @@ module Workpattern
       return duration, start
     end
     
-    # :call-seq: minutes(start_hour,start_min,finish_hour,finish_min) => duration    
-    # Returns the total number of minutes between and including two minutes.
-    # 
+    # Returns the total number of minutes between two times.
+    #
+    # @param [Integer] start_hour first hour in range
+    # @param [Integer] start_min first minute of first hour in range
+    # @param [Integer] finish_hour last hour in range
+    # @param [Integer] finish_min last minute of last hour in range
+    # @return [Integer] minutes between supplied hours and minutes
+    #
+    # @todo can this method and #diff method be combined?
+    #
     def minutes(start_hour,start_min,finish_hour,finish_min)
       
       if (start_hour > finish_hour) || ((finish_hour==start_hour) && (start_min > finish_min))
@@ -146,6 +182,8 @@ module Workpattern
 
     private
     
+    # Calculates the attributes that describe the day.  Called after changes.
+    #
     def set_attributes
       @first_hour=nil
       @first_min=nil
@@ -161,6 +199,12 @@ module Workpattern
       }
     end
     
+    # Returns the first working minute as a <tt>DateTime</tt> or <tt>oo:oo</tt>
+    # when there is no working minutes in the day.  Used by the <tt>#subtract</tt> method
+    #
+    # @param [DateTime] time day for which the first working time is sought.
+    # @return [DateTime] the first working time of the day
+    #
     def first_working_minute(time)
       if @first_hour.nil?
         return time - (HOUR*time.hour) - (MINUTE*time.min)
@@ -171,6 +215,13 @@ module Workpattern
       end  
     end
     
+    # Handles the subtraction of a duration from a time in the day.
+    # 
+    # @param [DateTime] time when the subtraction starts from
+    # @param [Integer] duration is the number of minutes to subtract from the <tt>time</tt>
+    # @param [Boolean] midnight is a flag used in subtraction to pretend the time is actually midnight
+    # @return [DateTime,Integer,Boolean] Calculated time along with any remaining duration and the midnight flag
+    #
     def subtract(time,duration,midnight=false)    
       if (time.hour==0 && time.min==0)
         if midnight      
@@ -213,10 +264,13 @@ module Workpattern
       return time,duration, false
     end
     
-    # 
-    # Returns the result of adding #duration to the specified time
+    # Returns the result of adding <tt>duration</tt> to the given <tt>time</tt>
     # When there are not enough minutes in the day it returns the date
-    # for the start of the following
+    # for the start of the following day.
+    #
+    # @param [DateTime] time when the calculation starts from
+    # @param [Integer] duration is the number of minutes to add
+    # @return [DateTime,Integer] Calculated time along with any remaining duration
     #
     def add(time,duration)
       available_minutes=minutes(time.hour,time.min,@hours-1,59)   
@@ -245,16 +299,26 @@ module Workpattern
       return result_date,duration, false
     end
     
+    # Returns the start of the next hour.
+    #
+    # The next hour could be the start of the following day.
+    #
+    # @param [DateTime] start is the <tt>DateTime</tt> for which the following hour is required.
+    # @return [DateTime] the start of the next hour following the <tt>DateTime</tt> supplied
+    #
     def next_hour(start)
       return start+HOUR-(start.min*MINUTE) 
     end
     
+    # Returns the number of working minutes left in the current hour
+    #
+    # @param [DateTime] start is the <tt>DateTime</tt> for which the remaining working minutes 
+    #                   in the hour are required
+    # @return [Integer] number of remaining working minutes
+    #
     def minutes_left_in_hour(start)
       return @values[start.hour].diff(start.min,60)
     end
     
-    def minutes_left_in_day(start)
-      start.hour
-    end  
   end
 end

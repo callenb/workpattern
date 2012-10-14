@@ -1,60 +1,76 @@
 module Workpattern
   
-  # Represents the 60 minutes of an hour using a <tt>Fixnum</tt> or <tt>Bignum</tt>
+  # Represents the 60 minutes of an hour using an <tt>Integer</tt>
+  #
+  # @since 0.2.0
   #
   module Hour
  
-    # :call-seq: total => Integer
     # Returns the total working minutes in the hour
-    # 
+    #
+    # @return [Integer] working minutes in the hour 
+    #
     def total
       return minutes(0,59)
     end  
     
-    # :call-seq: workpattern(start,finish,type) => Fixnum
     # Sets the minutes to either working (type=1) or resting (type=0)
+    # 
+    # @param [Integer] start minute at start of range
+    # @param [Integer] finish minute at end of range
+    # @param [Integer] type defines whether working (1) or resting (0)
     #
     def workpattern(start,finish,type)
       return working(start,finish) if type==1
       return resting(start,finish) if type==0
     end
     
-    # :call-seq: first => Integer
-    # Returns the first working minute in the hour or 60 if there are none
+    # Returns the first working minute in the hour or 60 if there are no working minutes
+    #
+    # @return [Integer] first working minute or 60 if none found
     #
     def first
       0.upto(59) {|minute| return minute if self.minutes(minute,minute)==1}
       return nil
     end
     
-    # :call-seq: last => Integer
-    # Returns the last working minute in the hour or -1 if there are none
+    # Returns the last working minute in the hour or nil if there are no working minutes
+    #
+    # @return [Integer] last working minute or nil if none found
     #
     def last
       59.downto(0) {|minute| return minute if self.minutes(minute,minute)==1}
       return nil
     end
     
-    # :call-seq: working?(start) => Boolean
     # Returns true if the given minute is working and false if it isn't
+    # 
+    # @param [Integer] start is the minute being tested
+    # @return [Boolean] true if minute is working, otherwise false
     #
     def working?(start)
       return true if minutes(start,start)==1
       return false
     end
     
-    # :call-seq: minutes(start,finish) => Integer
     # Returns the total number of minutes between and including two minutes
+    #
+    # @param [Integer] start first minute in range
+    # @param [Integer] finish last minute in range
+    # @return [Integer] number of minutes from <tt>start</tt> to <tt>finish</tt> inclusive
     #
     def minutes(start,finish)
       start,finish=finish,start if start > finish
       return (self & mask(start,finish)).to_s(2).count('1')
     end
     
-    # :call-seq: calc(datetime,duration) => DateTime, Integer
-    # Returns the DateTime and remainding minutes when adding or subtracting duration 
-    # to/from a minute in an hour.
-    # Subtraction with a remainder returns the time of the current date as 00:00.
+    # Returns the DateTime and remainding minutes when adding a duration to a minute in the hour. 
+    # A negative duration will subtract the minutes.
+    #
+    # @param [DateTime] time is the full date but only the minute element is used
+    # @param [Integer] duration is the number of minutes to add and can be negative (subtraction)
+    # @param [Boolean] next_hour used in subtraction to specify the starting point as midnight (00:00 the next day)
+    # @return [DateTime,Integer,Boolean] The <tt>DateTime</tt> calculated along with remaining minutes and a flag indicating if starting point is next hour
     #
     def calc(time,duration,next_hour=false)
     
@@ -67,8 +83,10 @@ module Workpattern
       end 
     end
     
-    # :call-seq: diff(start,finish) => Integer
-    # returns the number of minutes between two minutes
+    # Returns the number of minutes between two minutes
+    # @param [Integer] start first minute in range
+    # @param [Integer] finish last minute in range
+    # @return [Integer] number of working minutes in the range
     #
     def diff(start,finish)
       start,finish=finish,start if start > finish
@@ -78,22 +96,39 @@ module Workpattern
     
     private
 
-    # sets working pattern
+    # Sets a working pattern
+    #
+    # @param [Integer] start is first minute in the range
+    # @param [Integer] finish is last minute in the range
+    #
     def working(start,finish)
       return self | mask(start,finish)
     end
     
-    # sets resting pattern
+    # sets a resting pattern
+    #
+    # @param [Integer] start is first minute in the range
+    # @param [Integer] finish is last minute in the range
+    #
     def resting(start,finish)
       return self & ((2**60-1)-mask(start,finish))
     end
     
-    # creates a mask over the specified bits
+    # Creates a bit mask of 1's over the specified range
+    #
+    # @param [Integer] start is first minute in the range
+    # @param [Integer] finish is the last minute in the range
+    #
     def mask(start,finish)
       return ((2**(finish+1)-1)-(2**start-1))
     end
     
-    # adds a duration to a time
+    # Handles the addition of minutes to a time
+    #
+    # @param [DateTime] time is the full date but only the minute element is used
+    # @param [Integer] duration is the number of minutes to add and can be negative (subtraction)
+    # @return [DateTime, Integer] The resulting DateTime and any remaining minutes
+    #
     def add(time,duration)
       start = time.min
       available_minutes=minutes(start,59)
@@ -121,7 +156,12 @@ module Workpattern
       return result_date, result_remainder  
     end
     
-    # subtracts a duration from a time
+    # Handles the subtraction of minutes from a time.
+    # @param [DateTime] time is the full date but only the minute element is used
+    # @param [Integer] duration is the number of minutes to add and can be negative (subtraction)
+    # @param [Boolean] next_hour indicates if the 59th second is the first one to be included
+    # @return [DateTime, Integer] The resulting DateTime and any remaining minutes
+    #
     def subtract(time,duration,next_hour)
       if next_hour
         if working?(59)
@@ -157,10 +197,9 @@ module Workpattern
   end
 end
 
-class Fixnum
+# Hours are represented by a bitwise <tt>Integer</tt> class so the code is mixed in to that class
+# @ since 0.3.0
+#
+class Integer
   include Workpattern::Hour
 end
-class Bignum
-  include Workpattern::Hour
-end
-  
