@@ -132,9 +132,7 @@ module Workpattern
         current_wp=find_weekpattern(upd_start)
         if (current_wp.start == upd_start)
           if (current_wp.finish > upd_finish)
-            clone_wp=current_wp.duplicate
-            current_wp.adjust(upd_finish+1,current_wp.finish)
-            clone_wp.adjust(upd_start,upd_finish)
+            clone_wp=clone_and_adjust_current_wp(current_wp, upd_finish+1,current_wp.finish,upd_start,upd_finish)
             clone_wp.workpattern(args[:days],from_time,to_time,args[:work_type])
             @weeks<< clone_wp
             upd_start=upd_finish+1
@@ -143,18 +141,14 @@ module Workpattern
             upd_start=current_wp.finish + 1 
           end
         else
-          clone_wp=current_wp.duplicate
-          current_wp.adjust(current_wp.start,upd_start-1)
-          clone_wp.adjust(upd_start,clone_wp.finish)          
+          clone_wp=clone_and_adjust_current_wp(current_wp, current_wp.start,upd_start-1,upd_start)
           if (clone_wp.finish <= upd_finish)
             clone_wp.workpattern(args[:days],from_time,to_time,args[:work_type])
             @weeks<< clone_wp
             upd_start=clone_wp.finish+1
           else
-            after_wp=clone_wp.duplicate
-            after_wp.adjust(upd_finish+1,after_wp.finish)
+            after_wp=clone_and_adjust_current_wp(clone_wp, upd_start,upd_finish,upd_finish+1)
             @weeks<< after_wp
-            clone_wp.adjust(upd_start,upd_finish)
             clone_wp.workpattern(args[:days],from_time,to_time,args[:work_type])
             @weeks<< clone_wp
             upd_start=clone_wp.finish+1
@@ -278,6 +272,20 @@ module Workpattern
       return Clock.new(date.hour,date.min)
     end
     
+    private
+    
+    # Handles cloning of Week Pattern including date adjustments
+    # 
+    def clone_and_adjust_current_wp(current_wp, current_start,current_finish,clone_start,clone_finish=nil)
+      clone_wp=current_wp.duplicate
+      current_wp.adjust(current_start,current_finish)
+      if (clone_finish.nil?)
+        clone_wp.adjust(clone_start,clone_wp.finish)
+      else
+        clone_wp.adjust(clone_start,clone_finish)
+      end
+      return clone_wp
+    end
   end
 end
     
