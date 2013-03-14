@@ -9,24 +9,24 @@ class TestHour < Test::Unit::TestCase #:nodoc:
   
   must "ceate a working hour" do
     working_hour = Workpattern::WORKING_HOUR
-    assert_equal 60, working_hour.total,"working total minutes"
+    assert_equal 60, working_hour.wp_total,"working total minutes"
   end
     
   must "ceate a resting hour" do
     resting_hour = Workpattern::RESTING_HOUR
-    assert_equal 0, resting_hour.total,"resting total minutes"
+    assert_equal 0, resting_hour.wp_total,"resting total minutes"
   end
   
   must "set patterns correctly" do
     working_hour = Workpattern::WORKING_HOUR
-    working_hour = working_hour.workpattern(0,0,0)
-    working_hour = working_hour.workpattern(59,59,0)
-    working_hour = working_hour.workpattern(11,30,0)
-    assert_equal 38,working_hour.total, "total working minutes"
-    assert_equal 1, working_hour.first, "first minute of the day"
-    assert_equal 58, working_hour.last, "last minute of the day"
-    assert !working_hour.working?(0)
-    assert working_hour.working?(1)
+    working_hour = working_hour.wp_workpattern(0,0,0)
+    working_hour = working_hour.wp_workpattern(59,59,0)
+    working_hour = working_hour.wp_workpattern(11,30,0)
+    assert_equal 38,working_hour.wp_total, "total working minutes"
+    assert_equal 1, working_hour.wp_first, "first minute of the day"
+    assert_equal 58, working_hour.wp_last, "last minute of the day"
+    assert !working_hour.wp_working?(0)
+    assert working_hour.wp_working?(1)
   end
   
   must 'add minutes in a working hour' do
@@ -43,7 +43,7 @@ class TestHour < Test::Unit::TestCase #:nodoc:
      [2000,12,31,23,59,1,2001,1,1,0,0,0]
     ].each{|y,m,d,h,n,add,yr,mr,dr,hr,nr,rem|
       start=DateTime.new(y,m,d,h,n)
-      result,remainder = working_hour.calc(start,add)
+      result,remainder = working_hour.wp_calc(start,add)
       assert_equal DateTime.new(yr,mr,dr,hr,nr), result, "result calc(#{start},#{add})"
       assert_equal rem, remainder, "remainder calc(#{start},#{add})"  
     }
@@ -63,7 +63,7 @@ class TestHour < Test::Unit::TestCase #:nodoc:
      [2000,12,31,23,59,1,2001,1,1,0,0,1]
     ].each{|y,m,d,h,n,add,yr,mr,dr,hr,nr,rem|
       start=DateTime.new(y,m,d,h,n)
-      result,remainder = resting_hour.calc(start,add)
+      result,remainder = resting_hour.wp_calc(start,add)
       assert_equal DateTime.new(yr,mr,dr,hr,nr), result, "result calc(#{start},#{add})"
       assert_equal rem, remainder, "remainder calc(#{start},#{add})"  
     }
@@ -73,8 +73,8 @@ class TestHour < Test::Unit::TestCase #:nodoc:
   must 'add minutes in a patterned hour' do
 
     pattern_hour = Workpattern::WORKING_HOUR
-    pattern_hour = pattern_hour.workpattern(1,10,0)
-    pattern_hour = pattern_hour.workpattern(55,59,0)
+    pattern_hour = pattern_hour.wp_workpattern(1,10,0)
+    pattern_hour = pattern_hour.wp_workpattern(55,59,0)
     [
      [2000,1,1,0,0,3,2000,1,1,0,13,0],
      [2000,1,1,0,0,0,2000,1,1,0,0,0],
@@ -86,7 +86,7 @@ class TestHour < Test::Unit::TestCase #:nodoc:
      [2000,12,31,23,59,1,2001,1,1,0,0,1]
     ].each{|y,m,d,h,n,add,yr,mr,dr,hr,nr,rem|
       start=DateTime.new(y,m,d,h,n)
-      result,remainder = pattern_hour.calc(start,add)
+      result,remainder = pattern_hour.wp_calc(start,add)
       assert_equal DateTime.new(yr,mr,dr,hr,nr), result, "result calc(#{start},#{add})"
       assert_equal rem, remainder, "remainder calc(#{start},#{add})"  
     }
@@ -106,7 +106,7 @@ class TestHour < Test::Unit::TestCase #:nodoc:
      [2001,1,1,0,0,-1,2001,1,1,0,0,-1]
     ].each{|y,m,d,h,n,add,yr,mr,dr,hr,nr,rem|
       start=DateTime.new(y,m,d,h,n)
-      result,remainder = working_hour.calc(start,add)
+      result,remainder = working_hour.wp_calc(start,add)
       assert_equal DateTime.new(yr,mr,dr,hr,nr), result, "result calc(#{start},#{add})"
       assert_equal rem, remainder, "remainder calc(#{start},#{add})"  
     }
@@ -126,7 +126,7 @@ class TestHour < Test::Unit::TestCase #:nodoc:
      [2001,1,1,0,0,-1,2001,1,1,0,0,-1]
     ].each{|y,m,d,h,n,add,yr,mr,dr,hr,nr,rem|
       start=DateTime.new(y,m,d,h,n)
-      result,remainder = resting_hour.calc(start,add)
+      result,remainder = resting_hour.wp_calc(start,add)
       assert_equal DateTime.new(yr,mr,dr,hr,nr), result, "result calc(#{start},#{add})"
       assert_equal rem, remainder, "remainder calc(#{start},#{add})"  
     }
@@ -136,8 +136,8 @@ class TestHour < Test::Unit::TestCase #:nodoc:
   must 'subtract minutes in a patterned hour' do
   
     pattern_hour = Workpattern::WORKING_HOUR
-    pattern_hour = pattern_hour.workpattern(1,10,0)
-    pattern_hour = pattern_hour.workpattern(55,59,0)
+    pattern_hour = pattern_hour.wp_workpattern(1,10,0)
+    pattern_hour = pattern_hour.wp_workpattern(55,59,0)
     [
      [2000,1,1,0,0,-3,2000,1,1,0,0,-3],
      [2000,1,1,0,0,0,2000,1,1,0,0,0],
@@ -149,7 +149,7 @@ class TestHour < Test::Unit::TestCase #:nodoc:
      [2001,1,1,23,59,-1,2001,1,1,23,54,0]
     ].each{|y,m,d,h,n,add,yr,mr,dr,hr,nr,rem|
       start=DateTime.new(y,m,d,h,n)
-      result,remainder = pattern_hour.calc(start,add)
+      result,remainder = pattern_hour.wp_calc(start,add)
       assert_equal DateTime.new(yr,mr,dr,hr,nr), result, "result calc(#{start},#{add})"
       assert_equal rem, remainder, "remainder calc(#{start},#{add})"  
     }
@@ -170,16 +170,16 @@ class TestHour < Test::Unit::TestCase #:nodoc:
      [0,0,1,1,0,0],
      [59,59,1,2,0,59]
     ].each{|start,finish,type,total,first,last|
-      working_hour = working_hour.workpattern(start,finish,type)
-      assert_equal total,working_hour.total, "total working minutes #{j}"
-      assert_equal first, working_hour.first, "first minute of the day #{j}"
-      assert_equal last, working_hour.last, "last minute of the day #{j}"  
+      working_hour = working_hour.wp_workpattern(start,finish,type)
+      assert_equal total,working_hour.wp_total, "total working minutes #{j}"
+      assert_equal first, working_hour.wp_first, "first minute of the day #{j}"
+      assert_equal last, working_hour.wp_last, "last minute of the day #{j}"  
       start.upto(finish) {|i| control[i]=type}
       0.upto(59) {|i|
         if (control[i]==0)
-          assert !working_hour.working?(i)    
+          assert !working_hour.wp_working?(i)    
         else
-          assert working_hour.working?(i)
+          assert working_hour.wp_working?(i)
         end
       }
       j+=1
@@ -201,7 +201,7 @@ class TestHour < Test::Unit::TestCase #:nodoc:
      [59,0,59],
      [60,0,60]
     ].each {|start,finish,result|
-      assert_equal result, working_hour.diff(start,finish),"diff(#{start},#{finish})"
+      assert_equal result, working_hour.wp_diff(start,finish),"diff(#{start},#{finish})"
     }
     
   end
@@ -220,7 +220,7 @@ class TestHour < Test::Unit::TestCase #:nodoc:
      [59,0,0],
      [60,0,0]
     ].each {|start,finish,result|
-      assert_equal result, resting_hour.diff(start,finish),"diff(#{start},#{finish})"
+      assert_equal result, resting_hour.wp_diff(start,finish),"diff(#{start},#{finish})"
     }
     
   end
@@ -228,9 +228,9 @@ class TestHour < Test::Unit::TestCase #:nodoc:
   must "calculate difference between minutes in pattern hour" do
 
     pattern_hour = Workpattern::WORKING_HOUR
-    pattern_hour = pattern_hour.workpattern(1,10,0)
-    pattern_hour = pattern_hour.workpattern(55,59,0)
-    pattern_hour = pattern_hour.workpattern(59,59,1)
+    pattern_hour = pattern_hour.wp_workpattern(1,10,0)
+    pattern_hour = pattern_hour.wp_workpattern(55,59,0)
+    pattern_hour = pattern_hour.wp_workpattern(59,59,1)
     
     [[0,0,0],
      [0,1,1],
@@ -244,7 +244,7 @@ class TestHour < Test::Unit::TestCase #:nodoc:
      [59,0,45],
      [60,0,46]
     ].each {|start,finish,result|
-      assert_equal result, pattern_hour.diff(start,finish),"diff(#{start},#{finish})"
+      assert_equal result, pattern_hour.wp_diff(start,finish),"diff(#{start},#{finish})"
     }  
   end
 

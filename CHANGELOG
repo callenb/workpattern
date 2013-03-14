@@ -1,3 +1,9 @@
+## Workpattern v0.3.2 (Mar 14, 2013)  ##
+
+* Changed methods on Hour module so as to not clash with Rails (#10) * Barrie Callender * 
+* Applied DRY principle to workpattern method in Workpattern class * Barrie Callender *
+* Removed file from emacs backup * Barrie Callender *
+
 ## Workpattern v0.3.1 (Oct 14, 2012)  ##
 
 * RDOC documentation not right on rubydoc.info (#5) * Barrie Callender *

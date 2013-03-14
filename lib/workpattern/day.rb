@@ -74,17 +74,17 @@ module Workpattern
     def workpattern(start_time,finish_time,type)
     
       if start_time.hour==finish_time.hour
-        @values[start_time.hour]=@values[start_time.hour].workpattern(start_time.min,finish_time.min,type)
+        @values[start_time.hour]=@values[start_time.hour].wp_workpattern(start_time.min,finish_time.min,type)
       else
         test_hour=start_time.hour
-        @values[test_hour]=@values[test_hour].workpattern(start_time.min,59,type)
+        @values[test_hour]=@values[test_hour].wp_workpattern(start_time.min,59,type)
         
         while ((test_hour+1)<finish_time.hour)
           test_hour+=1
-          @values[test_hour]=@values[test_hour].workpattern(0,59,type)     
+          @values[test_hour]=@values[test_hour].wp_workpattern(0,59,type)     
         end
         
-        @values[finish_time.hour]=@values[finish_time.hour].workpattern(0,finish_time.min,type)
+        @values[finish_time.hour]=@values[finish_time.hour].wp_workpattern(0,finish_time.min,type)
       end
       set_attributes
     end
@@ -166,15 +166,15 @@ module Workpattern
       end
       
       if (start_hour==finish_hour)     
-        retval=@values[start_hour].minutes(start_min,finish_min)
+        retval=@values[start_hour].wp_minutes(start_min,finish_min)
       else
     
-        retval=@values[start_hour].minutes(start_min,59)
+        retval=@values[start_hour].wp_minutes(start_min,59)
         while (start_hour+1<finish_hour)        
-          retval+=@values[start_hour+1].total     
+          retval+=@values[start_hour+1].wp_total     
           start_hour+=1
         end
-        retval+=@values[finish_hour].minutes(0,finish_min)
+        retval+=@values[finish_hour].wp_minutes(0,finish_min)
       end
         
       return retval
@@ -191,11 +191,11 @@ module Workpattern
       @last_min=nil
       @total=0
       0.upto(@hours-1) {|index|
-        @first_hour=index if ((@first_hour.nil?) && (@values[index].total!=0))
-        @first_min=@values[index].first if ((@first_min.nil?) && (!@values[index].first.nil?))        
-        @last_hour=index if (@values[index].total!=0)
-        @last_min=@values[index].last if (@values[index].total!=0)
-        @total+=@values[index].total
+        @first_hour=index if ((@first_hour.nil?) && (@values[index].wp_total!=0))
+        @first_min=@values[index].wp_first if ((@first_min.nil?) && (!@values[index].wp_first.nil?))        
+        @last_hour=index if (@values[index].wp_total!=0)
+        @last_min=@values[index].wp_last if (@values[index].wp_total!=0)
+        @total+=@values[index].wp_total
       }
     end
     
@@ -247,17 +247,17 @@ module Workpattern
         duration=0
         time=first_working_minute(time)  
       else
-        minutes_this_hour=@values[time.hour].minutes(0,time.min-1)
+        minutes_this_hour=@values[time.hour].wp_minutes(0,time.min-1)
         this_hour=time.hour
         until (duration==0)
           if (minutes_this_hour<duration.abs)     
             duration+=minutes_this_hour
             time = time - (MINUTE*time.min) - HOUR
             this_hour-=1
-            minutes_this_hour=@values[this_hour].total
+            minutes_this_hour=@values[this_hour].wp_total
           else
             next_hour=(time.min==0)
-            time,duration=@values[this_hour].calc(time,duration, next_hour)
+            time,duration=@values[this_hour].wp_calc(time,duration, next_hour)
           end
         end
       end  
@@ -279,9 +279,9 @@ module Workpattern
         result_date= time.next_day - (HOUR*time.hour) - (MINUTE*time.min)
         duration = duration - available_minutes      
       else
-        total=@values[time.hour].minutes(time.min,59)
+        total=@values[time.hour].wp_minutes(time.min,59)
         if (total==duration) # this hour satisfies              
-          result_date=time - (MINUTE*time.min) + (MINUTE*@values[time.hour].last) + MINUTE                   
+          result_date=time - (MINUTE*time.min) + (MINUTE*@values[time.hour].wp_last) + MINUTE                   
           duration = 0
         else  
           result_date = time
@@ -290,9 +290,9 @@ module Workpattern
               duration-=total
               result_date=result_date + HOUR - (MINUTE*result_date.min)
             else
-              result_date,duration=@values[result_date.hour].calc(result_date,duration)     
+              result_date,duration=@values[result_date.hour].wp_calc(result_date,duration)     
             end
-            total=@values[result_date.hour].total
+            total=@values[result_date.hour].wp_total
           end
         end
       end    
@@ -317,7 +317,7 @@ module Workpattern
     # @return [Integer] number of remaining working minutes
     #
     def minutes_left_in_hour(start)
-      return @values[start.hour].diff(start.min,60)
+      return @values[start.hour].wp_diff(start.min,60)
     end
     
   end

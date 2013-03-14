@@ -10,8 +10,8 @@ module Workpattern
     #
     # @return [Integer] working minutes in the hour 
     #
-    def total
-      return minutes(0,59)
+    def wp_total
+      return wp_minutes(0,59)
     end  
     
     # Sets the minutes to either working (type=1) or resting (type=0)
@@ -20,17 +20,17 @@ module Workpattern
     # @param [Integer] finish minute at end of range
     # @param [Integer] type defines whether working (1) or resting (0)
     #
-    def workpattern(start,finish,type)
-      return working(start,finish) if type==1
-      return resting(start,finish) if type==0
+    def wp_workpattern(start,finish,type)
+      return wp_working(start,finish) if type==1
+      return wp_resting(start,finish) if type==0
     end
     
     # Returns the first working minute in the hour or 60 if there are no working minutes
     #
     # @return [Integer] first working minute or 60 if none found
     #
-    def first
-      0.upto(59) {|minute| return minute if self.minutes(minute,minute)==1}
+    def wp_first
+      0.upto(59) {|minute| return minute if self.wp_minutes(minute,minute)==1}
       return nil
     end
     
@@ -38,8 +38,8 @@ module Workpattern
     #
     # @return [Integer] last working minute or nil if none found
     #
-    def last
-      59.downto(0) {|minute| return minute if self.minutes(minute,minute)==1}
+    def wp_last
+      59.downto(0) {|minute| return minute if self.wp_minutes(minute,minute)==1}
       return nil
     end
     
@@ -48,8 +48,8 @@ module Workpattern
     # @param [Integer] start is the minute being tested
     # @return [Boolean] true if minute is working, otherwise false
     #
-    def working?(start)
-      return true if minutes(start,start)==1
+    def wp_working?(start)
+      return true if wp_minutes(start,start)==1
       return false
     end
     
@@ -59,9 +59,9 @@ module Workpattern
     # @param [Integer] finish last minute in range
     # @return [Integer] number of minutes from <tt>start</tt> to <tt>finish</tt> inclusive
     #
-    def minutes(start,finish)
+    def wp_minutes(start,finish)
       start,finish=finish,start if start > finish
-      return (self & mask(start,finish)).to_s(2).count('1')
+      return (self & wp_mask(start,finish)).to_s(2).count('1')
     end
     
     # Returns the DateTime and remainding minutes when adding a duration to a minute in the hour. 
@@ -72,12 +72,12 @@ module Workpattern
     # @param [Boolean] next_hour used in subtraction to specify the starting point as midnight (00:00 the next day)
     # @return [DateTime,Integer,Boolean] The <tt>DateTime</tt> calculated along with remaining minutes and a flag indicating if starting point is next hour
     #
-    def calc(time,duration,next_hour=false)
+    def wp_calc(time,duration,next_hour=false)
     
       if (duration<0)
-        return subtract(time,duration, next_hour)  
+        return wp_subtract(time,duration, next_hour)  
       elsif (duration>0)
-        return add(time,duration)                
+        return wp_add(time,duration)                
       else
         return time,duration
       end 
@@ -88,10 +88,10 @@ module Workpattern
     # @param [Integer] finish last minute in range
     # @return [Integer] number of working minutes in the range
     #
-    def diff(start,finish)
+    def wp_diff(start,finish)
       start,finish=finish,start if start > finish
       return 0 if start==finish
-      return (self & mask(start,finish-1)).to_s(2).count('1')
+      return (self & wp_mask(start,finish-1)).to_s(2).count('1')
     end
     
     private
@@ -101,8 +101,8 @@ module Workpattern
     # @param [Integer] start is first minute in the range
     # @param [Integer] finish is last minute in the range
     #
-    def working(start,finish)
-      return self | mask(start,finish)
+    def wp_working(start,finish)
+      return self | wp_mask(start,finish)
     end
     
     # sets a resting pattern
@@ -110,8 +110,8 @@ module Workpattern
     # @param [Integer] start is first minute in the range
     # @param [Integer] finish is last minute in the range
     #
-    def resting(start,finish)
-      return self & ((2**60-1)-mask(start,finish))
+    def wp_resting(start,finish)
+      return self & ((2**60-1)-wp_mask(start,finish))
     end
     
     # Creates a bit mask of 1's over the specified range
@@ -119,7 +119,7 @@ module Workpattern
     # @param [Integer] start is first minute in the range
     # @param [Integer] finish is the last minute in the range
     #
-    def mask(start,finish)
+    def wp_mask(start,finish)
       return ((2**(finish+1)-1)-(2**start-1))
     end
     
@@ -129,9 +129,9 @@ module Workpattern
     # @param [Integer] duration is the number of minutes to add and can be negative (subtraction)
     # @return [DateTime, Integer] The resulting DateTime and any remaining minutes
     #
-    def add(time,duration)
+    def wp_add(time,duration)
       start = time.min
-      available_minutes=minutes(start,59)
+      available_minutes=wp_minutes(start,59)
 
       if ((duration-available_minutes)>=0)
         result_date = time + HOUR - (MINUTE*start)
@@ -139,15 +139,15 @@ module Workpattern
       elsif ((duration-available_minutes)==0)
         result_date = time - (MINUTE*start) + last + 1 
         result_remainder = 0
-      elsif (minutes(start,start+duration-1)==duration)
+      elsif (wp_minutes(start,start+duration-1)==duration)
         result_date = time + (MINUTE*duration)
         result_remainder = 0
       else
         step = start + duration
-        duration-=minutes(start,step)
+        duration-=wp_minutes(start,step)
         until (duration==0)
           step+=1
-          duration-=minutes(step,step)
+          duration-=wp_minutes(step,step)
         end
         step+=1
         result_date = time + (MINUTE*step)
@@ -162,31 +162,31 @@ module Workpattern
     # @param [Boolean] next_hour indicates if the 59th second is the first one to be included
     # @return [DateTime, Integer] The resulting DateTime and any remaining minutes
     #
-    def subtract(time,duration,next_hour)
+    def wp_subtract(time,duration,next_hour)
       if next_hour
-        if working?(59)
+        if wp_working?(59)
           duration+=1
           time=time+(MINUTE*59)
-          return calc(time,duration)
+          return wp_calc(time,duration)
         end  
       else  
         start=time.min  
         available_minutes=0
-        available_minutes = minutes(0,start-1) if start > 0
+        available_minutes = wp_minutes(0,start-1) if start > 0
       end
       
       if ((duration + available_minutes)<=0)
         result_date = time - (MINUTE*start)
         result_remainder = duration+available_minutes
-      elsif (minutes(start+duration,start-1)==duration.abs)
+      elsif (wp_minutes(start+duration,start-1)==duration.abs)
         result_date = time + (MINUTE*duration)
         result_remainder = 0
       else     
         step = start + duration
-        duration+=minutes(step,start-1)
+        duration+=wp_minutes(step,start-1)
         until (duration==0)
           step-=1
-          duration+=minutes(step,step)
+          duration+=wp_minutes(step,step)
         end
         result_date = time - (MINUTE * (start-step))
         result_remainder = 0
