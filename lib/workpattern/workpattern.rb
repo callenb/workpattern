@@ -29,6 +29,16 @@ module Workpattern
     #
     attr_reader :name, :base, :span, :from, :to, :weeks
     
+    # Class for handling persistence in user's own way
+    #
+    def self.persistence_class=(klass)
+      @@persistence = klass
+    end
+
+    def self.persistence?
+      @@persistence ||= nil
+    end
+
     # The new <tt>Workpattern</tt> object is created with all working minutes.
     #
     # @param [String] name Every workpattern has a unique name
@@ -119,6 +129,8 @@ module Workpattern
           :work_type => WORK}   
           
       args.merge! opts
+ 
+      @@persistence.store( name: @name, workpattern: args) if self.class.persistence?
 
       args[:start] = dmy_date(args[:start])
       args[:finish] = dmy_date(args[:finish])
