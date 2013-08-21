@@ -1,6 +1,11 @@
+## Workpattern v0.3.3 (Aug 21, 2013)  ##
+
+* The two tests no longer fail with Ruby 2.0 (#11) * Barrie Callender *
+
+
 ## Workpattern v0.3.2 (Mar 14, 2013)  ##
 
-* Changed methods on Hour module so as to not clash with Rails (#10) * Barrie Callender * 
+* Changed methods on Hour module so as to not clash with Rails (#10) * Barrie Callender *
 * Applied DRY principle to workpattern method in Workpattern class * Barrie Callender *
 * Removed file from emacs backup * Barrie Callender *
 

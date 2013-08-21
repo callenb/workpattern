@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    workpattern (0.3.1)
+    workpattern (0.3.2)
 
 GEM
   remote: http://rubygems.org/

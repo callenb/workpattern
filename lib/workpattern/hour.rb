@@ -60,7 +60,6 @@ module Workpattern
     # @return [Integer] number of minutes from <tt>start</tt> to <tt>finish</tt> inclusive
     #
     def wp_minutes(start,finish)
-      start,finish=finish,start if start > finish
       return (self & wp_mask(start,finish)).to_s(2).count('1')
     end
     
