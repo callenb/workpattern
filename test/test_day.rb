@@ -1,23 +1,23 @@
 require File.dirname(__FILE__) + '/test_helper.rb'
 
-class TestDay < Test::Unit::TestCase #:nodoc:
+class TestDay < MiniTest::Unit::TestCase #:nodoc:
 
   def setup
   end
   
-  must "create a working day" do
+  def test_must_create_a_working_day
   
     working_day = Workpattern::Day.new(1)
     assert_equal 1440, working_day.total,"24 hour working total minutes"
   end
     
-  must "ceate a resting day" do
+  def test_must_ceate_a_resting_day
 
     resting_day = Workpattern::Day.new(0)
     assert_equal 0, resting_day.total,"24 hour resting total minutes"
   end
   
-  must "set patterns correctly" do
+  def test_must_set_patterns_correctly
 
     times=Array.new()
     [[0,0,8,59],
@@ -41,7 +41,7 @@ class TestDay < Test::Unit::TestCase #:nodoc:
     }
   end
   
-  must "duplicate all of day" do
+  def test_must_duplicate_all_of_day
     day=Workpattern::Day.new(1)
     new_day = day.duplicate
     assert_equal 1440, new_day.total,"24 hour duplicate working total minutes"
@@ -107,7 +107,7 @@ class TestDay < Test::Unit::TestCase #:nodoc:
     
   end
   
-  must 'add minutes in a working day' do
+  def test_must_add_minutes_in_a_working_day
   
     day = Workpattern::Day.new(1)
     # y    m ,d ,h ,n ,dur ,yr  ,mr,dr,hr,nr,rem ,midnight, midnightr
@@ -129,7 +129,7 @@ class TestDay < Test::Unit::TestCase #:nodoc:
     
   end
   
-  must 'add minutes in a resting day' do
+  def test_must_add_minutes_in_a_resting_day
 
     day = Workpattern::Day.new(0)
     # y    m ,d ,h ,n ,dur ,yr  ,mr,dr,hr,nr,rem ,midnight, midnightr
@@ -146,7 +146,7 @@ class TestDay < Test::Unit::TestCase #:nodoc:
     calc_test(day,tests,clue)
   end
   
-  must 'add minutes in a patterned day' do
+  def test_must_add_minutes_in_a_patterned_day
  
     day = Workpattern::Day.new(1)
     [[0,0,8,59],
@@ -178,7 +178,7 @@ class TestDay < Test::Unit::TestCase #:nodoc:
     calc_test(day,tests,clue)  
   end
   
-  must 'subtract minutes in a working day' do
+  def test_must_subtract_minutes_in_a_working_day
 
     day = Workpattern::Day.new(1)
     # y   ,m ,d ,h ,n ,dur ,yr  ,mr,dr,hr,nr,rem ,midnight,midnightr    
@@ -204,7 +204,7 @@ class TestDay < Test::Unit::TestCase #:nodoc:
     calc_test(day,tests,clue)
   end
   
-  must 'subtract minutes in a resting day' do
+  def test_must_subtract_minutes_in_a_resting_day
     
     day = Workpattern::Day.new(0)
     # y   ,m ,d ,h ,n ,dur ,yr  ,mr,dr,hr,nr,rem ,midnight,midnightr     
@@ -228,7 +228,7 @@ class TestDay < Test::Unit::TestCase #:nodoc:
     calc_test(day,tests,clue)  
   end
   
-  must 'subtract minutes in a patterned day' do
+  def test_must_subtract_minutes_in_a_patterned_day
   
     day = Workpattern::Day.new(1)
     [[0,0,8,59],
@@ -274,7 +274,7 @@ class TestDay < Test::Unit::TestCase #:nodoc:
   end
    
   
-  must "calculate difference between times in working day" do
+  def test_must_calculate_difference_between_times_in_working_day
     day = Workpattern::Day.new(1)
     
     [
@@ -305,7 +305,7 @@ class TestDay < Test::Unit::TestCase #:nodoc:
     }
   end
 
-  must "calculate difference between times in resting day" do
+  def test_must_calculate_difference_between_times_in_resting_day
   day = Workpattern::Day.new(0)
   
     [
@@ -336,7 +336,7 @@ class TestDay < Test::Unit::TestCase #:nodoc:
      }
   end
 
-  must "calculate difference between times in pattern day" do
+  def test_must_calculate_difference_between_times_in_pattern_day
 
     day = Workpattern::Day.new(1)
     [[0,0,8,59],

@@ -1,12 +1,12 @@
 require File.dirname(__FILE__) + '/test_helper.rb'
 
-class TestWorkpattern < Test::Unit::TestCase #:nodoc:
+class TestWorkpattern < MiniTest::Unit::TestCase #:nodoc:
 
   def setup
     Workpattern.clear()    
   end
   
-  must "create a working workpattern" do
+  def test_must_create_a_working_workpattern
     name='mywp'
     base=2001
     span=11
@@ -18,7 +18,7 @@ class TestWorkpattern < Test::Unit::TestCase #:nodoc:
     assert_equal DateTime.new(base+span-1,12,31,23,59), wp.to
   end
   
-  must "set patterns correctly" do
+  def test_must_set_patterns_correctly
     name='mypattern'
     base=2000
     span=11
@@ -48,7 +48,7 @@ class TestWorkpattern < Test::Unit::TestCase #:nodoc:
     
   end
   
-  must 'add minutes in a working workpattern' do
+  def test_must_add_minutes_in_a_working_workpattern
     name='mypattern'
     base=1999
     span=11
@@ -66,7 +66,7 @@ class TestWorkpattern < Test::Unit::TestCase #:nodoc:
     calc_test(wp,tests,clue) 
   end
   
-  must 'add minutes in a resting workpattern' do
+  def test_must_add_minutes_in_a_resting_workpattern
     name='mypattern'
     base=1999
     span=11
@@ -87,11 +87,11 @@ class TestWorkpattern < Test::Unit::TestCase #:nodoc:
     calc_test(wp,tests,clue) 
   end
   
-  must 'add minutes in a patterned workpattern' do
+  def test_must_add_minutes_in_a_patterned_workpattern
     assert true
   end
   
-  must 'subtract minutes in a working workpattern' do
+  def test_must_subtract_minutes_in_a_working_workpattern
     name='mypattern'
     base=1999
     span=11
@@ -109,7 +109,7 @@ class TestWorkpattern < Test::Unit::TestCase #:nodoc:
     calc_test(wp,tests,clue) 
   end
   
-  must 'subtract minutes in a resting workpattern' do
+  def test_must_subtract_minutes_in_a_resting_workpattern
     name='mypattern'
     base=1999
     span=11
@@ -130,12 +130,12 @@ class TestWorkpattern < Test::Unit::TestCase #:nodoc:
     calc_test(wp,tests,clue)
   end
   
-  must 'subtract minutes in a patterned workpattern' do
+  def test_must_subtract_minutes_in_a_patterned_workpattern
     assert true
   end
   
   
-  must "calculate difference between dates in working calender" do
+  def test_must_calculate_difference_between_dates_in_working_calender
     name='mypattern'
     base=1999
     span=40
@@ -167,15 +167,15 @@ class TestWorkpattern < Test::Unit::TestCase #:nodoc:
     }
   end
 
-  must "calculate difference between minutes in resting workpattern" do
+  def test_must_calculate_difference_between_minutes_in_resting_workpattern
     assert true
   end
 
-  must "calculate difference between minutes in pattern workpattern" do
+  def test_must_calculate_difference_between_minutes_in_pattern_workpattern
     assert true 
   end
 
-  must "follow the example in workpattern" do
+  def test_must_follow_the_example_in_workpattern
     mywp=Workpattern.new('My Workpattern',2011,10)
     mywp.resting(:days => :weekend)
     mywp.resting(:days =>:weekday, :from_time=>Workpattern.clock(0,0),:to_time=>Workpattern.clock(8,59))
@@ -186,7 +186,7 @@ class TestWorkpattern < Test::Unit::TestCase #:nodoc:
     assert_equal DateTime.civil(2011,9,6,18,0), result_date, 'example in workpattern'
   end
   
-  must "calculate across week patterns" do
+  def test_must_calculate_across_week_patterns
     name='mypattern'
     base=2011
     span=11
@@ -228,7 +228,7 @@ class TestWorkpattern < Test::Unit::TestCase #:nodoc:
     calc_test(wp,tests,clue)
   end
   
-  must "know whether a time is working or resting" do
+  def test_must_know_whether_a_time_is_working_or_resting
     name='working?'
     base=2011
     span=11

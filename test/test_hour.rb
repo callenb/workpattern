@@ -1,23 +1,18 @@
 require File.dirname(__FILE__) + '/test_helper.rb'
 
-class TestHour < Test::Unit::TestCase #:nodoc:
+class TestHour < MiniTest::Unit::TestCase #:nodoc:
 
   def setup
     @working_hour = Workpattern::WORKING_HOUR
     @resting_hour = Workpattern::RESTING_HOUR
   end
   
-  must "ceate a working hour" do
+  def test_must_create_a_working_hour
     working_hour = Workpattern::WORKING_HOUR
     assert_equal 60, working_hour.wp_total,"working total minutes"
   end
     
-  must "ceate a resting hour" do
-    resting_hour = Workpattern::RESTING_HOUR
-    assert_equal 0, resting_hour.wp_total,"resting total minutes"
-  end
-  
-  must "set patterns correctly" do
+  def test_must_set_patterns_correctly
     working_hour = Workpattern::WORKING_HOUR
     working_hour = working_hour.wp_workpattern(0,0,0)
     working_hour = working_hour.wp_workpattern(59,59,0)
@@ -29,8 +24,7 @@ class TestHour < Test::Unit::TestCase #:nodoc:
     assert working_hour.wp_working?(1)
   end
   
-  must 'add minutes in a working hour' do
-    
+  def test_must_add_minutes_in_a_working_hour  
     working_hour = Workpattern::WORKING_HOUR
     [
      [2000,1,1,0,0,3,2000,1,1,0,3,0],
@@ -50,7 +44,7 @@ class TestHour < Test::Unit::TestCase #:nodoc:
     
   end
   
-  must 'add minutes in a resting hour' do
+  def test_must_add_minutes_in_a_resting_hour
     resting_hour = Workpattern::RESTING_HOUR
     [
      [2000,1,1,0,0,3,2000,1,1,1,0,3],
@@ -70,8 +64,7 @@ class TestHour < Test::Unit::TestCase #:nodoc:
     
   end
   
-  must 'add minutes in a patterned hour' do
-
+  def test_must_add_minutes_in_a_patterned_hour
     pattern_hour = Workpattern::WORKING_HOUR
     pattern_hour = pattern_hour.wp_workpattern(1,10,0)
     pattern_hour = pattern_hour.wp_workpattern(55,59,0)
@@ -93,7 +86,7 @@ class TestHour < Test::Unit::TestCase #:nodoc:
     
   end
   
-  must 'subtract minutes in a working hour' do
+  def test_must_subtract_minutes_in_working_hour
     working_hour = Workpattern::WORKING_HOUR
     [
      [2000,1,1,0,10,-3,2000,1,1,0,7,0],
@@ -113,7 +106,7 @@ class TestHour < Test::Unit::TestCase #:nodoc:
     
   end
   
-  must 'subtract minutes in a resting hour' do
+  def test_must_subtract_minutes_in_a_resting_hour
     resting_hour = Workpattern::RESTING_HOUR
     [
      [2000,1,1,0,10,-3,2000,1,1,0,0,-3],
@@ -133,8 +126,7 @@ class TestHour < Test::Unit::TestCase #:nodoc:
     
   end
   
-  must 'subtract minutes in a patterned hour' do
-  
+  def test_must_subtract_minutes_in_a_patterned_hour 
     pattern_hour = Workpattern::WORKING_HOUR
     pattern_hour = pattern_hour.wp_workpattern(1,10,0)
     pattern_hour = pattern_hour.wp_workpattern(55,59,0)
@@ -155,8 +147,8 @@ class TestHour < Test::Unit::TestCase #:nodoc:
     }
   end
   
-  
-  must 'create complex patterns' do
+
+  def test_must_create_complex_patterns
     working_hour = Workpattern::WORKING_HOUR
     control=Array.new(60) {|i| 1}
     j=0
@@ -186,8 +178,7 @@ class TestHour < Test::Unit::TestCase #:nodoc:
     }
   end
 
-  must "calculate difference between minutes in working hour" do
-
+  def test_must_calculate_difference_between_minutes_in_working_hour
     working_hour = Workpattern::WORKING_HOUR
     [[0,0,0],
      [0,1,1],
@@ -206,7 +197,7 @@ class TestHour < Test::Unit::TestCase #:nodoc:
     
   end
 
-  must "calculate difference between minutes in resting hour" do
+  def test_must_calculate_difference_between_minutes_in_resting_hour
     resting_hour = Workpattern::RESTING_HOUR
     [[0,0,0],
      [0,1,0],
@@ -225,8 +216,7 @@ class TestHour < Test::Unit::TestCase #:nodoc:
     
   end
 
-  must "calculate difference between minutes in pattern hour" do
-
+  def test_must_calculate_difference_between_minutes_in_pattern_hour
     pattern_hour = Workpattern::WORKING_HOUR
     pattern_hour = pattern_hour.wp_workpattern(1,10,0)
     pattern_hour = pattern_hour.wp_workpattern(55,59,0)

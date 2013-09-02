@@ -1,11 +1,11 @@
 require File.dirname(__FILE__) + '/test_helper.rb'
 
-class TestClock < Test::Unit::TestCase #:nodoc:
+class TestClock < MiniTest::Unit::TestCase #:nodoc:
 
   def setup
   end
   
-  must "create midnight default"  do
+  def test_must_create_midnight_default
     clock=Workpattern::Clock.new()
     
     assert_equal 0, clock.minutes, "total default minutes"
@@ -17,7 +17,7 @@ class TestClock < Test::Unit::TestCase #:nodoc:
     assert_equal 0, time.min, "minute in the day must be zero"
   end
   
-  must "account for out of range values" do
+  def test_must_account_for_out_of_range_values
     clock=Workpattern::Clock.new(27,80)
     
     assert_equal 1700, clock.minutes, "total minutes"

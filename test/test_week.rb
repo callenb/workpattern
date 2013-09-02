@@ -1,12 +1,12 @@
 require File.dirname(__FILE__) + '/test_helper.rb'
 
-class TestWeek < Test::Unit::TestCase #:nodoc:
+class TestWeek < MiniTest::Unit::TestCase #:nodoc:
 
   def setup
     
   end
   
-  must "create a working week" do
+  def test_must_create_a_working_week
     start=DateTime.new(2000,1,1,11,3)
     finish=DateTime.new(2005,12,31,16,41)
     working_week=week(start,finish,1)
@@ -15,7 +15,7 @@ class TestWeek < Test::Unit::TestCase #:nodoc:
     assert_equal 3156480, working_week.total#2192
   end
     
-  must "create a resting week" do
+  def test_must_create_a_resting_week
     start=DateTime.new(2000,1,1,11,3)
     finish=DateTime.new(2005,12,31,16,41)
     resting_week=week(start,finish,0)
@@ -25,7 +25,7 @@ class TestWeek < Test::Unit::TestCase #:nodoc:
     assert_equal 0,resting_week.week_total
   end
   
-  must 'duplicate all of a week' do
+  def test_must_duplicate_all_of_a_week
     start=DateTime.new(2000,1,1,11,3)
     finish=DateTime.new(2005,12,31,16,41)
     week=week(start,finish,1)
@@ -36,7 +36,7 @@ class TestWeek < Test::Unit::TestCase #:nodoc:
     
   end
   
-  must "set patterns correctly" do
+  def test_must_set_patterns_correctly
     start=DateTime.new(2000,1,1,0,0)
     finish=DateTime.new(2005,12,31,8,59)
     working_week=week(start,finish,1)
@@ -62,7 +62,7 @@ class TestWeek < Test::Unit::TestCase #:nodoc:
     
   end
   
-  must 'add minutes in a working week' do
+  def test_must_add_minutes_in_a_working_week
     start=DateTime.new(2000,1,1,0,0)
     finish=DateTime.new(2005,12,31,8,59)
     working_week=week(start,finish,1)
@@ -81,7 +81,7 @@ class TestWeek < Test::Unit::TestCase #:nodoc:
     }
   end
   
-  must 'add minutes in a resting week' do
+  def test_must_add_minutes_in_a_resting_week
     start=DateTime.new(2000,1,1,0,0)
     finish=DateTime.new(2005,12,31,8,59)
     resting_week=week(start,finish,0)
@@ -106,7 +106,7 @@ class TestWeek < Test::Unit::TestCase #:nodoc:
     }
   end
   
-  must 'add minutes in a patterned week' do
+  def test_must_add_minutes_in_a_patterned_week
     start=DateTime.new(2000,1,1,0,0) #saturday
     finish=DateTime.new(2005,12,31,8,59) #saturday
     working_week=week(start,finish,0)
@@ -138,7 +138,7 @@ class TestWeek < Test::Unit::TestCase #:nodoc:
     }
   end
   
-  must 'subtract minutes in a working week' do
+  def test_must_subtract_minutes_in_a_working_week
     start=DateTime.new(2000,1,1,0,0)
     finish=DateTime.new(2005,12,31,8,59)
     working_week=week(start,finish,1)
@@ -162,7 +162,7 @@ class TestWeek < Test::Unit::TestCase #:nodoc:
     }
   end
   
-  must 'subtract minutes in a resting week' do
+  def test_must_subtract_minutes_in_a_resting_week
     start=DateTime.new(2000,1,1,0,0)
     finish=DateTime.new(2005,12,31,8,59)
     resting_week=week(start,finish,0)
@@ -181,7 +181,7 @@ class TestWeek < Test::Unit::TestCase #:nodoc:
     }
   end
   
-  must 'subtract minutes in a patterned week' do
+  def test_must_subtract_minutes_in_a_patterned_week
     start=DateTime.new(2000,1,1,0,0) #saturday
     finish=DateTime.new(2005,12,31,8,59) #saturday
     working_week=week(start,finish,0)
@@ -213,7 +213,7 @@ class TestWeek < Test::Unit::TestCase #:nodoc:
     }
   end
   
-  must "calculate difference between dates in working week" do
+  def test_must_calculate_difference_between_dates_in_working_week
     start=DateTime.new(2012,10,1)
     finish=DateTime.new(2012,10,7)
     week=week(start,finish,1)
@@ -247,7 +247,7 @@ class TestWeek < Test::Unit::TestCase #:nodoc:
     }
   end
 
-  must "calculate difference between dates in resting week" do
+  def test_must_calculate_difference_between_dates_in_resting_week
 
     start=DateTime.new(2012,10,1)
     finish=DateTime.new(2012,10,7)
@@ -281,7 +281,7 @@ class TestWeek < Test::Unit::TestCase #:nodoc:
      }
   end
 
-  must "calculate difference between dates in pattern week" do
+  def test_must_calculate_difference_between_dates_in_pattern_week
     start=DateTime.new(2000,1,1)
     finish=DateTime.new(2012,12,31)
     week=week(start,finish,1)
