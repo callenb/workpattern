@@ -72,14 +72,9 @@ module Workpattern
     # @return [DateTime,Integer,Boolean] The <tt>DateTime</tt> calculated along with remaining minutes and a flag indicating if starting point is next hour
     #
     def wp_calc(time,duration,next_hour=false)
-    
-      if (duration<0)
-        return wp_subtract(time,duration, next_hour)  
-      elsif (duration>0)
-        return wp_add(time,duration)                
-      else
-        return time,duration
-      end 
+      return wp_subtract(time,duration, next_hour) if duration < 0
+      return wp_add(time,duration) if duration > 0
+      return time,duration 
     end
     
     # Returns the number of minutes between two minutes
@@ -132,16 +127,13 @@ module Workpattern
       start = time.min
       available_minutes=wp_minutes(start,59)
 
-      if ((duration-available_minutes)>=0)
+      if not_enough_minutes duration, available_minutes
         result_date = time + HOUR - (MINUTE*start)
         result_remainder = duration-available_minutes
-      elsif ((duration-available_minutes)==0)
-        result_date = time - (MINUTE*start) + last + 1 
-        result_remainder = 0
-      elsif (wp_minutes(start,start+duration-1)==duration)
+      elsif exact_amount_of_minutes(start,duration)
         result_date = time + (MINUTE*duration)
         result_remainder = 0
-      else
+      else # more than enough minutes
         step = start + duration
         duration-=wp_minutes(start,step)
         until (duration==0)
@@ -174,10 +166,10 @@ module Workpattern
         available_minutes = wp_minutes(0,start-1) if start > 0
       end
       
-      if ((duration + available_minutes)<=0)
+      if not_enough_minutes duration,available_minutes
         result_date = time - (MINUTE*start)
         result_remainder = duration+available_minutes
-      elsif (wp_minutes(start+duration,start-1)==duration.abs)
+      elsif duration.abs==available_minutes
         result_date = time + (MINUTE*duration)
         result_remainder = 0
       else     
@@ -192,6 +184,18 @@ module Workpattern
       end  
       return result_date, result_remainder  
       
+    end
+
+    private
+ 
+    def not_enough_minutes(duration,available_minutes)
+      return true if (duration.abs-available_minutes)>=0
+      false
+    end
+
+    def exact_amount_of_minutes(start,duration)
+      return true if wp_minutes(start,start+duration-1)==duration
+      false
     end
   end
 end
