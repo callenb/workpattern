@@ -20,7 +20,7 @@ module Workpattern
     # @param [Integer] finish minute at end of range
     # @param [Integer] type defines whether working (1) or resting (0)
     #
-    def wp_workpattern(start,finish,type)
+    def wp_workpattern(start,finish,type=1)
       return wp_working(start,finish) if type==1
       return wp_resting(start,finish) if type==0
     end
@@ -141,7 +141,7 @@ module Workpattern
           duration-=wp_minutes(step,step)
         end
         step+=1
-        result_date = time + (MINUTE*step)
+        result_date = time - (MINUTE*time.min) + (MINUTE*step)
         result_remainder = 0
       end  
       return result_date, result_remainder  
@@ -187,8 +187,8 @@ module Workpattern
     private
  
     def not_enough_minutes(duration,available_minutes)
-      return true if (duration.abs-available_minutes)>=0
-      false
+      return true if (duration.abs-available_minutes)>0
+      return false
     end
 
     def exact_amount_of_minutes(start,duration)
