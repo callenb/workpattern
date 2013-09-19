@@ -5,178 +5,291 @@ class TestHour < MiniTest::Unit::TestCase #:nodoc:
   def setup
     @working_hour = Workpattern::WORKING_HOUR
     @resting_hour = Workpattern::RESTING_HOUR
+    @pattern_hour = @working_hour
+    @pattern_hour = @pattern_hour.wp_workpattern(0,0,0)
+    @pattern_hour = @pattern_hour.wp_workpattern(59,59,0)
+    @pattern_hour = @pattern_hour.wp_workpattern(11,30,0)
+
   end
   
-  def test_must_create_a_working_hour
-    working_hour = Workpattern::WORKING_HOUR
-    assert_equal 60, working_hour.wp_total,"working total minutes"
+  def test_for_default_working_hour_of_60_minutes
+    assert_equal 60, @working_hour.wp_total,"working total minutes"
+    assert_equal 0, @working_hour.wp_first,"first minute of the working hour"
+    assert_equal 59, @working_hour.wp_last, "last minute of the working hour"
   end
-    
-  def test_must_set_patterns_correctly
-    working_hour = Workpattern::WORKING_HOUR
-    working_hour = working_hour.wp_workpattern(0,0,0)
-    working_hour = working_hour.wp_workpattern(59,59,0)
-    working_hour = working_hour.wp_workpattern(11,30,0)
-    assert_equal 38,working_hour.wp_total, "total working minutes"
-    assert_equal 1, working_hour.wp_first, "first minute of the day"
-    assert_equal 58, working_hour.wp_last, "last minute of the day"
-    assert !working_hour.wp_working?(0)
-    assert working_hour.wp_working?(1)
+
+  def test_for_default_resting_hour_of_0_minutes
+    assert_equal 0, @resting_hour.wp_total,"resting total minutes"
+    assert_equal nil, @resting_hour.wp_first,"first minute of the resting hour"
+    assert_equal nil, @resting_hour.wp_last, "last minute of the resting hour"
   end
-  
-  def test_must_add_minutes_in_a_working_hour  
-    working_hour = Workpattern::WORKING_HOUR
-    [
-     [2000,1,1,0,0,3,2000,1,1,0,3,0],
-     [2000,1,1,0,0,0,2000,1,1,0,0,0],
-     [2000,1,1,0,59,0,2000,1,1,0,59,0],
-     [2000,1,1,0,11,3,2000,1,1,0,14,0],
-     [2000,1,1,0,0,60,2000,1,1,1,0,0],
-     [2000,1,1,0,0,61,2000,1,1,1,0,1],
-     [2000,1,1,0,30,60,2000,1,1,1,0,30],
-     [2000,12,31,23,59,1,2001,1,1,0,0,0]
-    ].each{|y,m,d,h,n,add,yr,mr,dr,hr,nr,rem|
-      start=DateTime.new(y,m,d,h,n)
-      result,remainder = working_hour.wp_calc(start,add)
-      assert_equal DateTime.new(yr,mr,dr,hr,nr), result, "result calc(#{start},#{add})"
-      assert_equal rem, remainder, "remainder calc(#{start},#{add})"  
-    }
-    
+
+  def test_for_creating_a_workpattern_in_an_hour
+    assert_equal 38,@pattern_hour.wp_total, "total working minutes in pattern"
+    assert_equal 1, @pattern_hour.wp_first, "first minute of the pattern hour"
+    assert_equal 58, @pattern_hour.wp_last, "last minute of the pattern hour"
+    refute @pattern_hour.wp_working?(0)
+    assert @pattern_hour.wp_working?(1)
   end
   
-  def test_must_add_minutes_in_a_resting_hour
-    resting_hour = Workpattern::RESTING_HOUR
-    [
-     [2000,1,1,0,0,3,2000,1,1,1,0,3],
-     [2000,1,1,0,0,0,2000,1,1,0,0,0],
-     [2000,1,1,0,59,0,2000,1,1,0,59,0],
-     [2000,1,1,0,11,3,2000,1,1,1,0,3],
-     [2000,1,1,0,0,60,2000,1,1,1,0,60],
-     [2000,1,1,0,0,61,2000,1,1,1,0,61],
-     [2000,1,1,0,30,60,2000,1,1,1,0,60],
-     [2000,12,31,23,59,1,2001,1,1,0,0,1]
-    ].each{|y,m,d,h,n,add,yr,mr,dr,hr,nr,rem|
-      start=DateTime.new(y,m,d,h,n)
-      result,remainder = resting_hour.wp_calc(start,add)
-      assert_equal DateTime.new(yr,mr,dr,hr,nr), result, "result calc(#{start},#{add})"
-      assert_equal rem, remainder, "remainder calc(#{start},#{add})"  
-    }
-    
+  def test_can_add_more_than_the_available_minutes_in_a_working_hour
+    start_date=DateTime.new(2013,1,1,1,8)
+    result, remainder=@working_hour.wp_calc(start_date,53)
+    assert_equal DateTime.new(2013,1,1,2,0), result
+    assert_equal 1,remainder
+  end
+
+  def test_can_add_exact_amount_of_available_minutes_in_working_hour
+    start_date=DateTime.new(2013,1,1,1,8)
+    result, remainder=@working_hour.wp_calc(start_date,52)
+    assert_equal DateTime.new(2013,1,1,2,0), result
+    assert_equal 0,remainder
+  end
+
+  def test_can_add_when_more_available_minutes_in_working_hour
+    start_date=DateTime.new(2013,1,1,1,8)
+    result, remainder=@working_hour.wp_calc(start_date,51)
+    assert_equal DateTime.new(2013,1,1,1,59), result
+    assert_equal 0,remainder
   end
   
-  def test_must_add_minutes_in_a_patterned_hour
-    pattern_hour = Workpattern::WORKING_HOUR
-    pattern_hour = pattern_hour.wp_workpattern(1,10,0)
-    pattern_hour = pattern_hour.wp_workpattern(55,59,0)
-    [
-     [2000,1,1,0,0,3,2000,1,1,0,13,0],
-     [2000,1,1,0,0,0,2000,1,1,0,0,0],
-     [2000,1,1,0,59,0,2000,1,1,0,59,0],
-     [2000,1,1,0,11,3,2000,1,1,0,14,0],
-     [2000,1,1,0,0,60,2000,1,1,1,0,15],
-     [2000,1,1,0,0,61,2000,1,1,1,0,16],
-     [2000,1,1,0,30,60,2000,1,1,1,0,35],
-     [2000,12,31,23,59,1,2001,1,1,0,0,1]
-    ].each{|y,m,d,h,n,add,yr,mr,dr,hr,nr,rem|
-      start=DateTime.new(y,m,d,h,n)
-      result,remainder = pattern_hour.wp_calc(start,add)
-      assert_equal DateTime.new(yr,mr,dr,hr,nr), result, "result calc(#{start},#{add})"
-      assert_equal rem, remainder, "remainder calc(#{start},#{add})"  
-    }
-    
+  def test_can_add_1_minute_to_59_seconds_in_working_hour
+    start_date=DateTime.new(2013,1,1,1,59)
+    result, remainder=@working_hour.wp_calc(start_date,1)
+    assert_equal DateTime.new(2013,1,1,2,0), result
+    assert_equal 0,remainder
+  end
+
+  def test_can_add_2_minute_to_59_seconds_in_working_hour
+    start_date=DateTime.new(2013,1,1,1,59)
+    result, remainder=@working_hour.wp_calc(start_date,2)
+    assert_equal DateTime.new(2013,1,1,2,0), result
+    assert_equal 1,remainder
+  end
+
+  def test_can_subtract_more_than_the_available_minutes_in_a_working_hour
+    start_date=DateTime.new(2013,1,1,1,31)
+    result, remainder=@working_hour.wp_calc(start_date,-32)
+    assert_equal DateTime.new(2013,1,1,1,0), result
+    assert_equal -1,remainder
+  end
+
+  def test_can_subtract_exact_amount_of_available_minutes_in_working_hour
+    start_date=DateTime.new(2013,1,1,1,31)
+    result, remainder=@working_hour.wp_calc(start_date,-31)
+    assert_equal DateTime.new(2013,1,1,1,0), result
+    assert_equal 0,remainder
+  end
+
+  def test_can_subtract_1_second_less_than_available_minutes_in_working_hour
+    start_date=DateTime.new(2013,1,1,1,31)
+    result, remainder=@working_hour.wp_calc(start_date,-30)
+    assert_equal DateTime.new(2013,1,1,1,1), result
+    assert_equal 0,remainder
+  end
+
+  def test_can_subtract_when_more_available_minutes_in_working_hour
+    start_date=DateTime.new(2013,1,1,1,31)
+    result, remainder=@working_hour.wp_calc(start_date,-30)
+    assert_equal DateTime.new(2013,1,1,1,1), result
+    assert_equal 0,remainder
+  end
+
+  def test_can_subtract_1_minute_from_0_seconds_in_working_hour
+    start_date=DateTime.new(2013,1,1,1,0)
+    result, remainder=@working_hour.wp_calc(start_date,-1)
+    assert_equal DateTime.new(2013,1,1,1,0), result
+    assert_equal -1,remainder
+  end
+
+  def test_can_subtract_2_minute_to_0_seconds_in_working_hour
+    start_date=DateTime.new(2013,1,1,1,0)
+    result, remainder=@working_hour.wp_calc(start_date,-2)
+    assert_equal DateTime.new(2013,1,1,1,0), result
+    assert_equal -2,remainder
+  end
+
+  def test_can_subtract_exact_minutes_from_start_of_a_working_hour
+    start_date=DateTime.new(2013,1,1,1,0)
+    result, remainder=@working_hour.wp_calc(start_date,-60,true)
+    assert_equal DateTime.new(2013,1,1,1,0), result
+    assert_equal 0,remainder
+  end
+
+  def test_can_subtract_less_than_available_minutes_from_start_of_a_working_hour
+    start_date=DateTime.new(2013,1,1,1,0)
+    result, remainder=@working_hour.wp_calc(start_date,-59,true)
+    assert_equal DateTime.new(2013,1,1,1,1), result
+    assert_equal 0,remainder
   end
   
-  def test_must_subtract_minutes_in_working_hour
-    working_hour = Workpattern::WORKING_HOUR
-    [
-     [2000,1,1,0,10,-3,2000,1,1,0,7,0],
-     [2000,1,1,0,10,0,2000,1,1,0,10,0],
-     [2000,1,1,0,59,0,2000,1,1,0,59,0],
-     [2000,1,1,0,11,-3,2000,1,1,0,8,0],
-     [2000,1,1,0,10,-60,2000,1,1,0,0,-50],
-     [2000,1,1,0,10,-61,2000,1,1,0,0,-51],
-     [2000,1,1,0,30,-60,2000,1,1,0,0,-30],
-     [2001,1,1,0,0,-1,2001,1,1,0,0,-1]
-    ].each{|y,m,d,h,n,add,yr,mr,dr,hr,nr,rem|
-      start=DateTime.new(y,m,d,h,n)
-      result,remainder = working_hour.wp_calc(start,add)
-      assert_equal DateTime.new(yr,mr,dr,hr,nr), result, "result calc(#{start},#{add})"
-      assert_equal rem, remainder, "remainder calc(#{start},#{add})"  
-    }
-    
+  def test_can_subtract_more_than_available_minutes_from_start_of_a_working_hour
+    start_date=DateTime.new(2013,1,1,1,0)
+    result, remainder=@working_hour.wp_calc(start_date,-61,true)
+    assert_equal DateTime.new(2013,1,1,1,0), result
+    assert_equal -1,remainder
   end
   
-  def test_must_subtract_minutes_in_a_resting_hour
-    resting_hour = Workpattern::RESTING_HOUR
-    [
-     [2000,1,1,0,10,-3,2000,1,1,0,0,-3],
-     [2000,1,1,0,10,0,2000,1,1,0,10,0],
-     [2000,1,1,0,59,0,2000,1,1,0,59,0],
-     [2000,1,1,0,11,-3,2000,1,1,0,0,-3],
-     [2000,1,1,0,10,-60,2000,1,1,0,0,-60],
-     [2000,1,1,0,10,-61,2000,1,1,0,0,-61],
-     [2000,1,1,0,30,-60,2000,1,1,0,0,-60],
-     [2001,1,1,0,0,-1,2001,1,1,0,0,-1]
-    ].each{|y,m,d,h,n,add,yr,mr,dr,hr,nr,rem|
-      start=DateTime.new(y,m,d,h,n)
-      result,remainder = resting_hour.wp_calc(start,add)
-      assert_equal DateTime.new(yr,mr,dr,hr,nr), result, "result calc(#{start},#{add})"
-      assert_equal rem, remainder, "remainder calc(#{start},#{add})"  
-    }
-    
+  def test_can_subtract_1_minute_from_end_of_a_working_hour
+    start_date=DateTime.new(2013,1,1,1,0)
+    result, remainder=@working_hour.wp_calc(start_date,-1,true)
+    assert_equal DateTime.new(2013,1,1,1,59), result
+    assert_equal 0,remainder
   end
   
-  def test_must_subtract_minutes_in_a_patterned_hour 
-    pattern_hour = Workpattern::WORKING_HOUR
-    pattern_hour = pattern_hour.wp_workpattern(1,10,0)
-    pattern_hour = pattern_hour.wp_workpattern(55,59,0)
-    [
-     [2000,1,1,0,0,-3,2000,1,1,0,0,-3],
-     [2000,1,1,0,0,0,2000,1,1,0,0,0],
-     [2000,1,1,0,59,0,2000,1,1,0,59,0],
-     [2000,1,1,0,11,-2,2000,1,1,0,0,-1],
-     [2000,1,1,0,0,-60,2000,1,1,0,0,-60],
-     [2000,1,1,0,0,-61,2000,1,1,0,0,-61],
-     [2000,1,1,0,30,-60,2000,1,1,0,0,-40],
-     [2001,1,1,23,59,-1,2001,1,1,23,54,0]
-    ].each{|y,m,d,h,n,add,yr,mr,dr,hr,nr,rem|
-      start=DateTime.new(y,m,d,h,n)
-      result,remainder = pattern_hour.wp_calc(start,add)
-      assert_equal DateTime.new(yr,mr,dr,hr,nr), result, "result calc(#{start},#{add})"
-      assert_equal rem, remainder, "remainder calc(#{start},#{add})"  
-    }
+  def test_can_zero_minutes_in_a_working_hour
+    start_date=DateTime.new(2013,1,1,1,8)
+    result, remainder=@working_hour.wp_calc(start_date,0)
+    assert_equal DateTime.new(2013,1,1,1,8), result
+    assert_equal 0,remainder
   end
-  
+
+  def test_can_add_1_minute_to_a_resting_hour
+    start_date=DateTime.new(2013,1,1,1,30)
+    result, remainder=@resting_hour.wp_calc(start_date,1)
+    assert_equal DateTime.new(2013,1,1,2,0), result
+    assert_equal 1,remainder
+  end
+
+  def test_can_add_1_minute_to_59_seconds_of_resting_hour
+    start_date=DateTime.new(2013,1,1,1,59)
+    result, remainder=@resting_hour.wp_calc(start_date,1)
+    assert_equal DateTime.new(2013,1,1,2,0), result
+    assert_equal 1,remainder
+  end
+
+  def test_can_add_1_minute_to_0_seconds_of_resting_hour
+    start_date=DateTime.new(2013,1,1,1,0)
+    result, remainder=@resting_hour.wp_calc(start_date,1)
+    assert_equal DateTime.new(2013,1,1,2,0), result
+    assert_equal 1,remainder
+  end
+
+  def test_can_subtract_0_minutes_from_start_of_a_resting_hour
+    start_date=DateTime.new(2013,1,1,1,0)
+    result, remainder=@resting_hour.wp_calc(start_date,0,true)
+    assert_equal DateTime.new(2013,1,1,1,0), result
+    assert_equal 0,remainder
+  end
+ 
+  def test_can_subtract_1_minute_from_end_of_a_resting_hour
+    start_date=DateTime.new(2013,1,1,1,0)
+    result, remainder=@resting_hour.wp_calc(start_date,-1,true)
+    assert_equal DateTime.new(2013,1,1,1,0), result
+    assert_equal -1,remainder
+  end
+
+  def test_can_zero_minutes_in_a_resting_hour
+    start_date=DateTime.new(2013,1,1,1,8)
+    result, remainder=@resting_hour.wp_calc(start_date,0)
+    assert_equal DateTime.new(2013,1,1,1,8), result
+    assert_equal 0,remainder
+  end
+
+  def test_can_add_more_than_the_available_minutes_in_a_patterned_hour
+    start_date=DateTime.new(2013,1,1,1,8)
+    result, remainder=@pattern_hour.wp_calc(start_date,32)
+    assert_equal DateTime.new(2013,1,1,2,0), result
+    assert_equal 1,remainder
+  end
+
+  def test_can_add_exact_amount_of_available_minutes_in_patterned_hour
+    start_date=DateTime.new(2013,1,1,1,8)
+    result, remainder=@pattern_hour.wp_calc(start_date,31)
+    assert_equal DateTime.new(2013,1,1,1,59), result
+    assert_equal 0,remainder
+  end
+
+  def test_can_add_when_more_available_minutes_in_patterned_hour
+    start_date=DateTime.new(2013,1,1,1,8)
+    result, remainder=@pattern_hour.wp_calc(start_date,30)
+    assert_equal DateTime.new(2013,1,1,1,58), result
+    assert_equal 0,remainder
+  end
+
+  def test_can_add_from_resting_period_in_patterned_hour
+    start_date=DateTime.new(2013,1,1,1,15)
+    result, remainder=@pattern_hour.wp_calc(start_date,1)
+    assert_equal DateTime.new(2013,1,1,1,32), result
+    assert_equal 0,remainder
+  end
+
+  def test_can_add_1_subtract_1_to_find_next_working_period_in_patterned_hour
+    start_date=DateTime.new(2013,1,1,1,15)
+    start_date, remainder=@pattern_hour.wp_calc(start_date,1)
+    result, remainder=@pattern_hour.wp_calc(start_date,-1)
+    assert_equal DateTime.new(2013,1,1,1,31), result
+    assert_equal 0,remainder
+  end  
+
+  def test_can_add_zero_minutes_in_a_working_period_patterned_hour
+    start_date=DateTime.new(2013,1,1,1,8)
+    result, remainder=@pattern_hour.wp_calc(start_date,0)
+    assert_equal DateTime.new(2013,1,1,1,8), result
+    assert_equal 0,remainder
+  end
+
+  def test_can_zero_minutes_in_a_resting_period_patterned_hour
+    start_date=DateTime.new(2013,1,1,1,15)
+    result, remainder=@pattern_hour.wp_calc(start_date,0)
+    assert_equal DateTime.new(2013,1,1,1,15), result
+    assert_equal 0,remainder
+  end
+
+  def test_minutes_in_slice_of_working_hour
+    assert_equal 8,@working_hour.wp_minutes(8,15)
+  end
+
+  def test_minutes_in_slice_of_resting_hour
+    assert_equal 0,@resting_hour.wp_minutes(8,15)
+  end
+
+  def test_minutes_in_slice_of_working_hour
+    assert_equal 3,@pattern_hour.wp_minutes(8,15)
+    assert_equal 4,@pattern_hour.wp_minutes(8,31)
+  end
+
+  def test_can_subtract_more_than_the_available_minutes_in_a_pattern_hour
+    start_date=DateTime.new(2013,1,1,1,31)
+    result, remainder=@pattern_hour.wp_calc(start_date,-11)
+    assert_equal DateTime.new(2013,1,1,1,0), result
+    assert_equal -1,remainder
+  end
+
+  def test_can_subtract_exact_amount_of_available_minutes_in_pattern_hour
+    start_date=DateTime.new(2013,1,1,1,31)
+    result, remainder=@pattern_hour.wp_calc(start_date,-10)
+    assert_equal DateTime.new(2013,1,1,1,1), result
+    assert_equal 0,remainder
+  end
+
+  def test_can_subtract_1_second_less_than_available_minutes_in_pattern_hour
+    start_date=DateTime.new(2013,1,1,1,31)
+    result, remainder=@pattern_hour.wp_calc(start_date,-9)
+    assert_equal DateTime.new(2013,1,1,1,2), result
+    assert_equal 0,remainder
+  end
+
+  def test_can_change_working_to_resting
+    new_hour=@working_hour.wp_workpattern(0,59,0)
+    assert_equal 0,new_hour.wp_total
+    assert_nil new_hour.wp_first
+    assert_nil new_hour.wp_last
+  end
 
   def test_must_create_complex_patterns
-    working_hour = Workpattern::WORKING_HOUR
-    control=Array.new(60) {|i| 1}
-    j=0
-    [[0,0,0,59,1,59],
-     [59,59,0,58,1,58],
-     [11,30,0,38,1,58],
-     [1,15,0,28,31,58],
-     [2,5,1,32,2,58],
-     [0,59,1,60,0,59],
-     [0,59,0,0,nil,nil],
-     [0,0,1,1,0,0],
-     [59,59,1,2,0,59]
-    ].each{|start,finish,type,total,first,last|
-      working_hour = working_hour.wp_workpattern(start,finish,type)
-      assert_equal total,working_hour.wp_total, "total working minutes #{j}"
-      assert_equal first, working_hour.wp_first, "first minute of the day #{j}"
-      assert_equal last, working_hour.wp_last, "last minute of the day #{j}"  
-      start.upto(finish) {|i| control[i]=type}
-      0.upto(59) {|i|
-        if (control[i]==0)
-          assert !working_hour.wp_working?(i)    
-        else
-          assert working_hour.wp_working?(i)
-        end
-      }
-      j+=1
-    }
+    new_hour=@working_hour.wp_workpattern(0,0,0)
+    new_hour=new_hour.wp_workpattern(8,23,0)
+    new_hour=new_hour.wp_workpattern(12,12,1)
+    new_hour=new_hour.wp_workpattern(58,58,0)
+    new_hour=new_hour.wp_workpattern(6,8,1)
+    assert_equal 44, new_hour.wp_total
+    assert_equal 1, new_hour.wp_first
+    assert_equal 59, new_hour.wp_last
   end
+#################################################################
+#################################################################
+#################################################################
 
   def test_must_calculate_difference_between_minutes_in_working_hour
     working_hour = Workpattern::WORKING_HOUR
