@@ -155,9 +155,12 @@ module Workpattern
     #
     def wp_subtract(time,duration,next_hour)
       if next_hour
-        duration+=1 if wp_working?(59)
-        time=time+(MINUTE*59)
-        return wp_calc(time,duration)
+        if wp_working?(59)
+          duration+=1
+          time=time+(MINUTE*59)
+          return wp_calc(time,duration)
+        end  
+        return time, duration if wp_total==0
       else  
         start=time.min  
         available_minutes=0
@@ -168,7 +171,7 @@ module Workpattern
         result_date = time - (MINUTE*start)
         result_remainder = duration+available_minutes
       elsif duration.abs==available_minutes
-        result_date = time + (MINUTE*duration)
+        result_date = time - (MINUTE*(start-wp_first))
         result_remainder = 0
       else     
         step = start + duration
