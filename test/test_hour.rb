@@ -287,69 +287,98 @@ class TestHour < MiniTest::Unit::TestCase #:nodoc:
     assert_equal 1, new_hour.wp_first
     assert_equal 59, new_hour.wp_last
   end
-#################################################################
-#################################################################
-#################################################################
 
-  def test_must_calculate_difference_between_minutes_in_working_hour
-    working_hour = Workpattern::WORKING_HOUR
-    [[0,0,0],
-     [0,1,1],
-     [50,59,9],
-     [50,60,10],
-     [0,59,59],
-     [0,60,60],
-     [1,0,1],
-     [59,50,9],
-     [60,50,10],
-     [59,0,59],
-     [60,0,60]
-    ].each {|start,finish,result|
-      assert_equal result, working_hour.wp_diff(start,finish),"diff(#{start},#{finish})"
-    }
-    
+  def test_difference_between_first_and_last_minute_in_working_hour
+    assert_equal 59, @working_hour.wp_diff(0,59)
   end
 
-  def test_must_calculate_difference_between_minutes_in_resting_hour
-    resting_hour = Workpattern::RESTING_HOUR
-    [[0,0,0],
-     [0,1,0],
-     [50,59,0],
-     [50,60,0],
-     [0,59,0],
-     [0,60,0],
-     [1,0,0],
-     [59,50,0],
-     [60,50,0],
-     [59,0,0],
-     [60,0,0]
-    ].each {|start,finish,result|
-      assert_equal result, resting_hour.wp_diff(start,finish),"diff(#{start},#{finish})"
-    }
-    
+  def test_difference_between_first_and_first_minute_in_working_hour
+    assert_equal 0, @working_hour.wp_diff(0,0)
   end
 
-  def test_must_calculate_difference_between_minutes_in_pattern_hour
-    pattern_hour = Workpattern::WORKING_HOUR
-    pattern_hour = pattern_hour.wp_workpattern(1,10,0)
-    pattern_hour = pattern_hour.wp_workpattern(55,59,0)
-    pattern_hour = pattern_hour.wp_workpattern(59,59,1)
-    
-    [[0,0,0],
-     [0,1,1],
-     [50,59,5],
-     [50,60,6],
-     [0,59,45],
-     [0,60,46],
-     [1,0,1],
-     [59,50,5],
-     [60,50,6],
-     [59,0,45],
-     [60,0,46]
-    ].each {|start,finish,result|
-      assert_equal result, pattern_hour.wp_diff(start,finish),"diff(#{start},#{finish})"
-    }  
+  def test_difference_between_last_and_last_minute_in_working_hour
+    assert_equal 0, @working_hour.wp_diff(59,59)
+  end
+
+  def test_difference_between_two_minutes_in_working_hour
+    assert_equal 13, @working_hour.wp_diff(3,16)
+  end
+
+  def test_difference_between_first_minute_and_first_minute_in_next_hour_in_working_hour
+    assert_equal 60, @working_hour.wp_diff(0,60)
+  end
+
+  def test_difference_between_a_minute_and_last_minute_in_working_hour
+    assert_equal 43, @working_hour.wp_diff(16,59)
+  end
+
+  def test_differences_work_in_reverse_for_working_hour
+    assert_equal 59, @working_hour.wp_diff(59,0)
+    assert_equal 13, @working_hour.wp_diff(16,3)
+    assert_equal 60, @working_hour.wp_diff(60,0)
+    assert_equal 43, @working_hour.wp_diff(59,16)
+  end
+
+  def test_difference_between_first_and_last_minute_in_resting_hour
+    assert_equal 0, @resting_hour.wp_diff(0,59)
+  end
+
+  def test_difference_between_first_and_first_minute_in_resting_hour
+    assert_equal 0, @resting_hour.wp_diff(0,0)
+  end
+
+  def test_difference_between_last_and_last_minute_in_resting_hour
+    assert_equal 0, @resting_hour.wp_diff(59,59)
+  end
+
+  def test_difference_between_two_minutes_in_resting_hour
+    assert_equal 0, @resting_hour.wp_diff(3,16)
+  end
+
+  def test_difference_between_first_minute_and_first_minute_in_next_hour_in_resting_hour
+    assert_equal 0, @resting_hour.wp_diff(0,60)
+  end
+
+  def test_difference_between_a_minute_and_last_minute_in_resting_hour
+    assert_equal 0, @resting_hour.wp_diff(16,59)
+  end
+
+  def test_differences_work_in_reverse_for_resting_hour
+    assert_equal 0, @resting_hour.wp_diff(59,0)
+    assert_equal 0, @resting_hour.wp_diff(16,3)
+    assert_equal 0, @resting_hour.wp_diff(60,0)
+    assert_equal 0, @resting_hour.wp_diff(59,16)
+  end
+
+  def test_difference_between_first_and_last_minute_in_pattern_hour
+    assert_equal 38, @pattern_hour.wp_diff(0,59)
+  end
+
+  def test_difference_between_first_and_first_minute_in_pattern_hour
+    assert_equal 0, @pattern_hour.wp_diff(0,0)
+  end
+
+  def test_difference_between_last_and_last_minute_in_pattern_hour
+    assert_equal 0, @pattern_hour.wp_diff(59,59)
+  end
+
+  def test_difference_between_two_minutes_in_pattern_hour
+    assert_equal 8, @pattern_hour.wp_diff(3,16)
+  end
+
+  def test_difference_between_first_minute_and_first_minute_in_next_hour_in_pattern_hour
+    assert_equal 38, @pattern_hour.wp_diff(0,60)
+  end
+
+  def test_difference_between_a_minute_and_last_minute_in_pattern_hour
+    assert_equal 28, @pattern_hour.wp_diff(16,59)
+  end
+
+  def test_differences_work_in_reverse_for_pattern_hour
+    assert_equal 38, @pattern_hour.wp_diff(59,0)
+    assert_equal 8, @pattern_hour.wp_diff(16,3)
+    assert_equal 38, @pattern_hour.wp_diff(60,0)
+    assert_equal 28, @pattern_hour.wp_diff(59,16)
   end
 
 end
-
