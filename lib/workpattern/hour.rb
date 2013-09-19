@@ -155,11 +155,9 @@ module Workpattern
     #
     def wp_subtract(time,duration,next_hour)
       if next_hour
-        if wp_working?(59)
-          duration+=1
-          time=time+(MINUTE*59)
-          return wp_calc(time,duration)
-        end  
+        duration+=1 if wp_working?(59)
+        time=time+(MINUTE*59)
+        return wp_calc(time,duration)
       else  
         start=time.min  
         available_minutes=0
