@@ -3,230 +3,349 @@ require File.dirname(__FILE__) + '/test_helper.rb'
 class TestDay < MiniTest::Unit::TestCase #:nodoc:
 
   def setup
+    @working_day = Workpattern::Day.new(1)
+    @resting_day = Workpattern::Day.new(0)
+    @pattern_day = Workpattern::Day.new(1)
+    @pattern_day.workpattern(clock(0,0),clock(8,33),0)
+    @pattern_day.workpattern(clock(12,0),clock(12,21),0)
+    @pattern_day.workpattern(clock(12,30),clock(12,59),0)
+    @pattern_day.workpattern(clock(17,0),clock(22,59),0)
   end
   
   def test_must_create_a_working_day
-  
-    working_day = Workpattern::Day.new(1)
-    assert_equal 1440, working_day.total,"24 hour working total minutes"
+    assert_equal 1440, @working_day.total,"24 hour working total minutes"
   end
     
   def test_must_ceate_a_resting_day
-
-    resting_day = Workpattern::Day.new(0)
-    assert_equal 0, resting_day.total,"24 hour resting total minutes"
+    assert_equal 0, @resting_day.total,"24 hour resting total minutes"
   end
   
   def test_must_set_patterns_correctly
+    mins=[0,0,0,0,0,0,0,0,26,60,60,60,8,60,60,60,60,0,0,0,0,0,0,60]
+    mins.each_index {|index|
+      assert_equal mins[index],@pattern_day.values[index].wp_total,"#{index} hour should be #{mins[index]} minutes"
+    }
+    assert_equal 514, @pattern_day.total, "total working minutes"
+    assert_equal 8, @pattern_day.first_hour, "first hour of the day"
+    assert_equal 34, @pattern_day.first_min, "first minute of the day"
+    assert_equal 23, @pattern_day.last_hour, "last hour of the day"
+    assert_equal 59, @pattern_day.last_min, "last minute of the day"
+  end
 
-    times=Array.new()
-    [[0,0,8,59],
-     [12,0,12,59],
-     [17,0,22,59]
-    ].each {|start_hour,start_min,finish_hour,finish_min|
-      times<<[clock(start_hour,start_min),clock(finish_hour,finish_min)]
-    }
-    
-    [[24,480,clock(9,0),clock(23,59)]
-    ].each{|hours_in_day,total,first_time,last_time|
-      working_day=Workpattern::Day.new(1)
-      times.each{|start_time,finish_time| 
-        working_day.workpattern(start_time,finish_time,0)
-      } 
-      assert_equal total,working_day.total, "#{hours_in_day} hour total working minutes"
-      assert_equal first_time.hour, working_day.first_hour, "#{hours_in_day} hour first hour of the day"
-      assert_equal first_time.min, working_day.first_min, "#{hours_in_day} hour first minute of the day"
-      assert_equal last_time.hour, working_day.last_hour, "#{hours_in_day} hour last hour of the day"
-      assert_equal last_time.min, working_day.last_min, "#{hours_in_day} hour last minute of the day"
+  def test_must_duplicate_a_working_day
+    dup_day = @working_day.duplicate
+    assert_equal 1440, dup_day.total
+    assert_equal 0, dup_day.first_hour
+    assert_equal 0, dup_day.first_min
+    assert_equal 23, dup_day.last_hour
+    assert_equal 59, dup_day.last_min
+    hour=Workpattern::WORKING_HOUR
+    dup_day.values.each {|item|
+      assert_equal hour, item
     }
   end
-  
-  def test_must_duplicate_all_of_day
-    day=Workpattern::Day.new(1)
-    new_day = day.duplicate
-    assert_equal 1440, new_day.total,"24 hour duplicate working total minutes"
-    # y    m ,d ,h ,n ,dur ,yr  ,mr,dr,hr,nr,rem ,midnight, midnightr
-    tests=[
-     [2000,1 ,1 ,0 , 0,3   ,2000,1 ,1 ,0 ,3 ,0   ,false   ,false],
-     [2000,1 ,1 ,23,59,0   ,2000,1 ,1 ,23,59,0   ,false   ,false],
-     [2000,1 ,1 ,23,59,1   ,2000,1 ,2 ,0 ,0 ,0   ,false   ,false],
-     [2000,1 ,1 ,23,59,2   ,2000,1 ,2 ,0 ,0 ,1   ,false   ,false],
-     [2000,1 ,1 ,9 ,10,33  ,2000,1 ,1 ,9 ,43,0   ,false   ,false],
-     [2000,1 ,1 ,9 ,10,60  ,2000,1 ,1 ,10,10,0   ,false   ,false],
-     [2000,1 ,1 ,9 , 0,931 ,2000,1 ,2 ,0 ,0 ,31  ,false   ,false]
-    ]
-    clue="duplicate working pattern"
-    calc_test(new_day,tests,clue)
-    
-    day = Workpattern::Day.new(0)
-    new_day=day.duplicate
-    assert_equal 0, new_day.total,"24 hour resting total minutes"
-    # y    m ,d ,h ,n ,dur ,yr  ,mr,dr,hr,nr,rem ,midnight, midnightr
-    tests=[
-     [2000,1,1,0,0,3,2000,1,2,0,0,3,false,false],
-     [2000,1,1,23,59,0,2000,1,1,23,59,0,false,false],
-     [2000,1,1,23,59,1,2000,1,2,0,0,1,false,false],
-     [2000,1,1,23,59,2,2000,1,2,0,0,2,false,false],
-     [2000,1,1,9,10,33,2000,1,2,0,0,33,false,false],
-     [2000,1,1,9,10,60,2000,1,2,0,0,60,false,false],
-     [2000,1,1,9,0,931,2000,1,2,0,0,931,false,false]
-    ]
-    clue="duplicate resting pattern"
-    calc_test(new_day,tests,clue)
-    
-    
-    times=Array.new()
-    [[0,0,8,59],
-     [12,0,12,59],
-     [17,0,22,59]
-    ].each {|start_hour,start_min,finish_hour,finish_min|
-      times<<[Workpattern::Clock.new(start_hour,start_min),Workpattern::Clock.new(finish_hour,finish_min)]
-    }
-    
-    [[24,480,clock(9,0),clock(23,59)]
-    ].each{|hours_in_day,total,first_time,last_time|
-      day=Workpattern::Day.new(1)
-      times.each{|start_time,finish_time| 
-        day.workpattern(start_time,finish_time,0)
-      } 
-      new_day=day.duplicate
-      
-      assert_equal total,new_day.total, "#{hours_in_day} hour total working minutes"
-      assert_equal first_time.hour, new_day.first_hour, "#{hours_in_day} hour first hour of the day"
-      assert_equal first_time.min, new_day.first_min, "#{hours_in_day} hour first minute of the day"
-      assert_equal last_time.hour, new_day.last_hour, "#{hours_in_day} hour last hour of the day"
-      assert_equal last_time.min, new_day.last_min, "#{hours_in_day} hour last minute of the day"
-      
-      new_day.workpattern(clock(13,0),clock(13,0),0)
-      
-      assert_equal total,day.total, "#{hours_in_day} hour total original working minutes"
-      
-      assert_equal total-1,new_day.total, "#{hours_in_day} hour total new working minutes"
-      
-    }
-    
-  end
-  
-  def test_must_add_minutes_in_a_working_day
-  
-    day = Workpattern::Day.new(1)
-    # y    m ,d ,h ,n ,dur ,yr  ,mr,dr,hr,nr,rem ,midnight, midnightr
-    tests=[
-     [2000,1,1,0,0,3,2000,1,1,0,3,0,false,false],
-     [2000,1,1,0,0,0,2000,1,1,0,0,0,false,false],
-     [2000,1,1,0,59,0,2000,1,1,0,59,0,false,false],
-     [2000,1,1,0,11,3,2000,1,1,0,14,0,false,false],
-     [2000,1,1,0,0,60,2000,1,1,1,0,0,false,false],
-     [2000,1,1,0,0,61,2000,1,1,1,1,0,false,false],
-     [2000,1,1,0,30,60,2000,1,1,1,30,0,false,false],
-     [2000,12,31,23,59,1,2001,1,1,0,0,0,false,false],
-     [2000,1,1,9,10,33,2000,1,1,9,43,0,false,false],
-     [2000,1,1,9,10,60,2000,1,1,10,10,0,false,false],
-     [2000,1,1,9,0,931,2000,1,2,0,0,31,false,false]
-    ]
-    clue = "add minutes in a working day"
-    calc_test(day,tests,clue)
-    
-  end
-  
-  def test_must_add_minutes_in_a_resting_day
 
-    day = Workpattern::Day.new(0)
-    # y    m ,d ,h ,n ,dur ,yr  ,mr,dr,hr,nr,rem ,midnight, midnightr
-    tests=[
-     [2000,1,1,0,0,3,2000,1,2,0,0,3,false,false],
-     [2000,1,1,23,59,0,2000,1,1,23,59,0,false,false],
-     [2000,1,1,23,59,1,2000,1,2,0,0,1,false,false],
-     [2000,1,1,23,59,2,2000,1,2,0,0,2,false,false],
-     [2000,1,1,9,10,33,2000,1,2,0,0,33,false,false],
-     [2000,1,1,9,10,60,2000,1,2,0,0,60,false,false],
-     [2000,1,1,9,0,931,2000,1,2,0,0,931,false,false]
-    ]
-    clue="add minutes in a resting day"
-    calc_test(day,tests,clue)
+  def test_must_duplicate_a_resting_day
+    dup_day = @resting_day.duplicate
+    assert_equal 0, dup_day.total
+    assert_nil dup_day.first_hour
+    assert_nil dup_day.first_min
+    assert_nil dup_day.last_hour
+    assert_nil dup_day.last_min
+    hour=Workpattern::RESTING_HOUR
+    dup_day.values.each {|item|
+      assert_equal hour, item
+    }
+  end
+
+  def test_must_duplicate_a_patterned_day
+    dup_day = @pattern_day.duplicate
+
+    mins=[0,0,0,0,0,0,0,0,26,60,60,60,8,60,60,60,60,0,0,0,0,0,0,60]
+    mins.each_index {|index|
+      assert_equal mins[index],dup_day.values[index].wp_total,"#{index} hour should be #{mins[index]} minutes"
+    }
+
+    assert_equal 514, dup_day.total, "total working minutes"
+    assert_equal 8, dup_day.first_hour, "first hour of the day"
+    assert_equal 34, dup_day.first_min, "first minute of the day"
+    assert_equal 23, dup_day.last_hour, "last hour of the day"
+    assert_equal 59, dup_day.last_min, "last minute of the day"
+
+  end
+
+  def test_must_add_more_than_available_minutes_to_a_working_day
+    start_date=DateTime.new(2013,1,1,8,15)
+    result, remainder=@working_day.calc(start_date,946)
+    assert_equal DateTime.new(2013,1,2,0,0), result
+    assert_equal 1,remainder
+  end
+
+  def test_must_add_less_than_available_minutes_to_a_working_day
+    start_date=DateTime.new(2013,1,1,8,15)
+    result, remainder=@working_day.calc(start_date,944)
+    assert_equal DateTime.new(2013,1,1,23,59), result
+    assert_equal 0,remainder
+  end
+
+  def test_must_add_exactly_the_available_minutes_to_a_working_day
+    start_date=DateTime.new(2013,1,1,8,15)
+    result, remainder=@working_day.calc(start_date,945)
+    assert_equal DateTime.new(2013,1,2,0,0), result
+    assert_equal 0,remainder
+  end
+
+  def test_must_add_zero_minutes_to_a_working_day
+    start_date=DateTime.new(2013,1,1,8,15)
+    result, remainder=@working_day.calc(start_date,0)
+    assert_equal start_date, result
+    assert_equal 0,remainder
+  end
+
+  def test_must_add_1_minute_to_0_in_working_day
+    start_date=DateTime.new(2013,1,1,0,0)
+    result, remainder=@working_day.calc(start_date,1)
+    assert_equal DateTime.new(2013,1,1,0,1), result
+    assert_equal 0,remainder
+  end
+
+  def test_must_add_1_hour_to_0_in_working_day
+    start_date=DateTime.new(2013,1,1,0,0)
+    result, remainder=@working_day.calc(start_date,60)
+    assert_equal DateTime.new(2013,1,1,1,0), result
+    assert_equal 0,remainder
   end
   
-  def test_must_add_minutes_in_a_patterned_day
+  def test_must_add_1_hour_1_minute_to_0_in_working_day
+    start_date=DateTime.new(2013,1,1,0,0)
+    result, remainder=@working_day.calc(start_date,61)
+    assert_equal DateTime.new(2013,1,1,1,1), result
+    assert_equal 0,remainder
+  end
+
+  def test_must_add_1_day_to_0_in_working_day
+    start_date=DateTime.new(2013,1,1,0,0)
+    result, remainder=@working_day.calc(start_date,1440)
+    assert_equal DateTime.new(2013,1,2,0,0), result
+    assert_equal 0,remainder
+  end
  
-    day = Workpattern::Day.new(1)
-    [[0,0,8,59],
-     [12,0,12,59],
-     [17,0,22,59]
-    ].each {|start_hour,start_min,finish_hour,finish_min|
-      day.workpattern(clock(start_hour, start_min),
-                      clock(finish_hour, finish_min),
-                      0)
-    }
-    assert_equal 480, day.total, "minutes in patterned day should be 480"
-    # y    m ,d ,h ,n ,dur ,yr  ,mr,dr,hr,nr,rem ,midnight, midnightr
-    tests=[
-     [2000,1,1,0,0,3,2000,1,1,9,3,0,false,false],
-     [2000,1,1,0,0,0,2000,1,1,0,0,0,false,false],
-     [2000,1,1,0,59,0,2000,1,1,0,59,0,false,false],
-     [2000,1,1,0,11,3,2000,1,1,9,3,0,false,false],
-     [2000,1,1,0,0,60,2000,1,1,10,0,0,false,false],
-     [2000,1,1,0,0,61,2000,1,1,10,1,0,false,false],
-     [2000,1,1,9,30,60,2000,1,1,10,30,0,false,false],
-     [2000,12,31,22,59,1,2000,12,31,23,1,0,false,false],
-     [2000,1,1,9,10,33,2000,1,1,9,43,0,false,false],
-     [2000,1,1,9,10,60,2000,1,1,10,10,0,false,false],
-     [2000,1,1,9,0,931,2000,1,2,0,0,451,false,false],
-     [2000,1,1,12,0,1,2000,1,1,13,1,0,false,false],
-     [2000,1,1,12,59,1,2000,1,1,13,1,0,false,false]
-    ]
-    clue = "add minutes in a patterned day"
-    calc_test(day,tests,clue)  
+  def test_must_add_1_day_1_minute_to_0_in_working_day
+    start_date=DateTime.new(2013,1,1,0,0)
+    result, remainder=@working_day.calc(start_date,1441)
+    assert_equal DateTime.new(2013,1,2,0,0), result
+    assert_equal 1,remainder
   end
-  
-  def test_must_subtract_minutes_in_a_working_day
 
-    day = Workpattern::Day.new(1)
-    # y   ,m ,d ,h ,n ,dur ,yr  ,mr,dr,hr,nr,rem ,midnight,midnightr    
-    tests=[
-     [2000,1 ,1 ,0 ,0 ,-3  ,1999,12,31,0 ,0 ,-3  ,false   ,true],
-     [2000,1 ,1 ,0 ,1 ,-2  ,1999,12,31,0 ,0 ,-1  ,false   ,true], #Issue 6 - available minutes not calculating correctly for a time of 00:01
-     [2000,1 ,1 ,23,59,0   ,2000,1 ,1 ,23,59,0   ,false   ,false],
-     [2000,1 ,1 ,23,59,-1  ,2000,1 ,1 ,23,58,0   ,false   ,false],
-     [2000,1 ,1 ,23,59,-2  ,2000,1 ,1 ,23,57,0   ,false   ,false],
-     [2000,1 ,1 ,9 ,10,-33 ,2000,1 ,1 ,8 ,37,0   ,false   ,false],
-     [2000,1 ,1 ,9 ,10,-60 ,2000,1 ,1 ,8 ,10,0   ,false   ,false],
-     [2000,1 ,1 ,9 ,4 ,-3  ,2000,1 ,1 ,9 ,1 ,0   ,false   ,false],
-     [2000,1 ,1 ,9 ,0 ,-931,1999,12,31,0 ,0 ,-391,false   ,true],
-     [2000,1 ,1 ,0 ,0 ,-3  ,2000,1 ,1 ,23,57,0   ,true    ,false],
-     [2000,1 ,1 ,23,59,0   ,2000,1 ,1 ,23,59,0   ,true    ,false],
-     [2000,1 ,1 ,23,59,-1  ,2000,1 ,1 ,23,58,0   ,true    ,false],
-     [2000,1 ,1 ,0 ,0 ,-2  ,2000,1 ,1 ,23,58,0   ,true    ,false],
-     [2000,1 ,1 ,0 ,0 ,-33 ,2000,1 ,1 ,23,27,0   ,true    ,false],
-     [2000,1 ,1 ,0 ,0 ,-60 ,2000,1 ,1 ,23,0 ,0   ,true    ,false],
-     [2000,1 ,1 ,0 ,0 ,-931,2000,1 ,1 ,8 ,29,0   ,true    ,false]     
-    ]
-    clue="subtract minutes in a working day"
-    calc_test(day,tests,clue)
+  def test_must_add_more_than_available_minutes_to_a_resting_day
+    start_date=DateTime.new(2013,1,1,8,15)
+    result, remainder=@resting_day.calc(start_date,946)
+    assert_equal DateTime.new(2013,1,2,0,0), result
+    assert_equal 946,remainder
+  end
+
+  def test_must_add_less_than_available_minutes_to_a_resting_day
+    start_date=DateTime.new(2013,1,1,8,15)
+    result, remainder=@resting_day.calc(start_date,944)
+    assert_equal DateTime.new(2013,1,2,0,0), result
+    assert_equal 944,remainder
+  end
+
+  def test_must_add_exactly_the_available_minutes_to_a_resting_day
+    start_date=DateTime.new(2013,1,1,8,15)
+    result, remainder=@resting_day.calc(start_date,945)
+    assert_equal DateTime.new(2013,1,2,0,0), result
+    assert_equal 945,remainder
+  end
+
+  def test_must_add_zero_minutes_to_a_resting_day
+    start_date=DateTime.new(2013,1,1,8,15)
+    result, remainder=@resting_day.calc(start_date,0)
+    assert_equal start_date, result
+    assert_equal 0,remainder
+  end
+
+  def test_must_add_1_minute_to_0_in_resting_day
+    start_date=DateTime.new(2013,1,1,0,0)
+    result, remainder=@resting_day.calc(start_date,1)
+    assert_equal DateTime.new(2013,1,2,0,0), result
+    assert_equal 1,remainder
+  end
+
+  def test_must_add_1_hour_to_0_in_resting_day
+    start_date=DateTime.new(2013,1,1,0,0)
+    result, remainder=@resting_day.calc(start_date,60)
+    assert_equal DateTime.new(2013,1,2,0,0), result
+    assert_equal 60,remainder
   end
   
-  def test_must_subtract_minutes_in_a_resting_day
-    
-    day = Workpattern::Day.new(0)
-    # y   ,m ,d ,h ,n ,dur ,yr  ,mr,dr,hr,nr,rem ,midnight,midnightr     
-    tests=[
-     [2000,1 ,1 ,0 ,0 ,-3  ,1999,12,31,0 ,0 ,-3  ,false   ,true],
-     [2000,1 ,1 ,23,59,0   ,2000,1 ,1 ,23,59,0   ,false   ,false],
-     [2000,1 ,1 ,23,59,-1  ,1999,12,31,0 ,0 ,-1  ,false   ,true],
-     [2000,1 ,1 ,23,59,-2  ,1999,12,31,0 ,0 ,-2  ,false   ,true],
-     [2000,1 ,1 ,9 ,10,-33 ,1999,12,31,0 ,0 ,-33 ,false   ,true],
-     [2000,1 ,1 ,9 ,10,-60 ,1999,12,31,0 ,0 ,-60 ,false   ,true],
-     [2000,1 ,1 ,9 ,0 ,-931,1999,12,31,0 ,0 ,-931,false   ,true],
-     [2000,1 ,1 ,0 ,0 ,-3  ,1999,12,31,0 ,0 ,-3  ,true   ,true],
-     [2000,1 ,1 ,23,59,0   ,2000,1 ,1 ,23,59,0   ,true   ,false],
-     [2000,1 ,1 ,23,59,-1  ,1999,12,31,0 ,0 ,-1  ,true   ,true],
-     [2000,1 ,1 ,23,59,-2  ,1999,12,31,0 ,0 ,-2  ,true   ,true],
-     [2000,1 ,1 ,9 ,10,-33 ,1999,12,31,0 ,0 ,-33 ,true   ,true],
-     [2000,1 ,1 ,9 ,10,-60 ,1999,12,31,0 ,0 ,-60 ,true   ,true],
-     [2000,1 ,1 ,9 ,0 ,-931,1999,12,31,0 ,0 ,-931,true   ,true]
-    ]
-    clue="subtract minutes in a resting day"
-    calc_test(day,tests,clue)  
+  def test_must_add_1_hour_1_minute_to_0_in_resting_day
+    start_date=DateTime.new(2013,1,1,0,0)
+    result, remainder=@resting_day.calc(start_date,61)
+    assert_equal DateTime.new(2013,1,2,0,0), result
+    assert_equal 61,remainder
   end
+
+  def test_must_add_1_day_to_0_in_resting_day
+    start_date=DateTime.new(2013,1,1,0,0)
+    result, remainder=@resting_day.calc(start_date,1440)
+    assert_equal DateTime.new(2013,1,2,0,0), result
+    assert_equal 1440,remainder
+  end
+ 
+  def test_must_add_1_day_1_minute_to_0_in_resting_day
+    start_date=DateTime.new(2013,1,1,0,0)
+    result, remainder=@resting_day.calc(start_date,1441)
+    assert_equal DateTime.new(2013,1,2,0,0), result
+    assert_equal 1441,remainder
+  end
+
+  def test_must_add_more_than_available_minutes_to_a_pattern_day
+    start_date=DateTime.new(2013,1,1,8,15)
+    result, remainder=@pattern_day.calc(start_date,515)
+    assert_equal DateTime.new(2013,1,2,0,0), result
+    assert_equal 1,remainder
+  end
+
+  def test_must_add_less_than_available_minutes_to_a_pattern_day
+    start_date=DateTime.new(2013,1,1,8,15)
+    result, remainder=@pattern_day.calc(start_date,513)
+    assert_equal DateTime.new(2013,1,1,23,59), result
+    assert_equal 0,remainder
+  end
+
+  def test_must_add_exactly_the_available_minutes_to_a_pattern_day
+    start_date=DateTime.new(2013,1,1,8,15)
+    result, remainder=@pattern_day.calc(start_date,514)
+    assert_equal DateTime.new(2013,1,2,0,0), result
+    assert_equal 0,remainder
+  end
+
+  def test_must_add_zero_minutes_to_a_pattern_day
+    start_date=DateTime.new(2013,1,1,8,15)
+    result, remainder=@pattern_day.calc(start_date,0)
+    assert_equal start_date, result
+    assert_equal 0,remainder
+  end
+
+  def test_must_add_1_minute_to_0_in_pattern_day
+    start_date=DateTime.new(2013,1,1,0,0)
+    result, remainder=@pattern_day.calc(start_date,1)
+    assert_equal DateTime.new(2013,1,1,8,35), result
+    assert_equal 0,remainder
+  end
+
+  def test_must_add_1_hour_to_0_in_pattern_day
+    start_date=DateTime.new(2013,1,1,0,0)
+    result, remainder=@pattern_day.calc(start_date,60)
+    assert_equal DateTime.new(2013,1,1,9,34), result
+    assert_equal 0,remainder
+  end
+  
+  def test_must_add_1_hour_1_minute_to_0_in_pattern_day
+    start_date=DateTime.new(2013,1,1,0,0)
+    result, remainder=@pattern_day.calc(start_date,61)
+    assert_equal DateTime.new(2013,1,1,9,35), result
+    assert_equal 0,remainder
+  end
+
+  def test_must_add_1_day_to_0_in_pattern_day
+    start_date=DateTime.new(2013,1,1,0,0)
+    result, remainder=@pattern_day.calc(start_date,1440)
+    assert_equal DateTime.new(2013,1,2,0,0), result
+    assert_equal 926,remainder
+  end
+ 
+  def test_must_add_1_day_1_minute_to_0_in_pattern_day
+    start_date=DateTime.new(2013,1,1,0,0)
+    result, remainder=@pattern_day.calc(start_date,1441)
+    assert_equal DateTime.new(2013,1,2,0,0), result
+    assert_equal 927,remainder
+  end
+
+  def test_must_subtract_more_than_available_minutes_in_working_day
+    start_date=DateTime.new(2013,1,1,12,23)
+    result, remainder, midnight=@working_day.calc(start_date,-744)
+    assert_equal DateTime.new(2012,12,31,0,0), result
+    assert_equal -1,remainder
+    assert midnight
+  end  
+
+  def test_must_subtract_less_than_available_minutes_in_working_day
+    start_date=DateTime.new(2013,1,1,12,23)
+    result, remainder, midnight=@working_day.calc(start_date,-742)
+    assert_equal DateTime.new(2013,1,1,0,1), result
+    assert_equal 0,remainder
+    refute midnight
+  end  
+
+  def test_must_subtract_available_minutes_in_working_day
+    start_date=DateTime.new(2013,1,1,12,23)
+    result, remainder, midnight=@working_day.calc(start_date,-743)
+    assert_equal DateTime.new(2013,1,1,0,0), result
+    assert_equal 0,remainder
+    refute midnight
+  end  
+
+  def test_must_subtract_1_minute_from_start_of_working_day
+    start_date=DateTime.new(2013,1,1,0,0)
+    result, remainder, midnight=@working_day.calc(start_date,-1)
+    assert_equal DateTime.new(2012,12,31,0,0), result
+    assert_equal -1,remainder
+    assert midnight
+  end  
+
+  def test_must_subtract_1_minute_from_start_of_next_working_day
+    start_date=DateTime.new(2013,1,1,0,0)
+    result, remainder, midnight=@working_day.calc(start_date,-1,true)
+    assert_equal DateTime.new(2013,1,1,23,59), result
+    assert_equal 0,remainder
+    refute midnight
+  end  
+
+  def test_must_subtract_1_day_from_start_of_next_working_day
+    start_date=DateTime.new(2013,1,1,0,0)
+    result, remainder, midnight=@working_day.calc(start_date,-1440,true)
+    assert_equal DateTime.new(2013,1,1,0,0), result
+    assert_equal 0,remainder
+    refute midnight
+  end  
+
+  def test_must_subtract_1_from_zero_minutes_from_resting_day
+    start_date=DateTime.new(2013,1,1,0,0)
+    result, remainder, midnight=@resting_day.calc(start_date,-1,true)
+    assert_equal DateTime.new(2012,12,31,0,0), result
+    assert_equal -1,remainder
+    assert midnight
+  end
+
+  def test_must_subtract_1_from_resting_day
+    start_date=DateTime.new(2013,1,1,4,13)
+    result, remainder, midnight=@resting_day.calc(start_date,-1,true)
+    assert_equal DateTime.new(2012,12,31,0,0), result
+    assert_equal -1,remainder
+    assert midnight
+  end
+
+  def test_must_subtract_1_from_zero_minutes_from_resting_day
+    start_date=DateTime.new(2013,1,1,0,0)
+    result, remainder, midnight=@resting_day.calc(start_date,-1,false)
+    assert_equal DateTime.new(2012,12,31,0,0), result
+    assert_equal -1,remainder
+    assert midnight
+  end
+
+  def test_must_subtract_1_from_somewhere_in_resting_day
+    start_date=DateTime.new(2013,1,1,4,13)
+    result, remainder, midnight=@resting_day.calc(start_date,-1,false)
+    assert_equal DateTime.new(2012,12,31,0,0), result
+    assert_equal -1,remainder
+    assert midnight
+  end
+
+############################################################################  
+############################################################################  
+############################################################################  
   
   def test_must_subtract_minutes_in_a_patterned_day
   
