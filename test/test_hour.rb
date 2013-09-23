@@ -31,7 +31,12 @@ class TestHour < MiniTest::Unit::TestCase #:nodoc:
     refute @pattern_hour.wp_working?(0)
     assert @pattern_hour.wp_working?(1)
   end
-  
+ 
+  def test_for_creating_8_33_that_failed_in_test_day
+    test_hour=@working_hour.wp_workpattern(0,33,0)
+    assert_equal 26, test_hour.wp_total
+  end 
+
   def test_can_add_more_than_the_available_minutes_in_a_working_hour
     start_date=DateTime.new(2013,1,1,1,8)
     result, remainder=@working_hour.wp_calc(start_date,53)
