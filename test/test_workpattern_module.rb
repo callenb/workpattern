@@ -1,12 +1,12 @@
 require File.dirname(__FILE__) + '/test_helper.rb'
 
-class TestWorkpatternModule < Test::Unit::TestCase #:nodoc:
+class TestWorkpatternModule < MiniTest::Unit::TestCase #:nodoc:
 
   def setup
     Workpattern.clear()
   end
   
-  must "create workpattern with given name" do
+  def test_must_create_workpattern_with_given_name
   
     wp = Workpattern.new()
     assert_equal Workpattern::DEFAULT_WORKPATTERN_NAME, wp.name, 'not returned the default workpattern name'
@@ -23,9 +23,9 @@ class TestWorkpatternModule < Test::Unit::TestCase #:nodoc:
     
   end
   
-  must "raise error when creating workpattern with existing name" do
+  def test_must_raise_error_when_creating_workpattern_with_existing_name
 
-    assert_raise NameError do
+    assert_raises NameError do
       mywp_name='duplicate'
       wp=Workpattern.new(mywp_name)    
       wp=Workpattern.new(mywp_name)
@@ -33,7 +33,7 @@ class TestWorkpatternModule < Test::Unit::TestCase #:nodoc:
 
   end
   
-  must "return an array of all known workpattern objects" do
+  def test_must_return_an_array_of_all_known_workpattern_objects
 
     names =%w{fred harry sally}
     names.each {|name| wp=Workpattern.new(name)}
@@ -44,12 +44,12 @@ class TestWorkpatternModule < Test::Unit::TestCase #:nodoc:
     wp_names.each {|name, wp| assert names.include?(name)}
   end
   
-  must "return empty array when no workpatterns exist" do
+  def test_must_return_empty_array_when_no_workpatterns_exist
 
     assert Workpattern.to_a.empty?
   end
   
-  must "return existing workpattern" do
+  def test_must_return_existing_workpattern
 
     names =%w{fred harry sally}
     names.each {|name| wp=Workpattern.new(name)}
@@ -59,29 +59,29 @@ class TestWorkpatternModule < Test::Unit::TestCase #:nodoc:
       }
   end
   
-  must "raise error when workpattern does not exist" do
+  def test_must_raise_error_when_workpattern_does_not_exist
 
     names =%w{fred harry sally}
     names.each {|name| wp=Workpattern.new(name)}
-    assert_raise NameError do
+    assert_raises NameError do
       wp=Workpattern.get('missing')
     end
   end
   
-  must "delete existing workpattern returning true" do
+  def test_must_delete_existing_workpattern_returning_true
 
     names =%w{fred harry sally}
     names.each {|name| wp=Workpattern.new(name)}
     names.each {|name| assert Workpattern.delete(name)}
   end
   
-  must "return false deleting workpattern that does not exist" do
+  def test_must_return_false_deleting_workpattern_that_does_not_exist
     names =%w{fred harry sally}
     names.each {|name| wp=Workpattern.new(name)}
     assert !Workpattern.delete('missing')
   end
   
-  must "delete all workpatterns" do
+  def test_must_delete_all_workpatterns
 
     names =%w{fred harry sally}
     names.each {|name| wp=Workpattern.new(name)}
