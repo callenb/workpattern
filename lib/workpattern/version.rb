@@ -1,5 +1,5 @@
 module Workpattern
   # Version Number for Workpattern gem
   # @since 0.0.1
-  VERSION = '0.3.2'
+  VERSION = '0.3.3'
 end  

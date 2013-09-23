@@ -1,3 +1,10 @@
+## Workpattern v0.3.4 (Sep 23, 2013)  ##
+
+* Failed to subtract 1 minute from end of resting hour (#12) * Barrie Callender *
+* Failed to add minutes starting from a resting period in a patterned hour (#13) * Barrie Callender *
+* Failed to subtract the exact amount of minutes from a patterned hour (#14) * Barrie Callender *
+
+
 ## Workpattern v0.3.3 (Aug 21, 2013)  ##
 
 * The two tests no longer fail with Ruby 2.0 (#11) * Barrie Callender *
