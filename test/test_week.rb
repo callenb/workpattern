@@ -5,6 +5,26 @@ class TestWeek < MiniTest::Unit::TestCase #:nodoc:
   def setup
     
   end
+
+  def test_must_diff_from_last_day_of_patterned_week
+    #issue 15
+    start=DateTime.new(2013,9,23,0,0)
+    finish=DateTime.new(2013,9,26,23,59)
+    working_week=week(start,finish,1)
+    working_week.workpattern :all, Workpattern.clock(0,0),Workpattern.clock(8,59),0
+    working_week.workpattern :all, Workpattern.clock(12,0),Workpattern.clock(12,59),0
+    working_week.workpattern :all, Workpattern.clock(18,0),Workpattern.clock(23,59),0
+
+    duration, start =working_week.diff(DateTime.civil(2013,9,26,17,0),DateTime.civil(2013,9,27,10,0))
+
+    assert_equal 60, duration
+    assert_equal DateTime.civil(2013,9,27,0,0), start
+  end
+
+
+######################################################
+######################################################
+######################################################
   
   def test_must_create_a_working_week
     start=DateTime.new(2000,1,1,11,3)

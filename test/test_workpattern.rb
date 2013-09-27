@@ -5,7 +5,23 @@ class TestWorkpattern < MiniTest::Unit::TestCase #:nodoc:
   def setup
     Workpattern.clear()    
   end
-  
+
+  def test_can_diff_between_working_period_and_resting_day
+    # This is the test for issue 15
+    mywp=Workpattern.new('My Workpattern',2013,3)
+    mywp.resting(:days => :weekend)
+    mywp.resting(:days =>:weekday, :from_time=>Workpattern.clock(0,0),:to_time=>Workpattern.clock(8,59))
+    mywp.resting(:days =>:weekday, :from_time=>Workpattern.clock(12,0),:to_time=>Workpattern.clock(12,59))
+    mywp.resting(:days =>:weekday, :from_time=>Workpattern.clock(18,0),:to_time=>Workpattern.clock(23,59))
+
+    mydate1=DateTime.civil(2013,9,27,0,0,0)
+    mydate2=DateTime.civil(2013,9,27,23,59,59)
+
+    mywp.resting(:start=>mydate1,:finish=>mydate2, :days =>:all, :from_time=>Workpattern.clock(0,0), :to_time=>Workpattern.clock(23,59))
+
+    assert_equal 60, mywp.diff(DateTime.civil(2013,9,26,17,0),DateTime.civil(2013,9,27,10,0))
+  end  
+
   def test_must_create_a_working_workpattern
     name='mywp'
     base=2001
@@ -238,7 +254,7 @@ class TestWorkpattern < MiniTest::Unit::TestCase #:nodoc:
     assert !wp.working?(DateTime.new(2012,1,1,8,59))    
   end
   
-  
+   
   private
   
   def get_week(ss)
