@@ -337,6 +337,7 @@ module Workpattern
     #
     def diff_detail(start,finish,finish_on)
       duration, start=@values[start.wday].diff(start,finish)
+      return duration,start if start > finish_on
       #rest of week to finish day
       while (start.wday<finish.wday) do
         duration+=@values[start.wday].total
