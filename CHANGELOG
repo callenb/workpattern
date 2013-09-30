@@ -1,8 +1,12 @@
+## Workpattern v0.3.5 (Sep 30, 2013)  ##
+
+* License missing from gemspec (#16) * Barrie Callender *
+* Removed Gemfile.lock from git and updated .gitignore to the bundler defaults * Barrie Callender *
+
 ## Workpattern v0.3.4 (Sep 27, 2013)  ##
 
 * diff doesn't calculate properly from working to resting day (#15) * Barrie Callender *
 
-	
 ## Workpattern v0.3.3 (Sep 23, 2013)  ##
 
 * Failed to subtract 1 minute from end of resting hour (#12) * Barrie Callender *
