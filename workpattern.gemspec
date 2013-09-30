@@ -10,6 +10,7 @@ Gem::Specification.new do |s|
   s.homepage    = ""
   s.summary     = %q{temporal calculations}
   s.description = %q{Workpattern performs date calculations that take into account working and resting periods.}
+  s.license     = 'MIT'
 
   s.rubyforge_project = "workpattern"
 
