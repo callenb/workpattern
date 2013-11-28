@@ -3,6 +3,17 @@ require File.dirname(__FILE__) + '/test_helper.rb'
 class TestWeek < MiniTest::Unit::TestCase #:nodoc:
 
   def setup
+    start=DateTime.new(2000,1,3)
+    finish=DateTime.new(2000,1,9)
+    @working_week=Workpattern::Week.new(start,finish,1)
+
+    @resting_week=Workpattern::Week.new(start,finish,0)
+
+    @pattern_week=Workpattern::Week.new(start,finish,1)
+    @pattern_week.workpattern(:weekend,Workpattern.clock(0,0),Workpattern.clock(23,59),0)
+    @pattern_week.workpattern(:weekday,Workpattern.clock(0,0),Workpattern.clock(8,59),0)
+    @pattern_week.workpattern(:weekday,Workpattern.clock(12,30),Workpattern.clock(13,0),0)
+    @pattern_week.workpattern(:weekday,Workpattern.clock(17,0),Workpattern.clock(23,59),0)
     
   end
 
@@ -20,11 +31,6 @@ class TestWeek < MiniTest::Unit::TestCase #:nodoc:
     assert_equal 60, duration
     assert_equal DateTime.civil(2013,9,27,0,0), start
   end
-
-
-######################################################
-######################################################
-######################################################
   
   def test_must_create_a_working_week
     start=DateTime.new(2000,1,1,11,3)
@@ -55,6 +61,24 @@ class TestWeek < MiniTest::Unit::TestCase #:nodoc:
     assert_equal 3156480, new_week.total#2192
     
   end
+
+  def test_must_set_week_pattern_correctly
+    start=DateTime.new(2000,1,3)
+    finish=DateTime.new(2000,1,9)
+
+    pattern_week=Workpattern::Week.new(start,finish,1)
+    assert_equal start, pattern_week.start
+    assert_equal finish, pattern_week.finish
+    assert_equal 10080, pattern_week.week_total
+    pattern_week.workpattern(:weekend,Workpattern.clock(0,0),Workpattern.clock(23,59),0)
+    assert_equal 7200, pattern_week.week_total
+    pattern_week.workpattern(:weekday,Workpattern.clock(0,0),Workpattern.clock(8,59),0)
+    assert_equal 4500, pattern_week.week_total
+    pattern_week.workpattern(:weekday,Workpattern.clock(12,30),Workpattern.clock(13,0),0)
+    assert_equal 4345, pattern_week.week_total
+    pattern_week.workpattern(:weekday,Workpattern.clock(17,0),Workpattern.clock(23,59),0)
+    assert_equal 2245, pattern_week.week_total
+  end
   
   def test_must_set_patterns_correctly
     start=DateTime.new(2000,1,1,0,0)
@@ -78,53 +102,135 @@ class TestWeek < MiniTest::Unit::TestCase #:nodoc:
     working_week.workpattern(:all,clock(0,0),clock(23,59),1)
     assert_equal 10080, working_week.week_total
     working_week.workpattern(:weekend,clock(0,0),clock(23,59),0)
-    assert_equal 7200, working_week.week_total
-    
+    assert_equal 7200, working_week.week_total    
   end
-  
-  def test_must_add_minutes_in_a_working_week
-    start=DateTime.new(2000,1,1,0,0)
-    finish=DateTime.new(2005,12,31,8,59)
-    working_week=week(start,finish,1)
-      
-    [# yyyy,mm,dd,hh,mn,durtn,ryyyy,rmm,rdd,rhh,rmn,rdurtn
-     [ 2000, 1, 1, 0, 0,    0, 2000,  1,  1,  0,  0,     0],
-     [ 2005,12,31, 8,59,   10, 2005, 12, 31,  9,  9,     0],
-     [ 2005,12,31,23,59,    1, 2006,  1,  1,  0,  0,     0],
-     [ 2005,12,31,23,59,    2, 2006,  1,  1,  0,  0,     1],
-     [ 2005,11,30,23,59,    2, 2005, 12,  1,  0,  1,     0]
-    ].each {|yyyy,mm,dd,hh,mn,durtn,ryyyy,rmm,rdd,rhh,rmn,rdurtn|
-      start=DateTime.new(yyyy,mm,dd,hh,mn)
-      result_date, result_duration= working_week.calc(start,durtn)
-      assert_equal DateTime.new(ryyyy,rmm,rdd,rhh,rmn), result_date, "result_date for working_week.calc(#{start},#{durtn})"
-      assert_equal rdurtn, result_duration,"result_duration for working_week.calc(#{start},#{durtn})"
-    }
+
+  def test_must_add_minutes_in_a_working_week_result_in_same_day
+    result_date, result_duration = @working_week.calc(DateTime.new(2000,1,3,7,31),29)
+    assert_equal DateTime.new(2000,1,3,8,0), result_date
+    assert_equal 0, result_duration
   end
-  
+
+  def test_must_add_minutes_in_a_working_week_result_in_next_day
+    result_date, result_duration = @working_week.calc(DateTime.new(2000,1,3,7,31),990)
+    assert_equal DateTime.new(2000,1,4,0,1), result_date
+    assert_equal 0, result_duration
+  end
+
+  def test_must_add_minutes_in_a_working_week_result_in_later_day
+    result_date, result_duration = @working_week.calc(DateTime.new(2000,1,3,7,31),2430)
+    assert_equal DateTime.new(2000,1,5,0,1), result_date
+    assert_equal 0, result_duration
+  end
+
+  def test_must_add_minutes_in_a_working_week_result_in_start_next_day
+    result_date, result_duration = @working_week.calc(DateTime.new(2000,1,3,7,31),989)
+    assert_equal DateTime.new(2000,1,4,0,0), result_date
+    assert_equal 0, result_duration
+  end
+
+  def test_must_add_0_minutes_in_a_working_week
+    result_date, result_duration = @working_week.calc(DateTime.new(2000,1,3,7,31),0)
+    assert_equal DateTime.new(2000,1,3,7,31), result_date
+    assert_equal 0, result_duration
+  end
+
+  def test_must_add_too_many_minutes_in_a_working_week
+    result_date, result_duration = @working_week.calc(DateTime.new(2000,1,3,7,31),9630)
+    assert_equal DateTime.new(2000,1,10,0,0), result_date
+    assert_equal 1, result_duration
+  end
+
   def test_must_add_minutes_in_a_resting_week
-    start=DateTime.new(2000,1,1,0,0)
-    finish=DateTime.new(2005,12,31,8,59)
-    resting_week=week(start,finish,0)
-      
-    [# yyyy,mm,dd,hh,mn,durtn,midnight,ryyyy,rmm,rdd,rhh,rmn,rdurtn,rmidnight
-     [ 2000, 1, 1, 0, 0,    0,   false, 2000,  1,  1,  0,  0,     0,   false],
-     [ 2005,12,31, 8,59,   10,   false, 2006,  1,  1,  0,  0,    10,   false],
-     [ 2005,12,31,23,59,    1,   false, 2006,  1,  1,  0,  0,     1,   false],
-     [ 2005,12,31,23,59,    2,   false, 2006,  1,  1,  0,  0,     2,   false],
-     [ 2005,11,30,23,59,    2,   false, 2006,  1,  1,  0,  0,     2,   false],
-     [ 2000, 1, 1, 0, 0,    0,    true, 2000,  1,  1,  0,  0,     0,   false],
-     [ 2005,12,31, 8,59,   10,    true, 2006,  1,  1,  0,  0,    10,   false],
-     [ 2005,12,31,23,59,    1,    true, 2006,  1,  1,  0,  0,     1,   false],
-     [ 2005,12,31,23,59,    2,    true, 2006,  1,  1,  0,  0,     2,   false],
-     [ 2005,11,30,23,59,    2,    true, 2006,  1,  1,  0,  0,     2,   false]     
-    ].each {|yyyy,mm,dd,hh,mn,durtn,midnight,ryyyy,rmm,rdd,rhh,rmn,rdurtn,rmidnight|
-      start=DateTime.new(yyyy,mm,dd,hh,mn)
-      result_date, result_duration,result_midnight= resting_week.calc(start,durtn,midnight)
-      assert_equal DateTime.new(ryyyy,rmm,rdd,rhh,rmn), result_date, "result_date for resting_week.calc(#{start},#{durtn},#{midnight})"
-      assert_equal rdurtn, result_duration,"result_duration for resting_week.calc(#{start},#{durtn},#{midnight})"
-      assert_equal rmidnight, result_midnight,"result_midnight for resting_week.calc(#{start},#{durtn},#{midnight})"      
-    }
+    result_date, result_duration = @resting_week.calc(DateTime.new(2000,1,3,7,31),29)
+    assert_equal DateTime.new(2000,1,10,0,0), result_date
+    assert_equal 29, result_duration
   end
+
+  def test_must_add_minutes_from_start_of_resting_week
+    result_date, result_duration = @resting_week.calc(DateTime.new(2000,1,3,0,0),990)
+    assert_equal DateTime.new(2000,1,10,0,0), result_date
+    assert_equal 990, result_duration
+  end
+
+  def test_must_add_minutes_to_last_minute_of_a_resting_week
+    result_date, result_duration = @resting_week.calc(DateTime.new(2000,1,9,23,59),2430)
+    assert_equal DateTime.new(2000,1,10,0,0), result_date
+    assert_equal 2430, result_duration
+  end
+
+  def test_must_add_zero_minutes_in_a_resting_week
+    result_date, result_duration = @resting_week.calc(DateTime.new(2000,1,3,7,31),0)
+    assert_equal DateTime.new(2000,1,3,7,31), result_date
+    assert_equal 0, result_duration
+  end
+
+###############
+#    @pattern_week=Workpattern::Week.new(start,finish,1)
+#    @pattern_week.workpattern(:weekend,Workpattern.clock(0,0),Workpattern.clock(23,59),0)
+#    @pattern_week.workpattern(:weekday,Workpattern.clock(0,0),Workpattern.clock(8,59),0)
+#    @pattern_week.workpattern(:weekday,Workpattern.clock(12,30),Workpattern.clock(13,0),0)
+#    @pattern_week.workpattern(:weekday,Workpattern.clock(17,0),Workpattern.clock(23,59),0)
+
+  def test_must_add_minutes_from_working_in_a_pattern_week_result_in_same_day
+    result_date, result_duration = @pattern_week.calc(DateTime.new(2000,1,3,10,11),110)
+    assert_equal DateTime.new(2000,1,3,12,1), result_date
+    assert_equal 0, result_duration
+  end
+
+  def test_must_add_minutes_from_resting_in_a_pattern_week_result_in_same_day
+    result_date, result_duration = @pattern_week.calc(DateTime.new(2000,1,3,12,45),126)
+    assert_equal DateTime.new(2000,1,3,15,7), result_date
+    assert_equal 0, result_duration
+  end
+
+  def test_must_add_minutes_from_working_in_a_pattern_week_result_in_next_day
+    result_date, result_duration = @pattern_week.calc(DateTime.new(2000,1,3,10,11),379)
+    assert_equal DateTime.new(2000,1,4,9,1), result_date
+    assert_equal 0, result_duration
+  end
+
+  def test_must_add_minutes_from_resting_in_a_pattern_week_result_in_next_day
+    result_date, result_duration = @pattern_week.calc(DateTime.new(2000,1,3,12,45),240)
+    assert_equal DateTime.new(2000,1,4,9,1), result_date
+    assert_equal 0, result_duration
+  end
+
+  def test_must_add_minutes_from_working_in_a_working_week_result_in_later_day
+    result_date, result_duration = @pattern_week.calc(DateTime.new(2000,1,3,10,11),828)
+    assert_equal DateTime.new(2000,1,5,9,1), result_date
+    assert_equal 0, result_duration
+  end
+
+  def test_must_add_minutes_from_resting_in_a_working_week_result_in_later_day
+    result_date, result_duration = @pattern_week.calc(DateTime.new(2000,1,3,12,45),689)
+    assert_equal DateTime.new(2000,1,5,9,1), result_date
+    assert_equal 0, result_duration
+  end
+
+  def test_must_add_0_minutes_from_working_in_a_resting_week
+    result_date, result_duration = @pattern_week.calc(DateTime.new(2000,1,3,10,11),0)
+    assert_equal DateTime.new(2000,1,3,10,11), result_date
+    assert_equal 0, result_duration
+  end
+
+  def test_must_add_0_minutes_from_resting_in_a_resting_week
+    result_date, result_duration = @pattern_week.calc(DateTime.new(2000,1,3,12,45),0)
+    assert_equal DateTime.new(2000,1,3,12,45), result_date
+    assert_equal 0, result_duration
+  end
+
+#  def test_must_add_too_many_minutes_in_a_pattern__week
+#    result_date, result_duration = @working_week.calc(DateTime.new(2000,1,3,10,11),2175)
+#    assert_equal DateTime.new(2000,1,10,0,0), result_date
+#    assert_equal 1, result_duration
+#  end
+
+
+######################################################
+######################################################
+######################################################
+  
   
   def test_must_add_minutes_in_a_patterned_week
     start=DateTime.new(2000,1,1,0,0) #saturday

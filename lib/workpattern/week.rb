@@ -156,7 +156,12 @@ module Workpattern
       @week_total=0
       days=(@finish-@start).to_i + 1 #/60/60/24+1 
       if (7-@start.wday) < days and days < 8
-        @total+=total_hours(@start.wday,@finish.wday)
+        if @start.wday < @finish.wday
+          @total=total_hours(@start.wday,@finish.wday)
+        else
+          @total=total_hours(@start.wday,6)
+          @total+=total_hours(0,@finish.wday)
+        end
         @week_total=@total
       else
         @total+=total_hours(@start.wday,6)
