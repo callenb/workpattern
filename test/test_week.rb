@@ -220,49 +220,16 @@ class TestWeek < MiniTest::Unit::TestCase #:nodoc:
     assert_equal 0, result_duration
   end
 
-#  def test_must_add_too_many_minutes_in_a_pattern__week
-#    result_date, result_duration = @working_week.calc(DateTime.new(2000,1,3,10,11),2175)
-#    assert_equal DateTime.new(2000,1,10,0,0), result_date
-#    assert_equal 1, result_duration
-#  end
-
-
-######################################################
-######################################################
-######################################################
-  
-  
-  def test_must_add_minutes_in_a_patterned_week
-    start=DateTime.new(2000,1,1,0,0) #saturday
-    finish=DateTime.new(2005,12,31,8,59) #saturday
-    working_week=week(start,finish,0)
-    working_week.workpattern(:sun,clock(9,0),clock(9,13),1) 
-    
-    working_week.workpattern(:weekday,clock(9,0),clock(11,59),1)
-    working_week.workpattern(:weekday,clock(13,0),clock(17,59),1)
-    
-    working_week.workpattern(:mon,clock(0,0),clock(23,59),0) 
-    working_week.workpattern(:mon,clock(9,0),clock(9,13),1)
-    working_week.workpattern(:mon,clock(10,1),clock(10,1),1)        
-    
-    
-    [# yyyy,mm,dd,hh,mn,durtn,midnight,ryyyy,rmm,rdd,rhh,rmn,rdurtn,rmidnight
-     [ 2000, 1, 1, 0, 0,    0,   false, 2000,  1,  1,  0,  0,     0,   false],
-     [ 2000, 1, 1, 0, 0,    1,   false, 2000,  1,  2,  9,  1,     0,   false],
-     [ 2000, 1, 2, 9, 0,   14,   false, 2000,  1,  2,  9,  14,     0,   false], #Issue #9 - getting wrong time when hour had exactly the right number of minutes
-     [ 2000, 1, 2, 9, 0,   15,   false, 2000,  1,  3,  9,  1,     0,   false],
-     [ 2000, 1, 2, 9, 0,   29,   false, 2000,  1,  3,  10,  2,     0,   false],     
-     [ 2000, 1, 2, 9, 0, 1950,   false, 2000,  1,  9,   9,  1,     0,   false],
-     [ 2005,12,25, 9, 0, 1950,   false, 2006,  1,  1,   0,  0,     1,   false],
-     [ 2005,12,25, 9, 0, 1949,   false, 2005, 12, 30,  18,  0,     0,   false]#,          
-    ].each {|yyyy,mm,dd,hh,mn,durtn,midnight,ryyyy,rmm,rdd,rhh,rmn,rdurtn,rmidnight|
-      start=DateTime.new(yyyy,mm,dd,hh,mn)   
-      result_date, result_duration,result_midnight= working_week.calc(start,durtn,midnight)
-      assert_equal DateTime.new(ryyyy,rmm,rdd,rhh,rmn), result_date, "result_date for working_week.calc(#{start},#{durtn},#{midnight})"
-      assert_equal rdurtn, result_duration,"result_duration for working_week.calc(#{start},#{durtn},#{midnight})"
-      assert_equal rmidnight, result_midnight,"result_midnight for working_week.calc(#{start},#{durtn},#{midnight})"      
-    }
+  def test_must_add_too_many_minutes_in_a_pattern__week
+    result_date, result_duration = @pattern_week.calc(DateTime.new(2000,1,3,10,11),2175)
+    assert_equal DateTime.new(2000,1,10,0,0), result_date
+    assert_equal 1, result_duration
   end
+
+
+######################################################
+######################################################
+######################################################
   
   def test_must_subtract_minutes_in_a_working_week
     start=DateTime.new(2000,1,1,0,0)
