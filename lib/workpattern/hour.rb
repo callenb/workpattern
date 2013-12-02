@@ -157,10 +157,10 @@ module Workpattern
       if next_hour
         if wp_working?(59)
           duration+=1
-          time=time+(MINUTE*59)
-          return wp_calc(time,duration)
-        end  
-        return time, duration if wp_total==0
+        end
+        time=time+(MINUTE*59)
+        return wp_calc(time,duration)
+#        return time, duration if wp_total==0
       else  
         start=time.min  
         available_minutes=0
