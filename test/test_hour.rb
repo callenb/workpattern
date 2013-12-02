@@ -274,6 +274,13 @@ class TestHour < MiniTest::Unit::TestCase #:nodoc:
     assert_equal DateTime.new(2013,1,1,1,2), result
     assert_equal 0,remainder
   end
+######
+  def test_can_subtract_using_next_hour_and_non_working_59_in_patterned_hour
+    start_date=DateTime.new(2013,1,1,0,0)
+    result, remainder=@pattern_hour.wp_calc(start_date,-9,true)
+    assert_equal DateTime.new(2013,1,1,0,50), result
+    assert_equal 0,remainder
+  end
 
   def test_can_change_working_to_resting
     new_hour=@working_hour.wp_workpattern(0,59,0)
