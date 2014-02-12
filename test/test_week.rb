@@ -322,18 +322,6 @@ class TestWeek < MiniTest::Unit::TestCase #:nodoc:
     assert_equal -1, result_duration
   end
   
-######################################################
-#    start=DateTime.new(2000,1,3)
-#    finish=DateTime.new(2000,1,9)
-#
-#    @pattern_week=Workpattern::Week.new(start,finish,1)
-#    @pattern_week.workpattern(:weekend,Workpattern.clock(0,0),Workpattern.clock(23,59),0)
-#    @pattern_week.workpattern(:weekday,Workpattern.clock(0,0),Workpattern.clock(8,59),0)
-#    @pattern_week.workpattern(:weekday,Workpattern.clock(12,30),Workpattern.clock(13,0),0)
-#    @pattern_week.workpattern(:weekday,Workpattern.clock(17,0),Workpattern.clock(23,59),0)
-
-
-
   def test_must_subtract_minutes_from_resting_day_in_a_pattern_week
     result_date, result_duration, midnight_flag = @pattern_week.calc(DateTime.new(2000,1,8,13,29),-29)
     assert_equal DateTime.new(2000,1,7,16,31), result_date
@@ -348,71 +336,90 @@ class TestWeek < MiniTest::Unit::TestCase #:nodoc:
     assert_equal 0, result_duration
   end
 
-  def test_must_subtract_minutes_in_a_working_week_result_in_previous_day
-    result_date, result_duration, midnight_flag = @working_week.calc(DateTime.new(2000,1,8,7,31),-452)
-    assert_equal DateTime.new(2000,1,7,23,59), result_date
+  def test_must_subtract_minutes_in_a_pattern_week_result_in_previous_day
+    result_date, result_duration, midnight_flag = @pattern_week.calc(DateTime.new(2000,1,7,9,1),-2)
+    assert_equal DateTime.new(2000,1,6,16,59), result_date
     refute midnight_flag
     assert_equal 0, result_duration
   end
 
-  def test_must_subtract_minutes_in_a_working_week_result_in_earlier_day
-    result_date, result_duration, midnight_flag = @working_week.calc(DateTime.new(2000,1,8,7,31),-1892)
-    assert_equal DateTime.new(2000,1,6,23,59), result_date
+  def test_must_subtract_minutes_in_a_pattern_week_result_in_earlier_day
+    result_date, result_duration, midnight_flag = @pattern_week.calc(DateTime.new(2000,1,7,13,29),-240)
+    assert_equal DateTime.new(2000,1,6,16,58), result_date
     refute midnight_flag
     assert_equal 0, result_duration
   end
 
-  def test_must_subtract_minutes_in_a_working_week_result_at_start_of_day
-    result_date, result_duration, midnight_flag = @working_week.calc(DateTime.new(2000,1,8,7,31),-451)
-    assert_equal DateTime.new(2000,1,8,0,0), result_date
+  def test_must_subtract_minutes_in_a_pattern_week_result_at_start_of_day
+    result_date, result_duration, midnight_flag = @pattern_week.calc(DateTime.new(2000,1,7,13,29),-238)
+    assert_equal DateTime.new(2000,1,7,9,0), result_date
     refute midnight_flag
     assert_equal 0, result_duration
   end
 
-  def test_must_subtract_minutes_in_a_working_week_result_at_start_of_previous_day
-    result_date, result_duration, midnight_flag = @working_week.calc(DateTime.new(2000,1,8,7,31),-1891)
-    assert_equal DateTime.new(2000,1,7,0,0), result_date
+  def test_must_subtract_minutes_in_a_pattern_week_result_at_start_of_previous_day
+    result_date, result_duration, midnight_flag = @pattern_week.calc(DateTime.new(2000,1,7,13,29),-687)
+    assert_equal DateTime.new(2000,1,6,9,0), result_date
     refute midnight_flag
     assert_equal 0, result_duration
   end
 
-  def test_must_subtract_too_many_minutes_from_a_working_week
-    result_date, result_duration, midnight_flag = @working_week.calc(DateTime.new(2000,1,8,7,31),-7652)
+  def test_must_subtract_too_many_minutes_from_a_pattern_week
+    result_date, result_duration, midnight_flag = @pattern_week.calc(DateTime.new(2000,1,7,9,0),-1797)
     assert_equal DateTime.new(2000,1,2,0,0), result_date
     assert midnight_flag
     assert_equal -1, result_duration
   end
 
-  def test_must_subtract_1_minute_from_start_of_next_day_after_working_week
-    result_date, result_duration, midnight_flag = @working_week.calc(DateTime.new(2000,1,9,0,0),-1,true)
-    assert_equal DateTime.new(2000,1,9,23,59), result_date
+  def test_must_subtract_1_minute_from_start_of_next_day_after_pattern_week
+    result_date, result_duration, midnight_flag = @pattern_week.calc(DateTime.new(2000,1,9,0,0),-1,true)
+    assert_equal DateTime.new(2000,1,7,16,59), result_date
     refute midnight_flag
     assert_equal 0, result_duration
   end
 
-  def test_must_subtract_2_minutes_from_start_of_next_day_after_working_week
-    result_date, result_duration, midnight_flag = @working_week.calc(DateTime.new(2000,1,9,0,0),-2,true)
-    assert_equal DateTime.new(2000,1,9,23,58), result_date
+  def test_must_subtract_2_minutes_from_start_of_next_day_after_pattern_week
+    result_date, result_duration, midnight_flag = @pattern_week.calc(DateTime.new(2000,1,9,0,0),-2,true)
+    assert_equal DateTime.new(2000,1,7,16,58), result_date
     refute midnight_flag
     assert_equal 0, result_duration
   end
 
 ######################################################
-######################################################
-  
-  def test_must_subtract_minutes_in_a_patterned_week
+#    start=DateTime.new(2000,1,3)
+#    finish=DateTime.new(2000,1,9)
+#
+#    @pattern_week=Workpattern::Week.new(start,finish,1)
+#    @pattern_week.workpattern(:weekend,Workpattern.clock(0,0),Workpattern.clock(23,59),0)
+#    @pattern_week.workpattern(:weekday,Workpattern.clock(0,0),Workpattern.clock(8,59),0)
+#    @pattern_week.workpattern(:weekday,Workpattern.clock(12,30),Workpattern.clock(13,0),0)
+#    @pattern_week.workpattern(:weekday,Workpattern.clock(17,0),Workpattern.clock(23,59),0)
 
-  end
+### @pattern_week centric
+
   
   def test_must_calculate_difference_between_dates_in_working_week
+    late_date=DateTime.new(2000,1,6,9,32)
+    early_date=DateTime.new(2000,1,6,8,20)
+    result_dur, result_date = @working_week.diff(early_date,late_date)
+    assert_equal 72, result_dur
+    assert_equal late_date, result_date
   end
 
   def test_must_calculate_difference_between_dates_in_resting_week
-
+    late_date=DateTime.new(2000,1,6,9,32)
+    early_date=DateTime.new(2000,1,6,8,20)
+    result_dur, result_date = @resting_week.diff(early_date,late_date)
+    assert_equal 0, result_dur
+    assert_equal late_date, result_date
   end
 
   def test_must_calculate_difference_between_dates_in_pattern_week
-
+    late_date=DateTime.new(2000,1,6,13,1)
+    early_date=DateTime.new(2000,1,6,12,29)
+    result_dur, result_date = @pattern_week.diff(early_date,late_date)
+    assert_equal 1, result_dur
+    assert_equal late_date, result_date
   end
   
   private
