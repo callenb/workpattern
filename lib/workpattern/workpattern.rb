@@ -60,9 +60,9 @@ module Workpattern
       @base = base
       @span = span
       @from = DateTime.new(base.abs - offset)
-      @to = DateTime.new(@from.year + span.abs - 1,12,31,23,59)
+      @to = DateTime.new(from.year + span.abs - 1,12,31,23,59)
       @weeks = SortedSet.new
-      @weeks << Week.new(@from,@to,1)
+      @weeks << Week.new(from,to,1)
      
       
       @@workpatterns[name]=self
@@ -124,13 +124,13 @@ module Workpattern
     #
     def workpattern(opts={})
     
-      args={:start => @from, :finish => @to, :days => :all,
+      args={:start => from, :finish => to, :days => :all,
           :from_time => FIRST_TIME_IN_DAY, :to_time => LAST_TIME_IN_DAY,
           :work_type => WORK}   
           
       args.merge! opts
  
-      @@persistence.store( name: @name, workpattern: args) if self.class.persistence?
+      @@persistence.store( name: name, workpattern: args) if self.class.persistence?
 
       args[:start] = dmy_date(args[:start])
       args[:finish] = dmy_date(args[:finish])
@@ -146,7 +146,7 @@ module Workpattern
           if (current_wp.finish > upd_finish)
             clone_wp=clone_and_adjust_current_wp(current_wp, upd_finish+1,current_wp.finish,upd_start,upd_finish)
             clone_wp.workpattern(args[:days],from_time,to_time,args[:work_type])
-            @weeks<< clone_wp
+            weeks<< clone_wp
             upd_start=upd_finish+1
           else # (current_wp.finish == upd_finish)
             current_wp.workpattern(args[:days],from_time,to_time,args[:work_type])
@@ -156,13 +156,13 @@ module Workpattern
           clone_wp=clone_and_adjust_current_wp(current_wp, current_wp.start,upd_start-1,upd_start)
           if (clone_wp.finish <= upd_finish)
             clone_wp.workpattern(args[:days],from_time,to_time,args[:work_type])
-            @weeks<< clone_wp
+            weeks<< clone_wp
             upd_start=clone_wp.finish+1
           else
             after_wp=clone_and_adjust_current_wp(clone_wp, upd_start,upd_finish,upd_finish+1)
-            @weeks<< after_wp
+            weeks<< after_wp
             clone_wp.workpattern(args[:days],from_time,to_time,args[:work_type])
-            @weeks<< clone_wp
+            weeks<< clone_wp
             upd_start=clone_wp.finish+1
           end
         end    
@@ -253,15 +253,15 @@ module Workpattern
     def find_weekpattern(date)
       # find the pattern that fits the date
       #
-      if date<@from
-        result = Week.new(DateTime.jd(0),@from-MINUTE,1)
-      elsif date>@to
-        result = Week.new(@to+MINUTE,DateTime.new(9999),1)
+      if date<from
+        result = Week.new(DateTime.jd(0),from-MINUTE,1)
+      elsif date>to
+        result = Week.new(to+MINUTE,DateTime.new(9999),1)
       else
       
         date = DateTime.new(date.year,date.month,date.day)
 
-        result=@weeks.find {|week| week.start <= date and week.finish >= date}
+        result=weeks.find {|week| week.start <= date and week.finish >= date}
       end
       return result
     end
