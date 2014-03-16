@@ -44,17 +44,17 @@ module Workpattern
     # @return [Week] a duplicated instance of the current <tt>Week</tt> object
     #
     def duplicate()
-      duplicate_week=Week.new(@start,@finish)
-      duplicate_values=Array.new(@values.size)
-      @values.each_index {|index|
-        duplicate_values[index]=@values[index].duplicate
+      duplicate_week=Week.new(start,finish)
+      duplicate_values=Array.new(values.size)
+      values.each_index {|index|
+        duplicate_values[index]=values[index].duplicate
         }
       duplicate_week.values=duplicate_values  
-      duplicate_week.days=@days
-      duplicate_week.start=@start
-      duplicate_week.finish=@finish
-      duplicate_week.week_total=@week_total
-      duplicate_week.total=@total
+      duplicate_week.days=days
+      duplicate_week.start=start
+      duplicate_week.finish=finish
+      duplicate_week.week_total=week_total
+      duplicate_week.total=total
       duplicate_week.refresh
       return duplicate_week
     end
@@ -100,7 +100,7 @@ module Workpattern
     def calc(start,duration, midnight=false)
       return start,duration,false if duration==0
       return add(start,duration) if duration > 0
-      return subtract(@start,duration, midnight) if (@total==0) && (duration <0)
+      return subtract(start,duration, midnight) if (@total==0) && (duration <0)
       return subtract(start,duration, midnight) if duration <0  
     end
     
