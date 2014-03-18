@@ -44,17 +44,17 @@ module Workpattern
     # @return [Week] a duplicated instance of the current <tt>Week</tt> object
     #
     def duplicate()
-      duplicate_week=Week.new(start,finish)
-      duplicate_values=Array.new(values.size)
-      values.each_index {|index|
-        duplicate_values[index]=values[index].duplicate
+      duplicate_week=Week.new(self.start,self.finish)
+      duplicate_values=Array.new(self.values.size)
+      self.values.each_index {|index|
+        duplicate_values[index]=self.values[index].duplicate
         }
       duplicate_week.values=duplicate_values  
-      duplicate_week.days=days
-      duplicate_week.start=start
-      duplicate_week.finish=finish
-      duplicate_week.week_total=week_total
-      duplicate_week.total=total
+      duplicate_week.days=self.days
+      duplicate_week.start=self.start
+      duplicate_week.finish=self.finish
+      duplicate_week.week_total=self.week_total
+      duplicate_week.total=self.total
       duplicate_week.refresh
       return duplicate_week
     end
@@ -72,9 +72,9 @@ module Workpattern
     # @param [DateTime] start is the new starting date for the <tt>Week</tt>
     # @param [DateTime] finish is the new finish date for the <tt>Week</tt>    
     #
-    def adjust(start,finish)
-      @start=DateTime.new(start.year,start.month,start.day)
-      @finish=DateTime.new(finish.year,finish.month,finish.day)
+    def adjust(start_date,finish_date)
+      self.start=DateTime.new(start_date.year,start_date.month,start_date.day)
+      self.finish=DateTime.new(finish_date.year,finish_date.month,finish_date.day)
       refresh
     end
     
@@ -87,7 +87,7 @@ module Workpattern
     # @param [Integer] type where a 1 sets it to working and a 0 to resting
     #
     def workpattern(days,from_time,to_time,type)
-      DAYNAMES[days].each {|day| @values[day].workpattern(from_time,to_time,type)}  
+      DAYNAMES[days].each {|day| self.values[day].workpattern(from_time,to_time,type)}  
       refresh
     end
     
@@ -97,11 +97,11 @@ module Workpattern
     # @param [Integer] duration minutes to add or subtract
     # @param [Boolean] midnight flag used for subtraction that indicates the start date is midnight
     #
-    def calc(start,duration, midnight=false)
-      return start,duration,false if duration==0
-      return add(start,duration) if duration > 0
-      return subtract(start,duration, midnight) if (@total==0) && (duration <0)
-      return subtract(start,duration, midnight) if duration <0  
+    def calc(start_date,duration, midnight=false)
+      return start_date,duration,false if duration==0
+      return add(start_date,duration) if duration > 0
+      return subtract(self.start,duration, midnight) if (self.total==0) && (duration <0)
+      return subtract(start_date,duration, midnight) if duration <0  
     end
     
     # Comparison Returns an integer (-1, 0, or +1) if week is less than, equal to, or greater than other_week
@@ -109,9 +109,9 @@ module Workpattern
     # @param [Week] other_week object to compare to
     # @return [Integer] -1,0 or +1 if week is less than, equal to or greater than other_week
     def <=>(other_week)
-      if @start < other_week.start
+      if self.start < other_week.start
         return -1
-      elsif @start == other_week.start
+      elsif self.start == other_week.start
         return 0
       else
         return 1
@@ -123,8 +123,8 @@ module Workpattern
     # @param [DateTime] start DateTime to be tested
     # @return [Boolean] true if the minute is working otherwise false if it is a resting minute
     #
-    def working?(start)
-      @values[start.wday].working?(start)
+    def working?(start_date)
+      self.values[start_date.wday].working?(start_date)
     end    
 
     # Returns the difference in minutes between two DateTime values.
@@ -133,18 +133,18 @@ module Workpattern
     # @param [DateTime] finish ending DateTime
     # @return [Integer, DateTime] number of minutes and start date for rest of calculation.
     #
-    def diff(start,finish)
-      start,finish=finish,start if ((start <=> finish))==1
+    def diff(start_date,finish_date)
+      start_date,finish_date=finish_date,start_date if ((start_date <=> finish_date))==1
       # calculate to end of day
       #
-      if (start.jd==finish.jd) # same day
-        duration, start=@values[start.wday].diff(start,finish)
-      elsif (finish.jd<=@finish.jd) #within this week
-        duration, start=diff_detail(start,finish,finish)
+      if (start_date.jd==finish_date.jd) # same day
+        duration, start_date=self.values[start_date.wday].diff(start_date,finish_date)
+      elsif (finish_date.jd<=self.finish.jd) #within this week
+        duration, start_date=diff_detail(start_date,finish_date,finish_date)
       else # after this week
-        duration, start=diff_detail(start,finish,@finish)
+        duration, start_date=diff_detail(start_date,finish_date,self.finish)
       end
-      return duration, start
+      return duration, start_date
     end
     
     private
@@ -152,26 +152,26 @@ module Workpattern
     # Recalculates all the attributes for a Week object
     #
     def set_attributes
-      @total=0
-      @week_total=0
-      days=(@finish-@start).to_i + 1 #/60/60/24+1 
-      if (7-@start.wday) < days and days < 8
-        if @start.wday < @finish.wday
-          @total=total_hours(@start.wday,@finish.wday)
+      self.total=0
+      self.week_total=0
+      days=(self.finish-self.start).to_i + 1 #/60/60/24+1 
+      if (7-self.start.wday) < days and days < 8
+        if self.start.wday < self.finish.wday
+          self.total=total_hours(self.start.wday,self.finish.wday)
         else
-          @total=total_hours(@start.wday,6)
-          @total+=total_hours(0,@finish.wday)
+          self.total=total_hours(self.start.wday,6)
+          self.total+=total_hours(0,self.finish.wday)
         end
-        @week_total=@total
+        self.week_total=self.total
       else
-        @total+=total_hours(@start.wday,6)
-        days -= (7-@start.wday)
-        @total+=total_hours(0,@finish.wday)
-        days-=(@finish.wday+1)
-        @week_total=@total if days==0
+        self.total+=total_hours(self.start.wday,6)
+        days -= (7-self.start.wday)
+        self.total+=total_hours(0,self.finish.wday)
+        days-=(self.finish.wday+1)
+        self.week_total=self.total if days==0
         week_total=total_hours(0,6)
-        @total+=week_total * days / 7
-        @week_total=week_total if days != 0
+        self.total+=week_total * days / 7
+        self.week_total=week_total if days != 0
       end
     end
     
@@ -184,7 +184,7 @@ module Workpattern
     def total_hours(start,finish)
       total=0
       start.upto(finish) {|day|
-        total+=@values[day].total
+        total+=self.values[day].total
         }
       return total
     end
@@ -199,38 +199,38 @@ module Workpattern
     #
     def add(start,duration)
       # aim to calculate to the end of the day
-      start,duration = @values[start.wday].calc(start,duration)   
-      return start,duration,false if (duration==0) || (start.jd > @finish.jd) 
+      start,duration = self.values[start.wday].calc(start,duration)   
+      return start,duration,false if (duration==0) || (start.jd > self.finish.jd) 
       # aim to calculate to the end of the next week day that is the same as @finish
-      while((duration!=0) && (start.wday!=@finish.next_day.wday) && (start.jd <= @finish.jd))
-        if (duration>@values[start.wday].total)
-          duration = duration - @values[start.wday].total
+      while((duration!=0) && (start.wday!=self.finish.next_day.wday) && (start.jd <= self.finish.jd))
+        if (duration>self.values[start.wday].total)
+          duration = duration - self.values[start.wday].total
           start=start.next_day
-        elsif (duration==@values[start.wday].total)
+        elsif (duration==self.values[start.wday].total)
           start=after_last_work(start)
           duration = 0
         else
-          start,duration = @values[start.wday].calc(start,duration)
+          start,duration = self.values[start.wday].calc(start,duration)
         end
       end
       
-      return start,duration,false if (duration==0) || (start.jd > @finish.jd) 
+      return start,duration,false if (duration==0) || (start.jd > self.finish.jd) 
       
       # while duration accomodates full weeks
-      while ((duration!=0) && (duration>=@week_total) && ((start.jd+6) <= @finish.jd))
-        duration=duration - @week_total
+      while ((duration!=0) && (duration>=self.week_total) && ((start.jd+6) <= self.finish.jd))
+        duration=duration - self.week_total
         start=start+7
       end
 
-      return start,duration,false if (duration==0) || (start.jd > @finish.jd) 
+      return start,duration,false if (duration==0) || (start.jd > self.finish.jd) 
 
       # while duration accomodates full days
-      while ((duration!=0) && (start.jd<= @finish.jd))
-        if (duration>@values[start.wday].total)
-          duration = duration - @values[start.wday].total
+      while ((duration!=0) && (start.jd<= self.finish.jd))
+        if (duration>self.values[start.wday].total)
+          duration = duration - self.values[start.wday].total
           start=start.next_day
         else
-          start,duration = @values[start.wday].calc(start,duration)
+          start,duration = self.values[start.wday].calc(start,duration)
         end
       end    
       return start, duration, false 
@@ -254,47 +254,47 @@ module Workpattern
       end
 
       # aim to calculate to the start of the day
-      start,duration, midnight = @values[start.wday].calc(start,duration)
+      start,duration, midnight = self.values[start.wday].calc(start,duration)
 
-      if midnight && (start.jd >= @start.jd)
+      if midnight && (start.jd >= self.start.jd)
         start,duration=minute_b4_midnight(start,duration)
         return subtract(start,duration, false)
       elsif midnight
         return start,duration,midnight
-      elsif  (duration==0) || (start.jd ==@start.jd) 
+      elsif  (duration==0) || (start.jd ==self.start.jd) 
         return start,duration, midnight
       end  
 
       # aim to calculate to the start of the previous week day that is the same as @start
-      while((duration!=0) && (start.wday!=@start.wday) && (start.jd >= @start.jd))
+      while((duration!=0) && (start.wday!=self.start.wday) && (start.jd >= self.start.jd))
 
-        if (duration.abs>=@values[start.wday].total)
-          duration = duration + @values[start.wday].total
+        if (duration.abs>=self.values[start.wday].total)
+          duration = duration + self.values[start.wday].total
           start=start.prev_day
         else
           start,duration=minute_b4_midnight(start,duration)             
-          start,duration = @values[start.wday].calc(start,duration)
+          start,duration = self.values[start.wday].calc(start,duration)
         end
       end
 
-      return start,duration if (duration==0) || (start.jd ==@start.jd) 
+      return start,duration if (duration==0) || (start.jd ==self.start.jd) 
 
       #while duration accomodates full weeks
-      while ((duration!=0) && (duration.abs>=@week_total) && ((start.jd-6) >= @start.jd))
-        duration=duration + @week_total
+      while ((duration!=0) && (duration.abs>=self.week_total) && ((start.jd-6) >= self.start.jd))
+        duration=duration + self.week_total
         start=start-7
       end
 
-      return start,duration if (duration==0) || (start.jd ==@start.jd) 
+      return start,duration if (duration==0) || (start.jd ==self.start.jd) 
 
       #while duration accomodates full days
-      while ((duration!=0) && (start.jd>= @start.jd))    
-        if (duration.abs>=@values[start.wday].total)
-          duration = duration + @values[start.wday].total
+      while ((duration!=0) && (start.jd>= self.start.jd))    
+        if (duration.abs>=self.values[start.wday].total)
+          duration = duration + self.values[start.wday].total
           start=start.prev_day
         else
           start,duration=minute_b4_midnight(start,duration)       
-          start,duration = @values[start.wday].calc(start,duration)
+          start,duration = self.values[start.wday].calc(start,duration)
         end
       end    
               
@@ -313,7 +313,7 @@ module Workpattern
     def minute_b4_midnight(start,duration)
       start -= start.hour * HOUR
       start -= start.min * MINUTE
-      duration += @values[start.wday].minutes(23,59,23,59)
+      duration += self.values[start.wday].minutes(23,59,23,59)
       start = start.next_day - MINUTE
       return start,duration
     end  
@@ -323,13 +323,13 @@ module Workpattern
     # @param [DateTime] start is the current date
     # @return [DateTime] the new date
     #
-    def after_last_work(start)
-      if @values[start.wday].last_hour.nil?
-        return start.next_day
+    def after_last_work(start_date)
+      if self.values[start_date.wday].last_hour.nil?
+        return start_date.next_day
       else  
-        start = start + HOUR * (@values[start.wday].last_hour - start.hour)
-        start = start + MINUTE * (@values[start.wday].last_min - start.min + 1)
-        return start
+        start_date = start_date + HOUR * (self.values[start_date.wday].last_hour - start_date.hour)
+        start_date = start_date + MINUTE * (self.values[start_date.wday].last_min - start_date.min + 1)
+        return start_date
       end  
     end
     
@@ -340,29 +340,42 @@ module Workpattern
     # @param [DateTime] finish_on the range to be used in this Week object.  
     # @return [DateTime, Integer] new date for rest of calculation and total number of minutes calculated thus far.
     #
-    def diff_detail(start,finish,finish_on)
-      duration, start=@values[start.wday].diff(start,finish)
-      return duration,start if start > finish_on
+    def diff_detail(start_date,finish_date,finish_on_date)
+      
+      duration, start_date=diff_in_day(start_date, finish_date)
+      return duration,start_date if start_date > finish_on_date
+      
       #rest of week to finish day
-      while (start.wday<finish.wday) do
-        duration+=@values[start.wday].total
-        start=start.next_day
+      while (start_date.wday<finish_date.wday) do
+        duration+=day_total(start_date)
+        start_date=start_date.next_day
       end
+
       #weeks
-      while (start.jd+7<finish_on.jd) do
-        duration+=@week_total
-        start+=7
+      while (start_date.jd+7<finish_on_date.jd) do
+        duration+=self.week_total
+        start_date+=7
       end
+
       #days
-      while (start.jd < finish_on.jd) do
-        duration+=@values[start.wday].total
-        start=start.next_day
+      while (start_date.jd < finish_on_date.jd) do
+        duration+=day_total(start_date)
+        start_date=start_date.next_day
       end
-      #day
-      day_duration, start=@values[start.wday].diff(start,finish)
+
+      #day      
+      day_duration, start_date=diff_in_day(start_date, finish_date)
       duration+=day_duration
-      return duration, start
+      return duration, start_date
     end
     
+    def diff_in_day(start_date,finish_date)
+      return self.values[start_date.wday].diff(start_date,finish_date)
+    end
+
+    def day_total(start_date)
+      return self.values[start_date.wday].total
+    end
+
   end
 end
