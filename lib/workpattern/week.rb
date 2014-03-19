@@ -146,33 +146,37 @@ module Workpattern
       end
       return duration, start_date
     end
-    
+   
+    def week_total
+      span_in_days > 6 ? self.values.inject(0) {|sum,x| sum + x.total } : day_indexes.inject(0) {|sum,x| sum + self.values[x].total}
+    end 
+
+    def total
+      total_days = span_in_days
+      return week_total if total_days < 8
+      sum = total_hours(self.start.wday,6)
+      total_days -= (7-self.start.wday)
+      sum += total_hours(0,self.finish.wday)
+      total_days-=(self.finish.wday+1)
+      sum += week_total * total_days / 7
+      return sum
+    end
+
     private
+
+    def day_indexes
+      self.start.wday > self.finish.wday ? self.start.wday.upto(6).to_a.concat(0.upto(self.finish.wday).to_a) : self.start.wday.upto(self.finish.wday).to_a
+    end
+
     
+    def span_in_days
+      (self.finish-self.start).to_i + 1
+    end
+
     # Recalculates all the attributes for a Week object
     #
     def set_attributes
-      self.total=0
-      self.week_total=0
-      days=(self.finish-self.start).to_i + 1 #/60/60/24+1 
-      if (7-self.start.wday) < days and days < 8
-        if self.start.wday < self.finish.wday
-          self.total=total_hours(self.start.wday,self.finish.wday)
-        else
-          self.total=total_hours(self.start.wday,6)
-          self.total+=total_hours(0,self.finish.wday)
-        end
-        self.week_total=self.total
-      else
-        self.total+=total_hours(self.start.wday,6)
-        days -= (7-self.start.wday)
-        self.total+=total_hours(0,self.finish.wday)
-        days-=(self.finish.wday+1)
-        self.week_total=self.total if days==0
-        week_total=total_hours(0,6)
-        self.total+=week_total * days / 7
-        self.week_total=week_total if days != 0
-      end
+
     end
     
     # Calculates the total number of minutes between two dates
