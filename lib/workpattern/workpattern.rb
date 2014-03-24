@@ -125,35 +125,33 @@ module Workpattern
 
       args[:start] = dmy_date(args[:start])
       args[:finish] = dmy_date(args[:finish])
-      from_time = hhmn_date(args[:from_time])
-      to_time = hhmn_date(args[:to_time])
-      
+      args[:from_time] = hhmn_date(args[:from_time])
+      args[:to_time] = hhmn_date(args[:to_time])
+
       upd_start=args[:start]
       upd_finish=args[:finish]
       while (upd_start <= upd_finish)
 
         current_wp=find_weekpattern(upd_start)
+
         if (current_wp.start == upd_start)
           if (current_wp.finish > upd_finish)
             clone_wp=clone_and_adjust_current_wp(current_wp, upd_finish+1,current_wp.finish,upd_start,upd_finish)
-            clone_wp.workpattern(args[:days],from_time,to_time,args[:work_type])
-            weeks<< clone_wp
+            set_workpattern_and_store(clone_wp,args)
             upd_start=upd_finish+1
           else # (current_wp.finish == upd_finish)
-            current_wp.workpattern(args[:days],from_time,to_time,args[:work_type])
+            current_wp.workpattern(args[:days],args[:from_time],args[:to_time],args[:work_type])
             upd_start=current_wp.finish + 1 
           end
         else
           clone_wp=clone_and_adjust_current_wp(current_wp, current_wp.start,upd_start-1,upd_start)
           if (clone_wp.finish <= upd_finish)
-            clone_wp.workpattern(args[:days],from_time,to_time,args[:work_type])
-            weeks<< clone_wp
+            set_workpattern_and_store(clone_wp,args)
             upd_start=clone_wp.finish+1
           else
             after_wp=clone_and_adjust_current_wp(clone_wp, upd_start,upd_finish,upd_finish+1)
             weeks<< after_wp
-            clone_wp.workpattern(args[:days],from_time,to_time,args[:work_type])
-            weeks<< clone_wp
+            set_workpattern_and_store(clone_wp,args)
             upd_start=clone_wp.finish+1
           end
         end    
@@ -286,6 +284,11 @@ module Workpattern
         clone_wp.adjust(clone_start,clone_finish)
       end
       return clone_wp
+    end
+
+    def set_workpattern_and_store(new_wp, args)
+      new_wp.workpattern(args[:days],args[:from_time],args[:to_time],args[:work_type])
+      weeks<< new_wp
     end
   end
 end
