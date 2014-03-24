@@ -274,9 +274,7 @@ module Workpattern
     def hhmn_date(date)
       return Clock.new(date.hour,date.min)
     end
-    
-    private
-    
+        
     # Handles cloning of Week Pattern including date adjustments
     # 
     def clone_and_adjust_current_wp(current_wp, current_start,current_finish,clone_start,clone_finish=nil)
