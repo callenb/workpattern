@@ -50,12 +50,8 @@ module Workpattern
 
       raise(NameError, "Workpattern '#{name}' already exists and can't be created again") if @@workpatterns.key?(name) 
         
-      if span < 0
-        offset = span.abs - 1
-      else
-        offset = 0
-      end
-      
+      span < 0 ? offset = span.abs - 1 : offset = 0
+
       @name = name
       @base = base
       @span = span
