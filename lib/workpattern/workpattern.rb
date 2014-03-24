@@ -59,8 +59,7 @@ module Workpattern
       @to = DateTime.new(from.year + span.abs - 1,12,31,23,59)
       @weeks = SortedSet.new
       @weeks << Week.new(from,to,1)
-     
-      
+           
       @@workpatterns[name]=self
     end
     
@@ -91,11 +90,7 @@ module Workpattern
     # @return [Boolean] true if the named <tt>Workpattern</tt> existed or false if it doesn't
     #
     def self.delete(name)
-      if @@workpatterns.delete(name).nil?
-        return false
-      else
-        return true
-      end        
+      @@workpatterns.delete(name).nil? ? false : true
     end
     
     # Applys a working or resting pattern to the <tt>Workpattern</tt> object.
