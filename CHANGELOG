@@ -1,3 +1,8 @@
+## Workpattern v0.3.6 (Mon dd, yyyy)  ##
+
+* total minutes of week is zero when short week starting after Sunday (#17) * Barrie Callender *
+* Subtracting starting from top of the hour and last minute is non working (#18) * Barrie Callender *
+
 ## Workpattern v0.3.5 (Sep 30, 2013)  ##
 
 * License missing from gemspec (#16) * Barrie Callender *
