@@ -278,11 +278,7 @@ module Workpattern
     def clone_and_adjust_current_wp(current_wp, current_start,current_finish,clone_start,clone_finish=nil)
       clone_wp=current_wp.duplicate
       current_wp.adjust(current_start,current_finish)
-      if (clone_finish.nil?)
-        clone_wp.adjust(clone_start,clone_wp.finish)
-      else
-        clone_wp.adjust(clone_start,clone_finish)
-      end
+      clone_finish.nil? ? clone_wp.adjust(clone_start,clone_wp.finish) : clone_wp.adjust(clone_start,clone_finish)
       return clone_wp
     end
 
