@@ -29,11 +29,8 @@ module Workpattern
     # @param [Integer] min number of minutes
     #
     def initialize(hour=0,min=0)
-      @hour=hour
-      @min=min
-      total_minutes = minutes
-      @hour=total_minutes.div(60)
-      @min=total_minutes % 60
+      @hour = total_minutes(hour,min).div(60)
+      @min = total_minutes(hour,min) % 60
     end
     
     # Returns the total number of minutes
@@ -41,7 +38,7 @@ module Workpattern
     # @return [Integer] total minutes represented by the Clock object
     #
     def minutes
-      return (@hour*60)+@min
+      return total_minutes(@hour,@min)
     end
     
     # Returns the hour of the clock (0-23)
@@ -74,5 +71,12 @@ module Workpattern
     def to_s      
       hour.to_s.concat(':').concat(min.to_s).concat(' ').concat(minutes.to_s)
     end
+    
+    private
+
+    def total_minutes(hours, mins)
+      return (hours*60) + mins
+    end
+
   end
 end

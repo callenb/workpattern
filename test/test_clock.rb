@@ -25,6 +25,7 @@ class TestClock < MiniTest::Unit::TestCase #:nodoc:
     assert_equal 20, clock.min, "minute is 20"
     time = clock.time
     assert time.kind_of?(DateTime), "must return a DateTime object"
+    assert_equal DateTime.new(1963,6,10,4,20), time
     assert_equal 4, time.hour, "hour in the day must be 4"
     assert_equal 20, time.min, "minute in the day must be 20"
   end

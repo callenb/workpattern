@@ -88,7 +88,7 @@ module Workpattern
   # @param [Integer] base Workpattern starts on the 1st January of this year.
   # @param [Integer] span Workpattern spans this number of years ending on 31st December.
   # @return [Workpattern]
-  #
+  # @raise [NameError] when trying to create a Workpattern with a name that already exists
   # @since 0.2.0
   #
   def self.new(name=DEFAULT_WORKPATTERN_NAME, base=DEFAULT_BASE_YEAR, span=DEFAULT_SPAN)

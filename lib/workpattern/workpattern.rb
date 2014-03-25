@@ -50,21 +50,16 @@ module Workpattern
 
       raise(NameError, "Workpattern '#{name}' already exists and can't be created again") if @@workpatterns.key?(name) 
         
-      if span < 0
-        offset = span.abs - 1
-      else
-        offset = 0
-      end
-      
+      span < 0 ? offset = span.abs - 1 : offset = 0
+
       @name = name
       @base = base
       @span = span
       @from = DateTime.new(base.abs - offset)
-      @to = DateTime.new(@from.year + span.abs - 1,12,31,23,59)
+      @to = DateTime.new(from.year + span.abs - 1,12,31,23,59)
       @weeks = SortedSet.new
-      @weeks << Week.new(@from,@to,1)
-     
-      
+      @weeks << Week.new(from,to,1)
+           
       @@workpatterns[name]=self
     end
     
@@ -95,11 +90,7 @@ module Workpattern
     # @return [Boolean] true if the named <tt>Workpattern</tt> existed or false if it doesn't
     #
     def self.delete(name)
-      if @@workpatterns.delete(name).nil?
-        return false
-      else
-        return true
-      end        
+      @@workpatterns.delete(name).nil? ? false : true
     end
     
     # Applys a working or resting pattern to the <tt>Workpattern</tt> object.
@@ -124,45 +115,43 @@ module Workpattern
     #
     def workpattern(opts={})
     
-      args={:start => @from, :finish => @to, :days => :all,
+      args={:start => from, :finish => to, :days => :all,
           :from_time => FIRST_TIME_IN_DAY, :to_time => LAST_TIME_IN_DAY,
           :work_type => WORK}   
           
       args.merge! opts
  
-      @@persistence.store( name: @name, workpattern: args) if self.class.persistence?
+      @@persistence.store( name: name, workpattern: args) if self.class.persistence?
 
       args[:start] = dmy_date(args[:start])
       args[:finish] = dmy_date(args[:finish])
-      from_time = hhmn_date(args[:from_time])
-      to_time = hhmn_date(args[:to_time])
-      
+      args[:from_time] = hhmn_date(args[:from_time])
+      args[:to_time] = hhmn_date(args[:to_time])
+
       upd_start=args[:start]
       upd_finish=args[:finish]
       while (upd_start <= upd_finish)
 
         current_wp=find_weekpattern(upd_start)
+
         if (current_wp.start == upd_start)
           if (current_wp.finish > upd_finish)
             clone_wp=clone_and_adjust_current_wp(current_wp, upd_finish+1,current_wp.finish,upd_start,upd_finish)
-            clone_wp.workpattern(args[:days],from_time,to_time,args[:work_type])
-            @weeks<< clone_wp
+            set_workpattern_and_store(clone_wp,args)
             upd_start=upd_finish+1
           else # (current_wp.finish == upd_finish)
-            current_wp.workpattern(args[:days],from_time,to_time,args[:work_type])
+            current_wp.workpattern(args[:days],args[:from_time],args[:to_time],args[:work_type])
             upd_start=current_wp.finish + 1 
           end
         else
           clone_wp=clone_and_adjust_current_wp(current_wp, current_wp.start,upd_start-1,upd_start)
           if (clone_wp.finish <= upd_finish)
-            clone_wp.workpattern(args[:days],from_time,to_time,args[:work_type])
-            @weeks<< clone_wp
+            set_workpattern_and_store(clone_wp,args)
             upd_start=clone_wp.finish+1
           else
             after_wp=clone_and_adjust_current_wp(clone_wp, upd_start,upd_finish,upd_finish+1)
-            @weeks<< after_wp
-            clone_wp.workpattern(args[:days],from_time,to_time,args[:work_type])
-            @weeks<< clone_wp
+            weeks<< after_wp
+            set_workpattern_and_store(clone_wp,args)
             upd_start=clone_wp.finish+1
           end
         end    
@@ -253,15 +242,15 @@ module Workpattern
     def find_weekpattern(date)
       # find the pattern that fits the date
       #
-      if date<@from
-        result = Week.new(DateTime.jd(0),@from-MINUTE,1)
-      elsif date>@to
-        result = Week.new(@to+MINUTE,DateTime.new(9999),1)
+      if date<from
+        result = Week.new(DateTime.jd(0),from-MINUTE,1)
+      elsif date>to
+        result = Week.new(to+MINUTE,DateTime.new(9999),1)
       else
       
         date = DateTime.new(date.year,date.month,date.day)
 
-        result=@weeks.find {|week| week.start <= date and week.finish >= date}
+        result=weeks.find {|week| week.start <= date and week.finish >= date}
       end
       return result
     end
@@ -283,20 +272,19 @@ module Workpattern
     def hhmn_date(date)
       return Clock.new(date.hour,date.min)
     end
-    
-    private
-    
+        
     # Handles cloning of Week Pattern including date adjustments
     # 
     def clone_and_adjust_current_wp(current_wp, current_start,current_finish,clone_start,clone_finish=nil)
       clone_wp=current_wp.duplicate
       current_wp.adjust(current_start,current_finish)
-      if (clone_finish.nil?)
-        clone_wp.adjust(clone_start,clone_wp.finish)
-      else
-        clone_wp.adjust(clone_start,clone_finish)
-      end
+      clone_finish.nil? ? clone_wp.adjust(clone_start,clone_wp.finish) : clone_wp.adjust(clone_start,clone_finish)
       return clone_wp
+    end
+
+    def set_workpattern_and_store(new_wp, args)
+      new_wp.workpattern(args[:days],args[:from_time],args[:to_time],args[:work_type])
+      weeks<< new_wp
     end
   end
 end

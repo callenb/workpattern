@@ -310,7 +310,7 @@ class TestDay < MiniTest::Unit::TestCase #:nodoc:
     assert_equal 0,remainder
     refute midnight
   end  
-
+   
   def test_must_subtract_1_from_zero_minutes_from_resting_day
     start_date=DateTime.new(2013,1,1,0,0)
     result, remainder, midnight=@resting_day.calc(start_date,-1,true)
@@ -343,177 +343,213 @@ class TestDay < MiniTest::Unit::TestCase #:nodoc:
     assert midnight
   end
 
-############################################################################  
-############################################################################  
-############################################################################  
-  
-  def test_must_subtract_minutes_in_a_patterned_day
-  
-    day = Workpattern::Day.new(1)
-    [[0,0,8,59],
-     [12,0,12,59],
-     [17,0,22,59]
-    ].each {|start_hour,start_min,finish_hour,finish_min|
-      day.workpattern(clock(start_hour, start_min),
-                      clock(finish_hour, finish_min),
-                      0)
-    }
-    assert_equal 480, day.total, "minutes in patterned day should be 480"
-    assert_equal 1, day.minutes(16,59,16,59),"16:59 should be 1"
-    assert_equal 0, day.minutes(17,0,17,0),"17:00 should be 0"
-    assert_equal 0, day.minutes(22,59,22,59),"22:59 should be 0"
-    assert_equal 1, day.minutes(23,0,23,0),"23:00 should be 1"
-    # y   ,m ,d ,h ,n ,dur ,yr  ,mr,dr,hr,nr,rem ,midnight,midnightr         
-    tests=[
-     [2000,1 ,1 ,0 ,0 ,-3  ,1999,12,31,0 ,0 ,-3  ,false   ,true],
-     [2000,1 ,1 ,0 ,0 ,0   ,2000,1 ,1 ,0 ,0 ,0   ,false   ,false],
-     [2000,1 ,1 ,0 ,59,0   ,2000,1 ,1 ,0 ,59,0   ,false   ,false],
-     [2000,1 ,1 ,9 ,4 ,-3  ,2000,1 ,1 ,9 ,1 ,0   ,false   ,false],
-     [2000,1 ,1 ,0 ,0 ,-60 ,1999,12,31,0 ,0 ,-60 ,false   ,true],
-     [2000,1 ,1 ,0 ,0 ,-61 ,1999,12,31,0 ,0 ,-61 ,false   ,true],
-     [2000,1 ,1 ,9 ,30,-60 ,1999,12,31,0 ,0 ,-30 ,false   ,true],
-     [2000,12,31,22,59,-1  ,2000,12,31,16,59,0   ,false   ,false],
-     [2000,1 ,1 ,9 ,10,-33 ,1999,12,31,0 ,0 ,-23 ,false   ,true],
-     [2000,1 ,1 ,9 ,10,-60 ,1999,12,31,0 ,0 ,-50 ,false   ,true],
-     [2000,1 ,1 ,9 ,1 ,-931,1999,12,31,0 ,0 ,-930,false   ,true],
-     [2000,1 ,1 ,12,0 ,-1  ,2000,1 ,1 ,11,59,0   ,false   ,false],
-     [2000,1 ,1 ,12,59,-1  ,2000,1 ,1 ,11,59,0   ,false   ,false],
-     [2000,1 ,1 ,0 ,0 ,-3  ,2000,1 ,1 ,23,57,0   ,true    ,false],
-     [2000,1 ,1 ,0 ,0 ,0   ,2000,1 ,1 ,0 ,0 ,0   ,true    ,false],
-     [2000,1 ,1 ,0 ,59,0   ,2000,1 ,1 ,0 ,59,0   ,true    ,false],
-     [2000,1 ,1 ,9 ,4 ,-3  ,2000,1 ,1 ,9 ,1 ,0   ,true    ,false],
-     [2000,1 ,1 ,0 ,0 ,-60 ,2000,1 ,1 ,23,0 ,0   ,true    ,false],
-     [2000,1 ,1 ,0 ,0 ,-61 ,2000,1 ,1 ,16,59,0   ,true    ,false],
-     [2000,1 ,1 ,0 ,0 ,-931,1999,12,31,0 ,0 ,-451,true    ,true],
-     [2000,1 ,1 ,12,0 ,-1  ,2000,1 ,1 ,11,59,0   ,true    ,false]
-    ]
-    clue = "subtract minutes in a patterned day"
-    calc_test(day,tests,clue)
- 
-  end
-   
-  
-  def test_must_calculate_difference_between_times_in_working_day
-    day = Workpattern::Day.new(1)
-    
-    [
-     [ 2000, 1, 1, 0, 0, 2000, 1, 1, 0, 0,   0,2000, 1, 1, 0, 0],
-     [ 2000, 1, 1, 0, 0, 2000, 1, 1, 0, 1,   1,2000, 1, 1, 0, 1],
-     [ 2000, 1, 1, 0,50, 2000, 1, 1, 0,59,   9,2000, 1, 1, 0,59],
-     [ 2000, 1, 1, 8,50, 2000, 1, 1, 9, 0,  10,2000, 1, 1, 9, 0],
-     [ 2000, 1, 1, 0, 0, 2000, 1, 1,23,59,1439,2000, 1, 1,23,59],
-     [ 2000, 1, 1, 0, 0, 2000, 1, 2, 0, 0,1440,2000, 1, 2, 0, 0],
-     [ 2000, 1, 1, 0, 0, 2000, 1, 2, 0, 1,1440,2000, 1, 2, 0, 0],     
-     [ 2000, 1, 1, 0, 0, 2010, 3,22, 6,11,1440,2000, 1, 2, 0, 0],
-     [ 2000, 1, 1, 0, 1, 2000, 1, 1, 0, 0,   1,2000, 1, 1, 0, 1],
-     [ 2000, 1, 1, 0,59, 2000, 1, 1, 0,50,   9,2000, 1, 1, 0,59],
-     [ 2000, 1, 1, 9, 0, 2000, 1, 1, 8,50,  10,2000, 1, 1, 9, 0],
-     [ 2000, 1, 1,23,59, 2000, 1, 1, 0, 0,1439,2000, 1, 1,23,59],
-     [ 2000, 1, 2, 0, 0, 2000, 1, 1, 0, 0,1440,2000, 1, 2, 0, 0],
-     [ 2000, 1, 2, 0, 1, 2000, 1, 1, 0, 0,1440,2000, 1, 2, 0, 0],     
-     [ 2010, 3,22, 6,11, 2000, 1, 1, 0, 0,1440,2000, 1, 2, 0, 0]
-    ].each {|start_year, start_month, start_day, start_hour,start_min,
-             finish_year, finish_month, finish_day, finish_hour,finish_min,result,
-             y,m,d,h,n|
-      start=DateTime.new(start_year, start_month, start_day, start_hour,start_min)
-      finish=DateTime.new(finish_year, finish_month, finish_day, finish_hour,finish_min)
-      expected_date=DateTime.new(y,m,d,h,n)       
-      duration, result_date=day.diff(start,finish)
-      assert_equal result, duration,"duration diff(#{start}, #{finish})"
-      assert_equal expected_date, result_date,"date diff(#{start}, #{finish})"
-    }
+  def test_must_subtract_more_than_available_minutes_in_patterned_day
+    start_date=DateTime.new(2013,1,1,12,23)
+    result, remainder, midnight=@pattern_day.calc(start_date,-208)
+    assert_equal DateTime.new(2012,12,31,0,0), result
+    assert_equal -1,remainder
+    assert midnight
+  end  
+
+  def test_must_subtract_less_than_available_minutes_in_patterned_day
+    start_date=DateTime.new(2013,1,1,12,23)
+    result, remainder, midnight=@pattern_day.calc(start_date,-206)
+    assert_equal DateTime.new(2013,1,1,8,35), result
+    assert_equal 0,remainder
+    refute midnight
+  end  
+
+  def test_must_subtract_available_minutes_in_patterned_day
+    start_date=DateTime.new(2013,1,1,12,23)
+    result, remainder, midnight=@pattern_day.calc(start_date,-207)
+    assert_equal DateTime.new(2013,1,1,8,34), result
+    assert_equal 0,remainder
+    refute midnight
+  end  
+
+  def test_must_subtract_1_minute_from_start_of_patterned_day
+    start_date=DateTime.new(2013,1,1,0,0)
+    result, remainder, midnight=@pattern_day.calc(start_date,-1)
+    assert_equal DateTime.new(2012,12,31,0,0), result
+    assert_equal -1,remainder
+    assert midnight
+  end  
+
+  def test_must_subtract_1_minute_from_start_of_next_patterned_day
+    start_date=DateTime.new(2013,1,1,0,0)
+    result, remainder, midnight=@pattern_day.calc(start_date,-1,true)
+    assert_equal DateTime.new(2013,1,1,23,59), result
+    assert_equal 0,remainder
+    refute midnight
+  end  
+
+  def test_must_subtract_1_day_from_start_of_next_patterned_day
+    start_date=DateTime.new(2013,1,1,0,0)
+    result, remainder, midnight=@pattern_day.calc(start_date,-514,true)
+    assert_equal DateTime.new(2013,1,1,8,34), result
+    assert_equal 0,remainder
+    refute midnight
+  end  
+
+  def test_must_return_0_difference_between_same_time_in_working_day
+    start_date=DateTime.new(2013,1,1,8,32)
+    difference,result_date=@working_day.diff(start_date,start_date)
+    assert_equal 0, difference
+    assert_equal start_date, result_date
   end
 
-  def test_must_calculate_difference_between_times_in_resting_day
-  day = Workpattern::Day.new(0)
-  
-    [
-     [ 2000, 1, 1, 0, 0, 2000, 1, 1, 0, 0,   0,2000, 1, 1, 0, 0],
-     [ 2000, 1, 1, 0, 0, 2000, 1, 1, 0, 1,   0,2000, 1, 1, 0, 1],
-     [ 2000, 1, 1, 0,50, 2000, 1, 1, 0,59,   0,2000, 1, 1, 0,59],
-     [ 2000, 1, 1, 8,50, 2000, 1, 1, 9, 0,   0,2000, 1, 1, 9, 0],
-     [ 2000, 1, 1, 0, 0, 2000, 1, 1,23,59,   0,2000, 1, 1,23,59],
-     [ 2000, 1, 1, 0, 0, 2000, 1, 2, 0, 0,   0,2000, 1, 2, 0, 0],
-     [ 2000, 1, 1, 0, 0, 2000, 1, 2, 0, 1,   0,2000, 1, 2, 0, 0],     
-     [ 2000, 1, 1, 0, 0, 2010, 3,22, 6,11,   0,2000, 1, 2, 0, 0],
-     [ 2000, 1, 1, 0, 1, 2000, 1, 1, 0, 0,   0,2000, 1, 1, 0, 1],
-     [ 2000, 1, 1, 0,59, 2000, 1, 1, 0,50,   0,2000, 1, 1, 0,59],
-     [ 2000, 1, 1, 9, 0, 2000, 1, 1, 8,50,   0,2000, 1, 1, 9, 0],
-     [ 2000, 1, 1,23,59, 2000, 1, 1, 0, 0,   0,2000, 1, 1,23,59],
-     [ 2000, 1, 2, 0, 0, 2000, 1, 1, 0, 0,   0,2000, 1, 2, 0, 0],
-     [ 2000, 1, 2, 0, 1, 2000, 1, 1, 0, 0,   0,2000, 1, 2, 0, 0],     
-     [ 2010, 3,22, 6,11, 2000, 1, 1, 0, 0,   0,2000, 1, 2, 0, 0]
-    ].each {|start_year, start_month, start_day, start_hour,start_min,
-             finish_year, finish_month, finish_day, finish_hour,finish_min,result,
-             y,m,d,h,n|
-      start=DateTime.new(start_year, start_month, start_day, start_hour,start_min)
-      finish=DateTime.new(finish_year, finish_month, finish_day, finish_hour,finish_min)
-      expected_date=DateTime.new(y,m,d,h,n)       
-      duration, result_date=day.diff(start,finish)
-      assert_equal result, duration,"duration diff(#{start}, #{finish})"
-      assert_equal expected_date, result_date,"date diff(#{start}, #{finish})"
-     }
+  def test_must_return_difference_to_end_of_day_using_different_days_in_working_day
+    start_date=DateTime.new(2013,1,1,23,30)
+    finish_date=DateTime.new(2013,1,2,8,1)
+    difference,result_date=@working_day.diff(start_date,finish_date)
+    assert_equal 30, difference
+    assert_equal DateTime.new(2013,1,2,0,0), result_date
   end
 
-  def test_must_calculate_difference_between_times_in_pattern_day
+  def test_must_return_difference_to_from_start_of_day_to_end_of_day_using_different_days_in_working_day
+    start_date=DateTime.new(2013,1,1,0,0)
+    finish_date=DateTime.new(2013,1,2,8,1)
+    difference,result_date=@working_day.diff(start_date,finish_date)
+    assert_equal 1440, difference
+    assert_equal DateTime.new(2013,1,2,0,0), result_date
+  end
 
-    day = Workpattern::Day.new(1)
-    [[0,0,8,59],
-     [12,0,12,59],
-     [17,0,22,59]
-    ].each {|start_hour,start_min,finish_hour,finish_min|
-      day.workpattern(clock(start_hour, start_min),
-                      clock(finish_hour, finish_min),
-                      0)
-    }
-    assert_equal 480, day.total, "minutes in patterned day should be 480"
-    assert_equal 1, day.minutes(16,59,16,59),"16:59 should be 1"
-    assert_equal 0, day.minutes(17,0,17,0),"17:00 should be 0"
-    assert_equal 0, day.minutes(22,59,22,59),"22:59 should be 0"
-    assert_equal 1, day.minutes(23,0,23,0),"23:00 should be 1"
+  def test_must_return_difference_from_start_of_day_in_working_day
+    start_date=DateTime.new(2013,1,1,0,0)
+    finish_date=DateTime.new(2013,1,1,3,1)
+    difference,result_date=@working_day.diff(start_date,finish_date)
+    assert_equal 181, difference
+    assert_equal finish_date, result_date
+  end
+
+  def test_must_return_difference_between_two_times_in_working_day
+    start_date=DateTime.new(2013,1,1,2,11)
+    finish_date=DateTime.new(2013,1,1,9,15)
+    difference,result_date=@working_day.diff(start_date,finish_date)
+    assert_equal 424, difference
+    assert_equal finish_date, result_date
+  end
+
+  def test_must_return_0_difference_between_same_time_in_resting_day
+    start_date=DateTime.new(2013,1,1,8,32)
+    difference,result_date=@resting_day.diff(start_date,start_date)
+    assert_equal 0, difference
+    assert_equal start_date, result_date
+  end
+
+  def test_must_return_difference_to_end_of_day_using_different_days_in_resting_day
+    start_date=DateTime.new(2013,1,1,23,30)
+    finish_date=DateTime.new(2013,1,2,8,1)
+    difference,result_date=@resting_day.diff(start_date,finish_date)
+    assert_equal 0, difference
+    assert_equal DateTime.new(2013,1,2,0,0), result_date
+  end
+
+  def test_must_return_difference_to_from_start_of_day_to_end_of_day_using_different_days_in_resting_day
+    start_date=DateTime.new(2013,1,1,0,0)
+    finish_date=DateTime.new(2013,1,2,8,1)
+    difference,result_date=@resting_day.diff(start_date,finish_date)
+    assert_equal 0, difference
+    assert_equal DateTime.new(2013,1,2,0,0), result_date
+  end
+
+  def test_must_return_difference_from_start_of_day_in_resting_day
+    start_date=DateTime.new(2013,1,1,0,0)
+    finish_date=DateTime.new(2013,1,1,3,1)
+    difference,result_date=@resting_day.diff(start_date,finish_date)
+    assert_equal 0, difference
+    assert_equal finish_date, result_date
+  end
+
+  def test_must_return_difference_between_two_times_in_resting_day
+    start_date=DateTime.new(2013,1,1,2,11)
+    finish_date=DateTime.new(2013,1,1,9,15)
+    difference,result_date=@resting_day.diff(start_date,finish_date)
+    assert_equal 0, difference
+    assert_equal finish_date, result_date
+  end
   
-    [
-     [ 2000, 1, 1, 0, 0, 2000, 1, 1, 0, 0,   0,2000, 1, 1, 0, 0],
-     [ 2000, 1, 1, 0, 0, 2000, 1, 1, 0, 1,   0,2000, 1, 1, 0, 1],
-     [ 2000, 1, 1, 0,50, 2000, 1, 1, 9,59,  59,2000, 1, 1, 9,59],
-     [ 2000, 1, 1, 8,50, 2000, 1, 1, 9,10,  10,2000, 1, 1, 9,10],
-     [ 2000, 1, 1, 0, 0, 2000, 1, 1,23,59, 479,2000, 1, 1,23,59],
-     [ 2000, 1, 1, 0, 0, 2000, 1, 2, 0, 0, 480,2000, 1, 2, 0, 0],
-     [ 2000, 1, 1, 0, 0, 2000, 1, 2, 0, 1, 480,2000, 1, 2, 0, 0],     
-     [ 2000, 1, 1, 0, 0, 2010, 3,22, 6,11, 480,2000, 1, 2, 0, 0],
-     [ 2000, 1, 1, 0, 1, 2000, 1, 1, 0, 0,   0,2000, 1, 1, 0, 1],
-     [ 2000, 1, 1, 9,59, 2000, 1, 1, 0,50,  59,2000, 1, 1, 9,59],
-     [ 2000, 1, 1, 9, 0, 2000, 1, 1, 8,50,   0,2000, 1, 1, 9, 0],
-     [ 2000, 1, 1,23,59, 2000, 1, 1, 0, 0, 479,2000, 1, 1,23,59],
-     [ 2000, 1, 2, 0, 0, 2000, 1, 1, 0, 0, 480,2000, 1, 2, 0, 0],
-     [ 2000, 1, 2, 0, 1, 2000, 1, 1, 0, 0, 480,2000, 1, 2, 0, 0],     
-     [ 2010, 3,22, 6,11, 2000, 1, 1, 0, 0, 480,2000, 1, 2, 0, 0]
-    ].each {|start_year, start_month, start_day, start_hour,start_min,
-             finish_year, finish_month, finish_day, finish_hour,finish_min,result,
-             y,m,d,h,n|
-      start=DateTime.new(start_year, start_month, start_day, start_hour,start_min)
-      finish=DateTime.new(finish_year, finish_month, finish_day, finish_hour,finish_min)
-      expected_date=DateTime.new(y,m,d,h,n)       
-      duration, result_date=day.diff(start,finish)
-      assert_equal result, duration,"duration diff(#{start}, #{finish})"
-      assert_equal expected_date, result_date,"date diff(#{start}, #{finish})"
-     }
+####
 
+  def test_must_return_0_difference_between_same_working_time_in_patterned_day
+    start_date=DateTime.new(2013,1,1,8,34)
+    difference,result_date=@pattern_day.diff(start_date,start_date)
+    assert_equal 0, difference
+    assert_equal start_date, result_date
+  end
+
+  def test_must_return_0_difference_between_same_resting_time_in_patterned_day
+    start_date=DateTime.new(2013,1,1,8,32)
+    difference,result_date=@pattern_day.diff(start_date,start_date)
+    assert_equal 0, difference
+    assert_equal start_date, result_date
+  end
+
+  def test_must_return_difference_to_end_of_day_from_working_time_using_different_days_in_patterned_day
+    start_date=DateTime.new(2013,1,1,12,23)
+    finish_date=DateTime.new(2013,1,2,8,1)
+    difference,result_date=@pattern_day.diff(start_date,finish_date)
+    assert_equal 307, difference
+    assert_equal DateTime.new(2013,1,2,0,0), result_date
+  end
+
+  def test_must_return_difference_to_end_of_day_from_resting_time_using_different_days_in_patterned_day
+    start_date=DateTime.new(2013,1,1,12,10)
+    finish_date=DateTime.new(2013,1,2,8,1)
+    difference,result_date=@pattern_day.diff(start_date,finish_date)
+    assert_equal 308, difference
+    assert_equal DateTime.new(2013,1,2,0,0), result_date
+  end
+
+  def test_must_return_difference_to_from_start_of_day_to_end_of_day_using_different_days_in_pattern_day
+    start_date=DateTime.new(2013,1,1,0,0)
+    finish_date=DateTime.new(2013,1,2,8,1)
+    difference,result_date=@pattern_day.diff(start_date,finish_date)
+    assert_equal 514, difference
+    assert_equal DateTime.new(2013,1,2,0,0), result_date
+  end
+
+  def test_must_return_difference_from_start_of_day_in_pattern_day
+    start_date=DateTime.new(2013,1,1,0,0)
+    finish_date=DateTime.new(2013,1,1,11,1)
+    difference,result_date=@pattern_day.diff(start_date,finish_date)
+    assert_equal 147, difference
+    assert_equal finish_date, result_date
+  end
+
+  def test_must_return_difference_between_two_working_times_in_pattern_day
+    start_date=DateTime.new(2013,1,1,8,45)
+    finish_date=DateTime.new(2013,1,1,12,26)
+    difference,result_date=@pattern_day.diff(start_date,finish_date)
+    assert_equal 199, difference
+    assert_equal finish_date, result_date
+  end
+
+  def test_must_return_difference_between_two_resting_times_in_pattern_day
+    start_date=DateTime.new(2013,1,1,8,20)
+    finish_date=DateTime.new(2013,1,1,12,40)
+    difference,result_date=@pattern_day.diff(start_date,finish_date)
+    assert_equal 214, difference
+    assert_equal finish_date, result_date
+  end
+
+  def test_must_return_difference_between_working_and_resting_times_in_pattern_day
+    start_date=DateTime.new(2013,1,1,8,45)
+    finish_date=DateTime.new(2013,1,1,12,40)
+    difference,result_date=@pattern_day.diff(start_date,finish_date)
+    assert_equal 203, difference
+    assert_equal finish_date, result_date
+  end
+
+  def test_must_return_difference_between_resting_and_working_times_in_pattern_day
+    start_date=DateTime.new(2013,1,1,12,15)
+    finish_date=DateTime.new(2013,1,1,23,30)
+    difference,result_date=@pattern_day.diff(start_date,finish_date)
+    assert_equal 278, difference
+    assert_equal finish_date, result_date
   end
   
   private
-
-  def calc_test(day,tests,clue)
-    tests.each{|y,m,d,h,n,dur,yr,mr,dr,hr,nr,rem, midnight, midnightr|
-      start_date=DateTime.new(y,m,d,h,n)
-      result_date,remainder, result_midnight = day.calc(start_date,dur, midnight)
-      assert_equal DateTime.new(yr,mr,dr,hr,nr), result_date, "result date calc(#{start_date},#{dur},#{midnight}) for #{clue}"
-      assert_equal rem, remainder, "result remainder calc(#{start_date},#{dur},#{midnight}) for #{clue}"
-      assert_equal midnightr,result_midnight, "result midnight calc(#{start_date},#{dur},#{midnight}) for #{clue}"
-    }
-  
-  
-  end
   
   def clock(hour,min)
     return Workpattern.clock(hour,min)

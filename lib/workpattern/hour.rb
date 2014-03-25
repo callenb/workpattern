@@ -155,32 +155,28 @@ module Workpattern
     #
     def wp_subtract(time,duration,next_hour)
       if next_hour
-        if wp_working?(59)
-          duration+=1
-          time=time+(MINUTE*59)
-          return wp_calc(time,duration)
-        end  
-        return time, duration if wp_total==0
+        duration += 1 if wp_working?(59)
+        time = time + (MINUTE * 59)
+        return wp_calc(time,duration)
       else  
         start=time.min  
-        available_minutes=0
-        available_minutes = wp_minutes(0,start-1) if start > 0
+        start > 0 ? available_minutes = wp_minutes(0,start-1) : available_minutes=0
       end
       
-      if not_enough_minutes duration,available_minutes
-        result_date = time - (MINUTE*start)
-        result_remainder = duration+available_minutes
-      elsif duration.abs==available_minutes
-        result_date = time - (MINUTE*(start-wp_first))
+      if not_enough_minutes duration, available_minutes
+        result_date = time - (MINUTE * start)
+        result_remainder = duration + available_minutes
+      elsif duration.abs == available_minutes
+        result_date = time - (MINUTE * (start - wp_first))
         result_remainder = 0
       else     
         step = start + duration
-        duration+=wp_minutes(step,start-1)
-        until (duration==0)
-          step-=1
-          duration+=wp_minutes(step,step)
+        duration += wp_minutes(step, start - 1)
+        until (duration == 0)
+          step -= 1
+          duration += wp_minutes(step,step)
         end
-        result_date = time - (MINUTE * (start-step))
+        result_date = time - (MINUTE * (start - step))
         result_remainder = 0
       end  
       return result_date, result_remainder  
@@ -188,7 +184,8 @@ module Workpattern
     end
 
     private
- 
+    
+    
     def not_enough_minutes(duration,available_minutes)
       return true if (duration.abs-available_minutes)>0
       return false
