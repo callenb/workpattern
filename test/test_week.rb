@@ -51,13 +51,15 @@ class TestWeek < MiniTest::Unit::TestCase #:nodoc:
     assert_equal 0,resting_week.week_total
   end
   
-  def no_test_must_duplicate_all_of_a_week
+  def test_must_duplicate_all_of_a_week
     start=DateTime.new(2000,1,1,11,3)
     finish=DateTime.new(2005,12,31,16,41)
     week=week(start,finish,1)
     new_week=week.duplicate
     assert_equal DateTime.new(start.year,start.month,start.day), new_week.start
     assert_equal DateTime.new(finish.year,finish.month,finish.day), new_week.finish
+    assert_equal 3156480, new_week.total#2192
+    week.workpattern(:weekend,Workpattern.clock(0,0),Workpattern.clock(23,59),0)
     assert_equal 3156480, new_week.total#2192
     
   end

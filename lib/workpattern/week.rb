@@ -1,32 +1,9 @@
 module Workpattern
   
-  # @author Barrie Callender
-  # @!attribute values
-  #   @return [Array] each day of the week
-  # @!attribute start
-  #   @return [DateTime] first date in the range
-  # @!attribute finish
-  #   @return [DateTime] last date in the range
-  # @!attribute week_total
-  #   @return [Integer] total number of minutes in a week
-  # @!attribute total
-  #   @return [Integer] total number of minutes in the range
-  #  
-  # Represents working and resting periods for each day in a week for a specified date range.
-  #
-  # @since 0.2.0
-  #
   class Week
     
     attr_accessor :values, :hours_per_day, :start, :finish, :week_total, :total
 
-    # The new <tt>Week</tt> object can be created as either working or resting.
-    #
-    # @param [DateTime] start first date in the range
-    # @param [DateTime] finish last date in the range
-    # @param [Integer] type working (1) or resting (0)
-    # @return [Week] newly initialised Week object    
-    #
     def initialize(start,finish,type=1,hours_per_day=24)
       @hours_per_day = hours_per_day
       @start=DateTime.new(start.year,start.month,start.day)
@@ -49,18 +26,16 @@ module Workpattern
       return sum
     end
 
-    # Sets a range of minutes in a week to be working or resting.  The parameters supplied
-    # to this method determine exactly what should be changed
-    #
-    # @param [Hash(DAYNAMES)] days identifies the days to be included in the range
-    # @param [DateTime] from_time where the time portion is used to specify the first minute to be set
-    # @param [DateTime] to_time where the time portion is used to specify the last minute to be set
-    # @param [Integer] type where a 1 sets it to working and a 0 to resting
-    #
     def workpattern(days,from_time,to_time,type)
       DAYNAMES[days].each do |day| 
         type==1 ? work_on_day(day,from_time,to_time) : rest_on_day(day,from_time,to_time)
       end
+    end
+
+    def duplicate()
+      duplicate_week=Week.new(self.start,self.finish)
+      duplicate_week.values =@values
+      return duplicate_week
     end
 
   private
@@ -107,21 +82,6 @@ module Workpattern
     #
     # @return [Week] a duplicated instance of the current <tt>Week</tt> object
     #
-    def xduplicate()
-      duplicate_week=Week.new(self.start,self.finish)
-      duplicate_values=Array.new(self.values.size)
-      self.values.each_index {|index|
-        duplicate_values[index]=self.values[index].duplicate
-        }
-      duplicate_week.values=duplicate_values  
-      duplicate_week.days=self.days
-      duplicate_week.start=self.start
-      duplicate_week.finish=self.finish
-      duplicate_week.week_total=self.week_total
-      duplicate_week.total=self.total
-      duplicate_week.refresh
-      return duplicate_week
-    end
     
     # Recalculates the attributes that define a <tt>Week</tt> object.
     # This was made public for <tt>#duplicate</tt> to work
