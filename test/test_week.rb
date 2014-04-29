@@ -135,7 +135,7 @@ class TestWeek < MiniTest::Unit::TestCase #:nodoc:
     assert_equal 0, result_duration
   end
 
-  def no_test_must_add_0_minutes_in_a_working_week
+  def test_must_add_0_minutes_in_a_working_week
     result_date, result_duration, midnight_flag = @working_week.calc(DateTime.new(2000,1,3,7,31),0)
     assert_equal DateTime.new(2000,1,3,7,31), result_date
     refute midnight_flag
@@ -170,7 +170,7 @@ class TestWeek < MiniTest::Unit::TestCase #:nodoc:
     assert_equal 2430, result_duration
   end
 
-  def no_test_must_add_zero_minutes_in_a_resting_week
+  def test_must_add_zero_minutes_in_a_resting_week
     result_date, result_duration, midnight_flag = @resting_week.calc(DateTime.new(2000,1,3,7,31),0)
     assert_equal DateTime.new(2000,1,3,7,31), result_date
     refute midnight_flag
@@ -219,14 +219,14 @@ class TestWeek < MiniTest::Unit::TestCase #:nodoc:
     assert_equal 0, result_duration
   end
 
-  def no_test_must_add_0_minutes_from_working_in_a_resting_week
+  def test_must_add_0_minutes_from_working_in_a_resting_week
     result_date, result_duration, midnight_flag = @pattern_week.calc(DateTime.new(2000,1,3,10,11),0)
     assert_equal DateTime.new(2000,1,3,10,11), result_date
     refute midnight_flag
     assert_equal 0, result_duration
   end
 
-  def no_test_must_add_0_minutes_from_resting_in_a_resting_week
+  def test_must_add_0_minutes_from_resting_in_a_resting_week
     result_date, result_duration, midnight_flag = @pattern_week.calc(DateTime.new(2000,1,3,12,45),0)
     assert_equal DateTime.new(2000,1,3,12,45), result_date
     refute midnight_flag

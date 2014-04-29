@@ -38,7 +38,15 @@ module Workpattern
       return duplicate_week
     end
 
+    def calc(start_date,duration, midnight=false)
+      return start_date,duration,false if duration==0
+      return add(start_date,duration) if duration > 0
+      return subtract(self.start,duration, midnight) if (self.total==0) && (duration <0)
+      return subtract(start_date,duration, midnight) if duration <0  
+    end
+
   private
+
     def bit_week
       2**(7*60*self.hours_per_day)-1
     end
@@ -109,12 +117,6 @@ module Workpattern
     # @param [Integer] duration minutes to add or subtract
     # @param [Boolean] midnight flag used for subtraction that indicates the start date is midnight
     #
-    def xcalc(start_date,duration, midnight=false)
-      return start_date,duration,false if duration==0
-      return add(start_date,duration) if duration > 0
-      return subtract(self.start,duration, midnight) if (self.total==0) && (duration <0)
-      return subtract(start_date,duration, midnight) if duration <0  
-    end
     
     # Comparison Returns an integer (-1, 0, or +1) if week is less than, equal to, or greater than other_week
     #
