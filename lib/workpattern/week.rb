@@ -3,8 +3,6 @@ module Workpattern
   # @author Barrie Callender
   # @!attribute values
   #   @return [Array] each day of the week
-  # @!attribute days
-  #   @return [Integer] number of days in the week
   # @!attribute start
   #   @return [DateTime] first date in the range
   # @!attribute finish
@@ -20,7 +18,7 @@ module Workpattern
   #
   class Week
     
-    attr_accessor :values, :days, :start, :finish, :week_total, :total
+    attr_accessor :values, :hours_per_day, :start, :finish, :week_total, :total
 
     # The new <tt>Week</tt> object can be created as either working or resting.
     #
@@ -29,21 +27,87 @@ module Workpattern
     # @param [Integer] type working (1) or resting (0)
     # @return [Week] newly initialised Week object    
     #
-    def initialize(start,finish,type=1)
-      hours_in_days_in_week=[24,24,24,24,24,24,24]
-      @days=hours_in_days_in_week.size
-      @values=Array.new(7) {|index| Day.new(type)}
+    def initialize(start,finish,type=1,hours_per_day=24)
+      @hours_per_day = hours_per_day
       @start=DateTime.new(start.year,start.month,start.day)
       @finish=DateTime.new(finish.year,finish.month,finish.day)
-        
-      set_attributes
+      @values = 2**(7*60*hours_per_day*type) - 1
     end
+
+    def week_total
+      @values.to_s(2).count('1')
+    end 
+
+    def total
+      total_days = span_in_days
+      return week_total if total_days < 8
+      sum = total_minutes(self.start.wday,6)
+      total_days -= (7-self.start.wday)
+      sum += total_minutes(0,self.finish.wday)
+      total_days-=(self.finish.wday+1)
+      sum += week_total * total_days / 7
+      return sum
+    end
+
+    # Sets a range of minutes in a week to be working or resting.  The parameters supplied
+    # to this method determine exactly what should be changed
+    #
+    # @param [Hash(DAYNAMES)] days identifies the days to be included in the range
+    # @param [DateTime] from_time where the time portion is used to specify the first minute to be set
+    # @param [DateTime] to_time where the time portion is used to specify the last minute to be set
+    # @param [Integer] type where a 1 sets it to working and a 0 to resting
+    #
+    def workpattern(days,from_time,to_time,type)
+      DAYNAMES[days].each do |day| 
+        type==1 ? work_on_day(day,from_time,to_time) : rest_on_day(day,from_time,to_time)
+      end
+    end
+
+  private
+    def bit_week
+      2**(7*60*self.hours_per_day)-1
+    end
+    
+    def bit_pos(day,time)
+      2**((day * self.hours_per_day * 60) + (time.hour * 60) + time.min )
+    end
+
+    def bit_pos_above(day,time)
+      2**((day * self.hours_per_day * 60) + (time.hour * 60) + time.min + 1)
+    end
+
+    def time_mask(day,from_time, to_time)
+      bit_pos_above(day,to_time) - bit_pos(day,from_time)      
+    end
+
+    def span_in_days
+      (self.finish-self.start).to_i + 1
+    end
+
+    def total_minutes(start,finish)
+      mask = ((2**((finish+1)*60*self.hours_per_day)) - (2**(start*60*self.hours_per_day))).to_i
+      return (self.values & mask).to_s(2).count('1')
+    end
+
+    def work_on_day(day,from_time,to_time)
+      self.values = self.values | time_mask(day, from_time, to_time)  
+    end
+
+    def rest_on_day(day,from_time,to_time)
+      mask = bit_week & ~(time_mask(day,from_time, to_time))
+      self.values = self.values & mask
+    end
+
+    
+#################################################################
+## NOT USED YET
+#################################################################
     
     # Duplicates the current <tt>Week</tt> object
     #
     # @return [Week] a duplicated instance of the current <tt>Week</tt> object
     #
-    def duplicate()
+    def xduplicate()
       duplicate_week=Week.new(self.start,self.finish)
       duplicate_values=Array.new(self.values.size)
       self.values.each_index {|index|
@@ -62,7 +126,7 @@ module Workpattern
     # Recalculates the attributes that define a <tt>Week</tt> object.
     # This was made public for <tt>#duplicate</tt> to work
     #
-    def refresh
+    def xrefresh
       set_attributes
     end
     
@@ -72,24 +136,12 @@ module Workpattern
     # @param [DateTime] start is the new starting date for the <tt>Week</tt>
     # @param [DateTime] finish is the new finish date for the <tt>Week</tt>    
     #
-    def adjust(start_date,finish_date)
+    def xadjust(start_date,finish_date)
       self.start=DateTime.new(start_date.year,start_date.month,start_date.day)
       self.finish=DateTime.new(finish_date.year,finish_date.month,finish_date.day)
       refresh
     end
     
-    # Sets a range of minutes in a week to be working or resting.  The parameters supplied
-    # to this method determine exactly what should be changed
-    #
-    # @param [Hash(DAYNAMES)] days identifies the days to be included in the range
-    # @param [DateTime] from_time where the time portion is used to specify the first minute to be set
-    # @param [DateTime] to_time where the time portion is used to specify the last minute to be set
-    # @param [Integer] type where a 1 sets it to working and a 0 to resting
-    #
-    def workpattern(days,from_time,to_time,type)
-      DAYNAMES[days].each {|day| self.values[day].workpattern(from_time,to_time,type)}  
-      refresh
-    end
     
     # Calculates a new date by adding or subtracting a duration in minutes.
     #
@@ -97,7 +149,7 @@ module Workpattern
     # @param [Integer] duration minutes to add or subtract
     # @param [Boolean] midnight flag used for subtraction that indicates the start date is midnight
     #
-    def calc(start_date,duration, midnight=false)
+    def xcalc(start_date,duration, midnight=false)
       return start_date,duration,false if duration==0
       return add(start_date,duration) if duration > 0
       return subtract(self.start,duration, midnight) if (self.total==0) && (duration <0)
@@ -108,7 +160,7 @@ module Workpattern
     #
     # @param [Week] other_week object to compare to
     # @return [Integer] -1,0 or +1 if week is less than, equal to or greater than other_week
-    def <=>(other_week)
+    def x(other_week)#<=>
       if self.start < other_week.start
         return -1
       elsif self.start == other_week.start
@@ -123,7 +175,7 @@ module Workpattern
     # @param [DateTime] start DateTime to be tested
     # @return [Boolean] true if the minute is working otherwise false if it is a resting minute
     #
-    def working?(start_date)
+    def xworking?(start_date)
       self.values[start_date.wday].working?(start_date)
     end    
 
@@ -133,7 +185,7 @@ module Workpattern
     # @param [DateTime] finish ending DateTime
     # @return [Integer, DateTime] number of minutes and start date for rest of calculation.
     #
-    def diff(start_date,finish_date)
+    def xdiff(start_date,finish_date)
       start_date,finish_date=finish_date,start_date if ((start_date <=> finish_date))==1
       # calculate to end of day
       #
@@ -147,51 +199,21 @@ module Workpattern
       return duration, start_date
     end
    
-    def week_total
-      span_in_days > 6 ? self.values.inject(0) {|sum,x| sum + x.total } : day_indexes.inject(0) {|sum,x| sum + self.values[x].total}
-    end 
-
-    def total
-      total_days = span_in_days
-      return week_total if total_days < 8
-      sum = total_hours(self.start.wday,6)
-      total_days -= (7-self.start.wday)
-      sum += total_hours(0,self.finish.wday)
-      total_days-=(self.finish.wday+1)
-      sum += week_total * total_days / 7
-      return sum
-    end
 
     private
 
-    def day_indexes
+    def xday_indexes
       self.start.wday > self.finish.wday ? self.start.wday.upto(6).to_a.concat(0.upto(self.finish.wday).to_a) : self.start.wday.upto(self.finish.wday).to_a
     end
 
     
-    def span_in_days
-      (self.finish-self.start).to_i + 1
-    end
 
     # Recalculates all the attributes for a Week object
     #
-    def set_attributes
+    def xset_attributes
 
     end
     
-    # Calculates the total number of minutes between two dates
-    #
-    # @param [DateTime] start is the first date in the range
-    # @param [DateTime] finish is the last date in the range
-    # @return [Integer] total number of minutes between supplied dates
-    #
-    def total_hours(start,finish)
-      total=0
-      start.upto(finish) {|day|
-        total+=self.values[day].total
-        }
-      return total
-    end
     
     # Adds a duration in minutes to a date.
     #
@@ -201,7 +223,7 @@ module Workpattern
     # @param [Integer] duration minutes to add
     # @return [DateTime, Integer, Boolean] the calculated date, remaining minutes and flag used for subtraction
     #
-    def add(start,duration)
+    def xadd(start,duration)
       # aim to calculate to the end of the day
       start,duration = self.values[start.wday].calc(start,duration)   
       return start,duration,false if (duration==0) || (start.jd > self.finish.jd) 
@@ -249,7 +271,7 @@ module Workpattern
     # @return [DateTime, Integer, Boolean] the calculated date, remaining number of minutes and 
     #     true if the time is midnight on the date
     #
-    def subtract(start,duration,midnight=false)
+    def xsubtract(start,duration,midnight=false)
       
       # Handle subtraction from start of day
       if midnight
@@ -314,7 +336,7 @@ module Workpattern
     # @return [DateTime, Integer] the date with a time of 23:59 and remaining duration
     #     adjusted according to whether 23:59 is resting or not
     #
-    def minute_b4_midnight(start,duration)
+    def xminute_b4_midnight(start,duration)
       start -= start.hour * HOUR
       start -= start.min * MINUTE
       duration += self.values[start.wday].minutes(23,59,23,59)
@@ -327,7 +349,7 @@ module Workpattern
     # @param [DateTime] start is the current date
     # @return [DateTime] the new date
     #
-    def after_last_work(start_date)
+    def xafter_last_work(start_date)
       if self.values[start_date.wday].last_hour.nil?
         return start_date.next_day
       else  
@@ -344,7 +366,7 @@ module Workpattern
     # @param [DateTime] finish_on the range to be used in this Week object.  
     # @return [DateTime, Integer] new date for rest of calculation and total number of minutes calculated thus far.
     #
-    def diff_detail(start_date,finish_date,finish_on_date)
+    def xdiff_detail(start_date,finish_date,finish_on_date)
       
       duration, start_date=diff_in_day(start_date, finish_date)
       return duration,start_date if start_date > finish_on_date
@@ -373,11 +395,11 @@ module Workpattern
       return duration, start_date
     end
     
-    def diff_in_day(start_date,finish_date)
+    def xdiff_in_day(start_date,finish_date)
       return self.values[start_date.wday].diff(start_date,finish_date)
     end
 
-    def day_total(start_date)
+    def xday_total(start_date)
       return self.values[start_date.wday].total
     end
 

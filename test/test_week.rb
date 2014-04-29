@@ -32,7 +32,7 @@ class TestWeek < MiniTest::Unit::TestCase #:nodoc:
     assert_equal DateTime.civil(2013,9,27,0,0), start
   end
   
-  def no_test_must_create_a_working_week
+  def test_must_create_a_working_week
     start=DateTime.new(2000,1,1,11,3)
     finish=DateTime.new(2005,12,31,16,41)
     working_week=week(start,finish,1)
@@ -41,7 +41,7 @@ class TestWeek < MiniTest::Unit::TestCase #:nodoc:
     assert_equal 3156480, working_week.total#2192
   end
     
-  def no_test_must_create_a_resting_week
+  def test_must_create_a_resting_week
     start=DateTime.new(2000,1,1,11,3)
     finish=DateTime.new(2005,12,31,16,41)
     resting_week=week(start,finish,0)
@@ -62,7 +62,7 @@ class TestWeek < MiniTest::Unit::TestCase #:nodoc:
     
   end
 
-  def no_test_must_set_week_pattern_correctly
+  def test_must_set_week_pattern_correctly
     start=DateTime.new(2000,1,3)
     finish=DateTime.new(2000,1,9)
 
@@ -80,7 +80,7 @@ class TestWeek < MiniTest::Unit::TestCase #:nodoc:
     assert_equal 2245, pattern_week.week_total
   end
   
-  def no_test_must_set_patterns_correctly
+  def test_must_set_patterns_correctly
     start=DateTime.new(2000,1,1,0,0)
     finish=DateTime.new(2005,12,31,8,59)
     working_week=week(start,finish,1)
