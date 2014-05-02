@@ -107,28 +107,28 @@ class TestWeek < MiniTest::Unit::TestCase #:nodoc:
     assert_equal 7200, working_week.week_total    
   end
 
-  def no_test_must_add_minutes_in_a_working_week_result_in_same_day
+  def test_must_add_minutes_in_a_working_week_result_in_same_day
     result_date, result_duration, midnight_flag = @working_week.calc(DateTime.new(2000,1,3,7,31),29)
     assert_equal DateTime.new(2000,1,3,8,0), result_date
     refute midnight_flag
     assert_equal 0, result_duration
   end
 
-  def no_test_must_add_minutes_in_a_working_week_result_in_next_day
+  def test_must_add_minutes_in_a_working_week_result_in_next_day
     result_date, result_duration, midnight_flag = @working_week.calc(DateTime.new(2000,1,3,7,31),990)
     assert_equal DateTime.new(2000,1,4,0,1), result_date
     refute midnight_flag
     assert_equal 0, result_duration
   end
 
-  def no_test_must_add_minutes_in_a_working_week_result_in_later_day
+  def test_must_add_minutes_in_a_working_week_result_in_later_day
     result_date, result_duration, midnight_flag = @working_week.calc(DateTime.new(2000,1,3,7,31),2430)
     assert_equal DateTime.new(2000,1,5,0,1), result_date
     refute midnight_flag
     assert_equal 0, result_duration
   end
 
-  def no_test_must_add_minutes_in_a_working_week_result_in_start_next_day
+  def test_must_add_minutes_in_a_working_week_result_in_start_next_day
     result_date, result_duration, midnight_flag = @working_week.calc(DateTime.new(2000,1,3,7,31),989)
     assert_equal DateTime.new(2000,1,4,0,0), result_date
     refute midnight_flag
@@ -142,7 +142,7 @@ class TestWeek < MiniTest::Unit::TestCase #:nodoc:
     assert_equal 0, result_duration
   end
 
-  def no_test_must_add_too_many_minutes_in_a_working_week
+  def test_must_add_too_many_minutes_in_a_working_week
     result_date, result_duration, midnight_flag = @working_week.calc(DateTime.new(2000,1,3,7,31),9630)
     assert_equal DateTime.new(2000,1,10,0,0), result_date
     refute midnight_flag

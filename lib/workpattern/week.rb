@@ -1,5 +1,5 @@
 module Workpattern
-  
+    
   class Week
     
     attr_accessor :values, :hours_per_day, :start, :finish, :week_total, :total
@@ -47,20 +47,29 @@ module Workpattern
 
   private
 
-    def bit_week
+
+    def next_power_of_2(n)
+      2**(Math.log(n) / Math.log(2)).ceil
+    end
+
+    def working_week
       2**(7*60*self.hours_per_day)-1
     end
     
-    def bit_pos(day,time)
-      2**((day * self.hours_per_day * 60) + (time.hour * 60) + time.min )
+    def bit_pos(day,hour,minute)
+      2**((day * self.hours_per_day * 60) + (hour * 60) + minute )
     end
 
-    def bit_pos_above(day,time)
-      2**((day * self.hours_per_day * 60) + (time.hour * 60) + time.min + 1)
+    def bit_pos_from_time(day,time)
+      bit_pos(day,time.hour,time.min)
+    end
+
+    def bit_pos_above_from_time(day,time)
+      bit_pos(day,time.hour, time.min+1)
     end
 
     def time_mask(day,from_time, to_time)
-      bit_pos_above(day,to_time) - bit_pos(day,from_time)      
+      bit_pos_above_from_time(day,to_time) - bit_pos_from_time(day,from_time)      
     end
 
     def span_in_days
@@ -77,11 +86,99 @@ module Workpattern
     end
 
     def rest_on_day(day,from_time,to_time)
-      mask = bit_week & ~(time_mask(day,from_time, to_time))
+      mask = working_week & ~(time_mask(day,from_time, to_time))
       self.values = self.values & mask
     end
-
     
+    def mask_to_end_of_day(date)
+      bit_pos(date.next_day.wday ,0,0) - bit_pos(date.wday, date.hour, date.min)
+    end
+    
+    def pattern_to_end_of_day(date)
+      mask = mask_to_end_of_day(date)
+      (self.values & mask)
+    end
+
+    def minutes_to_end_of_day(date)
+      minutes = pattern_to_end_of_day(date).to_s(2).count('1')
+      date.wday == 6 ? minutes - 1 : minutes
+    end
+
+    def end_of_this_day(date)
+      position = Math.log2(next_power_of_2(pattern_to_end_of_day(date))) - (date.wday * 1440)
+      return adjust_date(date,position)
+    end
+
+    def consume_minutes(date,duration)
+      minutes=pattern_to_end_of_day(date).to_s(2).reverse!
+
+      top=minutes.size
+      bottom=1
+      mark = top / 2
+      while minutes[0,mark].count('1') != duration
+        if minutes[0,mark].count('1') < duration
+          bottom = mark
+          mark = (top-mark) / 2 + mark
+        else
+          top = mark
+          mark = (mark-bottom) / 2 + bottom
+        end  
+      end
+      minutes=minutes[0,mark]
+
+      while minutes[minutes.size-1]=='0'
+        minutes.chop!
+      end
+      mark = minutes.size - (date.wday * 1440)
+
+      return adjust_date(date, mark)
+
+    end
+
+    def adjust_date(date,adjustment)
+      date - (HOUR * date.hour) - (MINUTE * date.min) + (MINUTE * adjustment)
+    end
+
+    def add_to_end_of_day(initial_date, duration)
+      available_minutes_in_day = minutes_to_end_of_day(initial_date)
+
+      if available_minutes_in_day < duration
+        duration -= available_minutes_in_day
+        initial_date = start_of_next_day(initial_date)
+      elsif available_minutes_in_day == duration
+        duration -= available_minutes_in_day
+        initial_date = end_of_this_day(initial_date)
+      else
+        initial_date = consume_minutes(initial_date,duration)
+        duration=0
+      end
+      return initial_date, duration
+
+    end
+
+    def start_of_next_day(date)
+      date.next_day - (HOUR * date.hour) - (MINUTE * date.minute)
+    end
+
+    def add(initial_date,duration)
+      initial_date, duration = add_to_end_of_day(initial_date,duration)
+
+      while ( duration != 0) && (initial_date.wday != self.finish.next_day.wday) && (initial_date.jd <= self.finish.jd)
+        initial_date, duration = add_to_end_of_day(initial_date,duration)
+      end
+
+      while (duration != 0) && (duration >= self.week_total) && ((initial_date.jd + 6) <= self.finish.jd)
+        duration -= self.week_total
+        initial_date += 7
+      end
+
+      while (duration != 0) && (initial_date.jd <= self.finish.jd)
+        initial_date, duration = add_to_end_of_day(initial_date,duration)
+      end
+      return initial_date, duration, false
+      
+    end
+
 #################################################################
 ## NOT USED YET
 #################################################################
