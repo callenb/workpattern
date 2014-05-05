@@ -5,17 +5,17 @@ class TestWeek < MiniTest::Unit::TestCase #:nodoc:
   def setup
     start=DateTime.new(2000,1,3)
     finish=DateTime.new(2000,1,9)
-### start: infinity bug
-#    @working_week=Workpattern::Week.new(start,finish,1)
-#
-#    @resting_week=Workpattern::Week.new(start,finish,0)
-#
-#    @pattern_week=Workpattern::Week.new(start,finish,1)
-#    @pattern_week.workpattern(:weekend,Workpattern.clock(0,0),Workpattern.clock(23,59),0)
-#    @pattern_week.workpattern(:weekday,Workpattern.clock(0,0),Workpattern.clock(8,59),0)
-#    @pattern_week.workpattern(:weekday,Workpattern.clock(12,30),Workpattern.clock(13,0),0)
-#    @pattern_week.workpattern(:weekday,Workpattern.clock(17,0),Workpattern.clock(23,59),0)
-### finish: infinity bug    
+
+    @working_week=Workpattern::Week.new(start,finish,1)
+
+    @resting_week=Workpattern::Week.new(start,finish,0)
+
+    @pattern_week=Workpattern::Week.new(start,finish,1)
+    @pattern_week.workpattern(:weekend,Workpattern.clock(0,0),Workpattern.clock(23,59),0)
+    @pattern_week.workpattern(:weekday,Workpattern.clock(0,0),Workpattern.clock(8,59),0)
+    @pattern_week.workpattern(:weekday,Workpattern.clock(12,30),Workpattern.clock(13,0),0)
+    @pattern_week.workpattern(:weekday,Workpattern.clock(17,0),Workpattern.clock(23,59),0)
+
   end
 
   def no_test_must_diff_from_last_day_of_patterned_week
@@ -33,8 +33,7 @@ class TestWeek < MiniTest::Unit::TestCase #:nodoc:
     assert_equal DateTime.civil(2013,9,27,0,0), start
   end
 
-### infinity bug    
-  def no_test_must_create_a_working_week
+  def test_must_create_a_working_week
     start=DateTime.new(2000,1,1,11,3)
     finish=DateTime.new(2005,12,31,16,41)
     working_week=week(start,finish,1)
@@ -80,7 +79,6 @@ class TestWeek < MiniTest::Unit::TestCase #:nodoc:
     assert_equal 0,resting_week.week_total
   end
 
-### testing infinity bug  
   def test_must_duplicate_all_of_a_week
     start=DateTime.new(2000,1,1,11,3)
     finish=DateTime.new(2005,12,31,16,41)
@@ -91,10 +89,9 @@ class TestWeek < MiniTest::Unit::TestCase #:nodoc:
     assert_equal 3156480, new_week.total#2192
     week.workpattern(:weekend,Workpattern.clock(0,0),Workpattern.clock(23,59),0)
     assert_equal 3156480, new_week.total#2192
-    
   end
-### infinity bug
-  def no_test_must_set_week_pattern_correctly
+
+  def test_must_set_week_pattern_correctly
     start=DateTime.new(2000,1,3)
     finish=DateTime.new(2000,1,9)
 
@@ -111,8 +108,8 @@ class TestWeek < MiniTest::Unit::TestCase #:nodoc:
     pattern_week.workpattern(:weekday,Workpattern.clock(17,0),Workpattern.clock(23,59),0)
     assert_equal 2245, pattern_week.week_total
   end
-### infinity bug  
-  def no_test_must_set_patterns_correctly
+
+  def test_must_set_patterns_correctly
     start=DateTime.new(2000,1,1,0,0)
     finish=DateTime.new(2005,12,31,8,59)
     working_week=week(start,finish,1)
@@ -136,7 +133,7 @@ class TestWeek < MiniTest::Unit::TestCase #:nodoc:
     working_week.workpattern(:weekend,clock(0,0),clock(23,59),0)
     assert_equal 7200, working_week.week_total    
   end
-### infinity bug  
+### testing infinity bug  
   def no_test_must_add_minutes_in_a_working_week_result_in_same_day
     result_date, result_duration, midnight_flag = @working_week.calc(DateTime.new(2000,1,3,7,31),29)
     assert_equal DateTime.new(2000,1,3,8,0), result_date

@@ -37,7 +37,7 @@ module Workpattern
 
     def duplicate()
       duplicate_week=Week.new(self.start,self.finish)
-      duplicate_week.values =@values
+      0.upto(6).each do |i| duplicate_week.values[i] = @values[i] end
       return duplicate_week
     end
 
@@ -69,8 +69,7 @@ module Workpattern
       return total
     end
 
-    def next_power_of_2(n) #
-      #2**(Math.log(n) / Math.log(2)).ceil
+    def next_power_of_2(n)
       n -=1
       n = n | n>>1
       n = n | n>>2
@@ -86,7 +85,7 @@ module Workpattern
     end
     
     def bit_pos(hour,minute)
-      2**((self.hours_per_day * 60) + (hour * 60) + minute )
+      2**( (hour * 60) + minute )
     end
 
     def bit_pos_time(time)
@@ -115,7 +114,8 @@ module Workpattern
     end
 
     def rest_on_day(day,from_time,to_time) 
-      mask = working_day & ~(time_mask(from_time, to_time))
+      mask_of_1s = time_mask(from_time, to_time)
+      mask = mask_of_1s ^ working_day & working_day
       self.values[day] = self.values[day] & mask
     end
     
