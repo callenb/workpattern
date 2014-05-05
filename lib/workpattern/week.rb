@@ -8,19 +8,22 @@ module Workpattern
       @hours_per_day = hours_per_day
       @start=DateTime.new(start.year,start.month,start.day)
       @finish=DateTime.new(finish.year,finish.month,finish.day)
-      @values = 2**(7*60*hours_per_day*type) - 1
+      @values = Array.new(6)
+      0.upto(6) do |i| 
+        @values[i] = working_day * type
+      end
     end
 
     def week_total
-      @values.to_s(2).count('1')
+      span_in_days > 6 ? full_week_total_minutes : part_week_total_minutes
     end 
 
     def total
       total_days = span_in_days
       return week_total if total_days < 8
-      sum = total_minutes(self.start.wday,6)
+      sum = sum_of_minutes_in_day_range(self.start.wday, 6)
       total_days -= (7-self.start.wday)
-      sum += total_minutes(0,self.finish.wday)
+      sum += sum_of_minutes_in_day_range(0,self.finish.wday)
       total_days-=(self.finish.wday+1)
       sum += week_total * total_days / 7
       return sum
@@ -47,69 +50,95 @@ module Workpattern
 
   private
 
-
-    def next_power_of_2(n)
-      2**(Math.log(n) / Math.log(2)).ceil
+    def sum_of_minutes_in_day_range(first,last)
+      @values[first..last].inject(0) {|sum,item| sum + item.to_s(2).count('1')}
     end
 
-    def working_week
-      2**(7*60*self.hours_per_day)-1
+    def full_week_total_minutes
+      sum_of_minutes_in_day_range 0, 6
     end
     
-    def bit_pos(day,hour,minute)
-      2**((day * self.hours_per_day * 60) + (hour * 60) + minute )
+    def part_week_total_minutes
+
+      if self.start.wday <= self.finish.wday
+        total = sum_of_minutes_in_day_range(self.start.wday, self.finish.wday)
+      else
+        total = sum_of_minutes_in_day_range(self.start.wday, 6)
+        total += sum_of_minutes_in_day_range(0, self.finish.wday)
+      end
+      return total
     end
 
-    def bit_pos_from_time(day,time)
-      bit_pos(day,time.hour,time.min)
+    def next_power_of_2(n) #
+      #2**(Math.log(n) / Math.log(2)).ceil
+      n -=1
+      n = n | n>>1
+      n = n | n>>2
+      n = n | n>>4
+      n = n | n>>8
+      n = n | n>>16
+      n += 1
+      n
     end
 
-    def bit_pos_above_from_time(day,time)
-      bit_pos(day,time.hour, time.min+1)
+    def working_day
+      2**(60*self.hours_per_day)-1
+    end
+    
+    def bit_pos(hour,minute)
+      2**((self.hours_per_day * 60) + (hour * 60) + minute )
     end
 
-    def time_mask(day,from_time, to_time)
-      bit_pos_above_from_time(day,to_time) - bit_pos_from_time(day,from_time)      
+    def bit_pos_time(time)
+      bit_pos(time.hour,time.min)
+    end
+
+    def bit_pos_above_time(time)
+      bit_pos(time.hour, time.min+1)
+    end
+
+    def time_mask(from_time, to_time)
+      bit_pos_above_time(to_time) - bit_pos_time(from_time)      
     end
 
     def span_in_days
       (self.finish-self.start).to_i + 1
     end
 
-    def total_minutes(start,finish)
+    def total_minutes(start,finish) 
       mask = ((2**((finish+1)*60*self.hours_per_day)) - (2**(start*60*self.hours_per_day))).to_i
       return (self.values & mask).to_s(2).count('1')
     end
 
     def work_on_day(day,from_time,to_time)
-      self.values = self.values | time_mask(day, from_time, to_time)  
+      self.values[day] = self.values[day] | time_mask(from_time, to_time)  
     end
 
-    def rest_on_day(day,from_time,to_time)
-      mask = working_week & ~(time_mask(day,from_time, to_time))
-      self.values = self.values & mask
+    def rest_on_day(day,from_time,to_time) 
+      mask = working_day & ~(time_mask(from_time, to_time))
+      self.values[day] = self.values[day] & mask
     end
     
-    def mask_to_end_of_day(date)
+    def mask_to_end_of_day(date) #
       bit_pos(date.next_day.wday ,0,0) - bit_pos(date.wday, date.hour, date.min)
     end
     
-    def pattern_to_end_of_day(date)
+    def pattern_to_end_of_day(date) #
       mask = mask_to_end_of_day(date)
       (self.values & mask)
     end
 
-    def minutes_to_end_of_day(date)
+    def minutes_to_end_of_day(date) #
       minutes = pattern_to_end_of_day(date).to_s(2).count('1')
       date.wday == 6 ? minutes - 1 : minutes
     end
 
-    def end_of_this_day(date)
+    def end_of_this_day(date) #
       position = Math.log2(next_power_of_2(pattern_to_end_of_day(date))) - (date.wday * 1440)
       return adjust_date(date,position)
     end
 
-    def consume_minutes(date,duration)
+    def consume_minutes(date,duration) #
       minutes=pattern_to_end_of_day(date).to_s(2).reverse!
 
       top=minutes.size
@@ -135,11 +164,11 @@ module Workpattern
 
     end
 
-    def adjust_date(date,adjustment)
+    def adjust_date(date,adjustment) #
       date - (HOUR * date.hour) - (MINUTE * date.min) + (MINUTE * adjustment)
     end
 
-    def add_to_end_of_day(initial_date, duration)
+    def add_to_end_of_day(initial_date, duration) #
       available_minutes_in_day = minutes_to_end_of_day(initial_date)
 
       if available_minutes_in_day < duration
@@ -156,11 +185,11 @@ module Workpattern
 
     end
 
-    def start_of_next_day(date)
+    def start_of_next_day(date) #
       date.next_day - (HOUR * date.hour) - (MINUTE * date.minute)
     end
 
-    def add(initial_date,duration)
+    def add(initial_date,duration) #
       initial_date, duration = add_to_end_of_day(initial_date,duration)
 
       while ( duration != 0) && (initial_date.wday != self.finish.next_day.wday) && (initial_date.jd <= self.finish.jd)
