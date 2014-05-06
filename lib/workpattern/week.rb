@@ -129,8 +129,7 @@ module Workpattern
     end
 
     def minutes_to_end_of_day(date) 
-      minutes = pattern_to_end_of_day(date).to_s(2).count('1')
-      date.wday == 6 ? minutes - 1 : minutes
+      pattern_to_end_of_day(date).to_s(2).count('1')
     end
 
     def end_of_this_day(date) 
@@ -191,7 +190,9 @@ module Workpattern
     end
 
     def add(initial_date,duration)
+
       initial_date, duration = add_to_end_of_day(initial_date,duration)
+
       while ( duration != 0) && (initial_date.wday != self.finish.next_day.wday) && (initial_date.jd <= self.finish.jd)
         initial_date, duration = add_to_end_of_day(initial_date,duration)
       end
