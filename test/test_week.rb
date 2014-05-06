@@ -211,56 +211,56 @@ class TestWeek < MiniTest::Unit::TestCase #:nodoc:
     assert_equal 0, result_duration
   end
 
-  def no_test_must_add_minutes_from_resting_in_a_pattern_week_result_in_same_day
+  def test_must_add_minutes_from_resting_in_a_pattern_week_result_in_same_day
     result_date, result_duration, midnight_flag = @pattern_week.calc(DateTime.new(2000,1,3,12,45),126)
     assert_equal DateTime.new(2000,1,3,15,7), result_date
     refute midnight_flag
     assert_equal 0, result_duration
   end
 
-  def no_test_must_add_minutes_from_working_in_a_pattern_week_result_in_next_day
+  def test_must_add_minutes_from_working_in_a_pattern_week_result_in_next_day
     result_date, result_duration, midnight_flag = @pattern_week.calc(DateTime.new(2000,1,3,10,11),379)
     assert_equal DateTime.new(2000,1,4,9,1), result_date
     refute midnight_flag
     assert_equal 0, result_duration
   end
 
-  def no_test_must_add_minutes_from_resting_in_a_pattern_week_result_in_next_day
+  def test_must_add_minutes_from_resting_in_a_pattern_week_result_in_next_day
     result_date, result_duration, midnight_flag = @pattern_week.calc(DateTime.new(2000,1,3,12,45),240)
     assert_equal DateTime.new(2000,1,4,9,1), result_date
     refute midnight_flag
     assert_equal 0, result_duration
   end
 
-  def no_test_must_add_minutes_from_working_in_a_working_week_result_in_later_day
+  def test_must_add_minutes_from_working_in_a_pattern_week_result_in_later_day
     result_date, result_duration, midnight_flag = @pattern_week.calc(DateTime.new(2000,1,3,10,11),828)
     assert_equal DateTime.new(2000,1,5,9,1), result_date
     refute midnight_flag
     assert_equal 0, result_duration
   end
 
-  def no_test_must_add_minutes_from_resting_in_a_working_week_result_in_later_day
+  def test_must_add_minutes_from_resting_in_a_working_week_result_in_later_day
     result_date, result_duration, midnight_flag = @pattern_week.calc(DateTime.new(2000,1,3,12,45),689)
     assert_equal DateTime.new(2000,1,5,9,1), result_date
     refute midnight_flag
     assert_equal 0, result_duration
   end
-### infinity bug  
-  def no_test_must_add_0_minutes_from_working_in_a_resting_week
+
+  def test_must_add_0_minutes_from_working_in_a_resting_week
     result_date, result_duration, midnight_flag = @pattern_week.calc(DateTime.new(2000,1,3,10,11),0)
     assert_equal DateTime.new(2000,1,3,10,11), result_date
     refute midnight_flag
     assert_equal 0, result_duration
   end
-### infinity bug  
-  def no_test_must_add_0_minutes_from_resting_in_a_resting_week
+
+  def test_must_add_0_minutes_from_resting_in_a_resting_week
     result_date, result_duration, midnight_flag = @pattern_week.calc(DateTime.new(2000,1,3,12,45),0)
     assert_equal DateTime.new(2000,1,3,12,45), result_date
     refute midnight_flag
     assert_equal 0, result_duration
   end
 
-  def no_test_must_add_too_many_minutes_in_a_pattern__week
+  def test_must_add_too_many_minutes_in_a_pattern__week
     result_date, result_duration, midnight_flag = @pattern_week.calc(DateTime.new(2000,1,3,10,11),2175)
     assert_equal DateTime.new(2000,1,10,0,0), result_date
     refute midnight_flag
