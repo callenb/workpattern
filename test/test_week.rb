@@ -168,43 +168,43 @@ class TestWeek < MiniTest::Unit::TestCase #:nodoc:
     refute midnight_flag
     assert_equal 0, result_duration
   end
-### testing infinity bug  
-  def no_test_must_add_too_many_minutes_in_a_working_week
+
+  def test_must_add_too_many_minutes_in_a_working_week
     result_date, result_duration, midnight_flag = @working_week.calc(DateTime.new(2000,1,3,7,31),9630)
     assert_equal DateTime.new(2000,1,10,0,0), result_date
     refute midnight_flag
     assert_equal 1, result_duration
   end
-  
-  def no_test_must_add_minutes_in_a_resting_week
+
+  def test_must_add_minutes_in_a_resting_week
     result_date, result_duration, midnight_flag = @resting_week.calc(DateTime.new(2000,1,3,7,31),29)
     assert_equal DateTime.new(2000,1,10,0,0), result_date
     refute midnight_flag
     assert_equal 29, result_duration
   end
 
-  def no_test_must_add_minutes_from_start_of_resting_week
+  def test_must_add_minutes_from_start_of_resting_week
     result_date, result_duration, midnight_flag = @resting_week.calc(DateTime.new(2000,1,3,0,0),990)
     assert_equal DateTime.new(2000,1,10,0,0), result_date
     refute midnight_flag
     assert_equal 990, result_duration
   end
 
-  def no_test_must_add_minutes_to_last_minute_of_a_resting_week
+  def test_must_add_minutes_to_last_minute_of_a_resting_week
     result_date, result_duration, midnight_flag = @resting_week.calc(DateTime.new(2000,1,9,23,59),2430)
     assert_equal DateTime.new(2000,1,10,0,0), result_date
     refute midnight_flag
     assert_equal 2430, result_duration
   end
-### infinity bug  
-  def no_test_must_add_zero_minutes_in_a_resting_week
+
+  def test_must_add_zero_minutes_in_a_resting_week
     result_date, result_duration, midnight_flag = @resting_week.calc(DateTime.new(2000,1,3,7,31),0)
     assert_equal DateTime.new(2000,1,3,7,31), result_date
     refute midnight_flag
     assert_equal 0, result_duration
   end
 
-  def no_test_must_add_minutes_from_working_in_a_pattern_week_result_in_same_day
+  def test_must_add_minutes_from_working_in_a_pattern_week_result_in_same_day
     result_date, result_duration, midnight_flag = @pattern_week.calc(DateTime.new(2000,1,3,10,11),110)
     assert_equal DateTime.new(2000,1,3,12,1), result_date
     refute midnight_flag
