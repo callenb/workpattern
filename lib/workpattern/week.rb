@@ -119,26 +119,26 @@ module Workpattern
       self.values[day] = self.values[day] & mask
     end
     
-    def mask_to_end_of_day(date) #
-      bit_pos(date.next_day.wday ,0,0) - bit_pos(date.wday, date.hour, date.min)
+    def mask_to_end_of_day(date) 
+      bit_pos(self.hours_per_day,0) - bit_pos(date.hour, date.min)
     end
     
-    def pattern_to_end_of_day(date) #
+    def pattern_to_end_of_day(date) 
       mask = mask_to_end_of_day(date)
-      (self.values & mask)
+      (self.values[date.wday] & mask)
     end
 
-    def minutes_to_end_of_day(date) #
+    def minutes_to_end_of_day(date) 
       minutes = pattern_to_end_of_day(date).to_s(2).count('1')
       date.wday == 6 ? minutes - 1 : minutes
     end
 
-    def end_of_this_day(date) #
-      position = Math.log2(next_power_of_2(pattern_to_end_of_day(date))) - (date.wday * 1440)
+    def end_of_this_day(date) 
+      position = pattern_to_end_of_day(date).to_s(2).size
       return adjust_date(date,position)
     end
 
-    def consume_minutes(date,duration) #
+    def consume_minutes(date,duration) 
       minutes=pattern_to_end_of_day(date).to_s(2).reverse!
 
       top=minutes.size
@@ -158,17 +158,18 @@ module Workpattern
       while minutes[minutes.size-1]=='0'
         minutes.chop!
       end
-      mark = minutes.size - (date.wday * 1440)
+
+      mark = minutes.size
 
       return adjust_date(date, mark)
 
     end
 
-    def adjust_date(date,adjustment) #
+    def adjust_date(date,adjustment)
       date - (HOUR * date.hour) - (MINUTE * date.min) + (MINUTE * adjustment)
     end
 
-    def add_to_end_of_day(initial_date, duration) #
+    def add_to_end_of_day(initial_date, duration) 
       available_minutes_in_day = minutes_to_end_of_day(initial_date)
 
       if available_minutes_in_day < duration
@@ -185,13 +186,12 @@ module Workpattern
 
     end
 
-    def start_of_next_day(date) #
+    def start_of_next_day(date)
       date.next_day - (HOUR * date.hour) - (MINUTE * date.minute)
     end
 
-    def add(initial_date,duration) #
+    def add(initial_date,duration)
       initial_date, duration = add_to_end_of_day(initial_date,duration)
-
       while ( duration != 0) && (initial_date.wday != self.finish.next_day.wday) && (initial_date.jd <= self.finish.jd)
         initial_date, duration = add_to_end_of_day(initial_date,duration)
       end
