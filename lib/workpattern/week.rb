@@ -48,6 +48,15 @@ module Workpattern
       return subtract(start_date,duration, midnight) if duration <0  
     end
 
+    def working?(date)
+      return true if bit_pos_time(date) & @values[date.wday] > 0
+      false
+    end
+
+    def resting?(date)
+      !working?(date)
+    end
+
   private
 
     def sum_of_minutes_in_day_range(first,last)
@@ -137,21 +146,44 @@ module Workpattern
       return adjust_date(date,position)
     end
 
+    def mask_to_start_of_day(date)
+      bit_pos(date.hour, date.min) - bit_pos(0,0)
+    end
+    
+    def pattern_to_start_of_day(date)
+      mask = mask_to_start_of_day(date)
+#      puts "mask to start: #{mask.to_s(2)}"
+      (self.values[date.wday] & mask)
+    end
+
+    def minutes_to_start_of_day(date)
+      pattern_to_start_of_day(date).to_s(2).count('1')
+    end
+
     def consume_minutes(date,duration) 
-      minutes=pattern_to_end_of_day(date).to_s(2).reverse!
+#      puts "consume_minutes(#{date},#{duration})" if duration < 0
+      minutes=pattern_to_end_of_day(date).to_s(2).reverse! if duration > 0
+      minutes=pattern_to_start_of_day(date).to_s(2) if duration < 0
 
       top=minutes.size
       bottom=1
       mark = top / 2
-      while minutes[0,mark].count('1') != duration
-        if minutes[0,mark].count('1') < duration
+#      puts "### top=#{top}, bottom=#{bottom}, mark=#{mark}" if duration < 0
+      while minutes[0,mark].count('1') != duration.abs
+        last_mark = mark
+        if minutes[0,mark].count('1') < duration.abs
           bottom = mark
           mark = (top-mark) / 2 + mark
+          mark = top if last_mark == mark
+#      puts "### if: top=#{top}, bottom=#{bottom}, mark=#{mark}" if duration < 0
         else
           top = mark
           mark = (mark-bottom) / 2 + bottom
+          mark = bottom if last_mark = mark
+#          puts "### else: top=#{top}, bottom=#{bottom}, mark=#{mark}" if duration < 0
         end  
       end
+#          puts "### exit if: top=#{top}, bottom=#{bottom}, mark=#{mark}" if duration < 0
       minutes=minutes[0,mark]
 
       while minutes[minutes.size-1]=='0'
@@ -160,7 +192,8 @@ module Workpattern
 
       mark = minutes.size
 
-      return adjust_date(date, mark)
+      return adjust_date(date, mark) if duration > 0
+      return date - (MINUTE * mark) if duration < 0
 
     end
 
@@ -182,11 +215,48 @@ module Workpattern
         duration=0
       end
       return initial_date, duration
+    end
 
+    def subtract_to_start_of_day(initial_date, duration, midnight)
+#      puts "### enter subtract_to_start_of_day(#{initial_date},#{duration},#{midnight})"
+      initial_date,duration, midnight = handle_midnight(initial_date, duration) if midnight
+      available_minutes_in_day = minutes_to_start_of_day(initial_date)
+#      puts "### available_minutes_in_day = #{available_minutes_in_day}"
+#        puts "### before if: initial_date=#{initial_date}, duration=#{duration}, midnight=#{midnight}"
+      if duration != 0
+        if available_minutes_in_day < duration.abs
+          duration += available_minutes_in_day
+          initial_date = start_of_previous_day(initial_date)
+          midnight = true
+#          puts "### if: initial_date=#{initial_date}, duration=#{duration}, midnight=#{midnight}"
+        else
+          initial_date = consume_minutes(initial_date,duration)
+          duration = 0
+          midnight = false
+#          puts "### else: initial_date=#{initial_date}, duration=#{duration}, midnight=#{midnight}"
+        end
+      end
+      return initial_date, duration, midnight
     end
 
     def start_of_next_day(date)
       date.next_day - (HOUR * date.hour) - (MINUTE * date.minute)
+    end
+
+    def start_of_previous_day(date)
+      start_of_next_day(date).prev_day.prev_day
+    end
+
+    def handle_midnight(initial_date,duration)
+      if working?(start_of_next_day(initial_date) - MINUTE)
+        duration += 1
+      end
+      
+      initial_date -= (HOUR * initial_date.hour)
+      initial_date -= (MINUTE * initial_date.min)
+      initial_date = initial_date.next_day - MINUTE
+
+      return initial_date, duration, false  
     end
 
     def add(initial_date,duration)
@@ -209,6 +279,29 @@ module Workpattern
       
     end
 
+    def subtract(initial_date, duration, midnight)
+
+      initial_date,duration, midnight = handle_midnight(initial_date, duration) if midnight
+
+      initial_date, duration, midnight = subtract_to_start_of_day(initial_date, duration, midnight)
+
+      while ( duration != 0) && (initial_date.wday != self.start.prev_day.wday) && (initial_date.jd >= self.start.jd)
+        initial_date, duration, midnight = subtract_to_start_of_day(initial_date,duration, midnight)
+      end
+
+      while (duration != 0) && (duration >= self.week_total) && ((initial_date.jd - 6) >= self.start.jd)
+        duration += self.week_total
+        initial_date -= 7
+      end
+
+      while (duration != 0) && (initial_date.jd >= self.start.jd)
+        initial_date, duration, midnight = subtract_to_start_of_day(initial_date,duration, midnight)
+      end
+
+      return initial_date, duration, midnight
+
+    end
+  
 #################################################################
 ## NOT USED YET
 #################################################################
