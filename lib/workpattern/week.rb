@@ -83,59 +83,8 @@ module Workpattern
 
   private
 
-    def diff_in_same_weekpattern(start_date, finish_date)
-      duration, start_date = diff_to_tomorrow(start_date)
-#      puts "### A: #{duration}, #{start_date}"
-      while true
-        break if (start_date.wday == (self.finish.wday + 1))
-        break if (start_date.jd == self.finish.jd)
-        break if (start_date.jd == finish_date.jd)
-        duration += minutes_to_end_of_day(start_date)
-        start_date = start_of_next_day(start_date)
-#      puts "### B: #{duration}, #{start_date}"
-      end 
-
-      while true
-        break if ((start_date + 7) > finish_date)
-        break if ((start_date + 6).jd > self.finish.jd)
-        duration += week_total
-        start_date += 7
-#      puts "### C: #{duration}, #{start_date}"
-      end
-
-      while true
-       # break if (start_date.wday == (self.finish.wday + 1))
-        break if (start_date.jd >= self.finish.jd)
-        break if (start_date.jd >= finish_date.jd)
-        duration += minutes_to_end_of_day(start_date)
-        start_date = start_of_next_day(start_date)
-#      puts "### D: #{duration}, #{start_date}"
-      end 
-      
-      interim_duration, start_date = diff_in_same_day(start_date, finish_date) if (start_date < self.finish)
-#      puts "### E: #{interim_duration}, #{start_date}"
-      duration += interim_duration unless interim_duration.nil?
-#      puts "### F: #{duration}, #{start_date}"
-      return duration, start_date      
-    end
-    
-    def diff_beyond_weekpattern(start_date,finish_date)
-      duration, start_date = diff_in_same_weekpattern(start_date, finish_date)
-      return duration, start_date
-    end
-
-    def diff_to_tomorrow(start_date)
-      mask = bit_pos(self.hours_per_day, 0) - bit_pos(start_date.hour, start_date.min)
-      return (self.values[start_date.wday] & mask).to_s(2).count('1'), start_of_next_day(start_date)
-    end
-
-    def diff_in_same_day(start_date, finish_date)
-       mask = bit_pos(finish_date.hour, finish_date.min) - bit_pos(start_date.hour, start_date.min)
-       return (self.values[start_date.wday] & mask).to_s(2).count('1'), finish_date
-    end
-
-    def sum_of_minutes_in_day_range(first,last)
-      @values[first..last].inject(0) {|sum,item| sum + item.to_s(2).count('1')}
+    def span_in_days
+      (self.finish-self.start).to_i + 1
     end
 
     def full_week_total_minutes
@@ -153,44 +102,8 @@ module Workpattern
       return total
     end
 
-    def next_power_of_2(n)
-      n -=1
-      n = n | n>>1
-      n = n | n>>2
-      n = n | n>>4
-      n = n | n>>8
-      n = n | n>>16
-      n += 1
-      n
-    end
-
-    def working_day
-      2**(60*self.hours_per_day)-1
-    end
-    
-    def bit_pos(hour,minute)
-      2**( (hour * 60) + minute )
-    end
-
-    def bit_pos_time(time)
-      bit_pos(time.hour,time.min)
-    end
-
-    def bit_pos_above_time(time)
-      bit_pos(time.hour, time.min+1)
-    end
-
-    def time_mask(from_time, to_time)
-      bit_pos_above_time(to_time) - bit_pos_time(from_time)      
-    end
-
-    def span_in_days
-      (self.finish-self.start).to_i + 1
-    end
-
-    def diff_minutes_to_end_of_day(start_date) 
-      mask = ((2**(60*self.hours_per_day + 1)) - (2**(start_date.hour*60 + start_date.min))).to_i
-      return (self.values[start.wday] & mask).to_s(2).count('1')
+    def sum_of_minutes_in_day_range(first,last)
+      @values[first..last].inject(0) {|sum,item| sum + item.to_s(2).count('1')}
     end
 
     def work_on_day(day,from_time,to_time)
@@ -202,23 +115,100 @@ module Workpattern
       mask = mask_of_1s ^ working_day & working_day
       self.values[day] = self.values[day] & mask
     end
-    
-    def mask_to_end_of_day(date) 
-      bit_pos(self.hours_per_day,0) - bit_pos(date.hour, date.min)
+
+    def time_mask(from_time, to_time)
+      bit_pos_above_time(to_time) - bit_pos_time(from_time)      
     end
-    
-    def pattern_to_end_of_day(date) 
-      mask = mask_to_end_of_day(date)
-      (self.values[date.wday] & mask)
+
+    def bit_pos_above_time(time)
+      bit_pos(time.hour, time.min+1)
+    end
+
+    def bit_pos(hour,minute)
+      2**( (hour * 60) + minute )
+    end
+
+    def bit_pos_time(time)
+      bit_pos(time.hour,time.min)
+    end
+
+    def add(initial_date,duration)
+
+      initial_date, duration = add_to_end_of_day(initial_date,duration)
+
+      while ( duration != 0) && (initial_date.wday != self.finish.next_day.wday) && (initial_date.jd <= self.finish.jd)
+        initial_date, duration = add_to_end_of_day(initial_date,duration)
+      end
+
+      while (duration != 0) && (duration >= self.week_total) && ((initial_date.jd + 6) <= self.finish.jd)
+        duration -= self.week_total
+        initial_date += 7
+      end
+
+      while (duration != 0) && (initial_date.jd <= self.finish.jd)
+        initial_date, duration = add_to_end_of_day(initial_date,duration)
+      end
+      return initial_date, duration, false
+      
+    end
+
+    def add_to_end_of_day(initial_date, duration) 
+      available_minutes_in_day = minutes_to_end_of_day(initial_date)
+
+      if available_minutes_in_day < duration
+        duration -= available_minutes_in_day
+        initial_date = start_of_next_day(initial_date)
+      elsif available_minutes_in_day == duration
+        duration -= available_minutes_in_day
+        initial_date = end_of_this_day(initial_date)
+      else
+        initial_date = consume_minutes(initial_date,duration)
+        duration=0
+      end
+      return initial_date, duration
     end
 
     def minutes_to_end_of_day(date) 
       pattern_to_end_of_day(date).to_s(2).count('1')
     end
 
+    def pattern_to_end_of_day(date) 
+      mask = mask_to_end_of_day(date)
+      (self.values[date.wday] & mask)
+    end
+
+    def mask_to_end_of_day(date) 
+      bit_pos(self.hours_per_day,0) - bit_pos(date.hour, date.min)
+    end
+
+    def working_day
+      2**(60*self.hours_per_day)-1
+    end
+
+    def start_of_next_day(date)
+      date.next_day - (HOUR * date.hour) - (MINUTE * date.minute)
+    end
+
+    def start_of_previous_day(date)
+      start_of_next_day(date).prev_day.prev_day
+    end
+
+    def start_of_today(date)
+      start_of_next_day(date.prev_day)
+    end
+
     def end_of_this_day(date) 
       position = pattern_to_end_of_day(date).to_s(2).size
       return adjust_date(date,position)
+    end
+
+    def adjust_date(date,adjustment)
+      date - (HOUR * date.hour) - (MINUTE * date.min) + (MINUTE * adjustment)
+    end
+
+    def diff_minutes_to_end_of_day(start_date) 
+      mask = ((2**(60*self.hours_per_day + 1)) - (2**(start_date.hour*60 + start_date.min))).to_i
+      return (self.values[start.wday] & mask).to_s(2).count('1')
     end
 
     def mask_to_start_of_day(date)
@@ -288,26 +278,6 @@ module Workpattern
       minutes.size
     end
 
-    def adjust_date(date,adjustment)
-      date - (HOUR * date.hour) - (MINUTE * date.min) + (MINUTE * adjustment)
-    end
-
-    def add_to_end_of_day(initial_date, duration) 
-      available_minutes_in_day = minutes_to_end_of_day(initial_date)
-
-      if available_minutes_in_day < duration
-        duration -= available_minutes_in_day
-        initial_date = start_of_next_day(initial_date)
-      elsif available_minutes_in_day == duration
-        duration -= available_minutes_in_day
-        initial_date = end_of_this_day(initial_date)
-      else
-        initial_date = consume_minutes(initial_date,duration)
-        duration=0
-      end
-      return initial_date, duration
-    end
-
     def subtract_to_start_of_day(initial_date, duration, midnight)
 
       initial_date,duration, midnight = handle_midnight(initial_date, duration) if midnight
@@ -327,17 +297,6 @@ module Workpattern
       return initial_date, duration, midnight
     end
 
-    def start_of_next_day(date)
-      date.next_day - (HOUR * date.hour) - (MINUTE * date.minute)
-    end
-
-    def start_of_previous_day(date)
-      start_of_next_day(date).prev_day.prev_day
-    end
-
-    def start_of_today(date)
-      start_of_next_day(date.prev_day)
-    end
 
     def handle_midnight(initial_date,duration)
       if working?(start_of_next_day(initial_date) - MINUTE)
@@ -351,25 +310,6 @@ module Workpattern
       return initial_date, duration, false  
     end
 
-    def add(initial_date,duration)
-
-      initial_date, duration = add_to_end_of_day(initial_date,duration)
-
-      while ( duration != 0) && (initial_date.wday != self.finish.next_day.wday) && (initial_date.jd <= self.finish.jd)
-        initial_date, duration = add_to_end_of_day(initial_date,duration)
-      end
-
-      while (duration != 0) && (duration >= self.week_total) && ((initial_date.jd + 6) <= self.finish.jd)
-        duration -= self.week_total
-        initial_date += 7
-      end
-
-      while (duration != 0) && (initial_date.jd <= self.finish.jd)
-        initial_date, duration = add_to_end_of_day(initial_date,duration)
-      end
-      return initial_date, duration, false
-      
-    end
 
     def subtract(initial_date, duration, midnight)
       initial_date,duration, midnight = handle_midnight(initial_date, duration) if midnight
@@ -391,6 +331,50 @@ module Workpattern
 
       return initial_date, duration, midnight
 
+    end
+
+    def diff_in_same_weekpattern(start_date, finish_date)
+      duration, start_date = diff_to_tomorrow(start_date)
+      while true
+        break if (start_date.wday == (self.finish.wday + 1))
+        break if (start_date.jd == self.finish.jd)
+        break if (start_date.jd == finish_date.jd)
+        duration += minutes_to_end_of_day(start_date)
+        start_date = start_of_next_day(start_date)
+      end 
+
+      while true
+        break if ((start_date + 7) > finish_date)
+        break if ((start_date + 6).jd > self.finish.jd)
+        duration += week_total
+        start_date += 7
+      end
+
+      while true
+        break if (start_date.jd >= self.finish.jd)
+        break if (start_date.jd >= finish_date.jd)
+        duration += minutes_to_end_of_day(start_date)
+        start_date = start_of_next_day(start_date)
+      end 
+      
+      interim_duration, start_date = diff_in_same_day(start_date, finish_date) if (start_date < self.finish)
+      duration += interim_duration unless interim_duration.nil?
+      return duration, start_date      
+    end
+    
+    def diff_beyond_weekpattern(start_date,finish_date)
+      duration, start_date = diff_in_same_weekpattern(start_date, finish_date)
+      return duration, start_date
+    end
+
+    def diff_to_tomorrow(start_date)
+      mask = bit_pos(self.hours_per_day, 0) - bit_pos(start_date.hour, start_date.min)
+      return (self.values[start_date.wday] & mask).to_s(2).count('1'), start_of_next_day(start_date)
+    end
+
+    def diff_in_same_day(start_date, finish_date)
+       mask = bit_pos(finish_date.hour, finish_date.min) - bit_pos(start_date.hour, start_date.min)
+       return (self.values[start_date.wday] & mask).to_s(2).count('1'), finish_date
     end
 
   end

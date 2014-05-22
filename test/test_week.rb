@@ -18,50 +18,6 @@ class TestWeek < MiniTest::Unit::TestCase #:nodoc:
 
   end
 
-  def test_must_diff_from_last_day_of_patterned_week
-    #issue 15
-    start=DateTime.new(2013,9,23,0,0)
-    finish=DateTime.new(2013,9,26,23,59)
-    working_week=week(start,finish,1)
-    working_week.workpattern :all, Workpattern.clock(0,0),Workpattern.clock(8,59),0
-    working_week.workpattern :all, Workpattern.clock(12,0),Workpattern.clock(12,59),0
-    working_week.workpattern :all, Workpattern.clock(18,0),Workpattern.clock(23,59),0
-
-    duration, start =working_week.diff(DateTime.civil(2013,9,26,17,0),DateTime.civil(2013,9,27,10,0))
-
-    assert_equal 60, duration
-    assert_equal DateTime.civil(2013,9,27,0,0), start
-  end
-
-  def test_must_diff_long_distances_beyond_end_of_patterned_week
-    start=DateTime.new(2013,9,23,0,0)
-    finish=DateTime.new(2013,10,20,23,59)
-    working_week=week(start,finish,1)
-    working_week.workpattern :all, Workpattern.clock(0,0),Workpattern.clock(8,59),0
-    working_week.workpattern :all, Workpattern.clock(12,0),Workpattern.clock(12,59),0
-    working_week.workpattern :all, Workpattern.clock(18,0),Workpattern.clock(23,59),0
-
-    duration, start =working_week.diff(DateTime.civil(2013,9,26,17,0),DateTime.civil(2018,9,27,10,0))
-
-    assert_equal 11580, duration
-    assert_equal DateTime.civil(2013,10,21,0,0), start
-
-  end
-
-  def test_must_diff_long_distances_within_patterned_week
-    start=DateTime.new(2013,9,23,0,0)
-    finish=DateTime.new(2013,10,20,23,59)
-    working_week=week(start,finish,1)
-    working_week.workpattern :all, Workpattern.clock(0,0),Workpattern.clock(8,59),0
-    working_week.workpattern :all, Workpattern.clock(12,0),Workpattern.clock(12,59),0
-    working_week.workpattern :all, Workpattern.clock(18,0),Workpattern.clock(23,59),0
-
-    duration, start =working_week.diff(DateTime.civil(2013,9,26,17,0),DateTime.civil(2013,10,15,10,0))
-
-    assert_equal 8760, duration
-    assert_equal DateTime.civil(2013,10,15,10,0), start
-
-  end
 
   def test_must_create_a_working_week
     start=DateTime.new(2000,1,1,11,3)
@@ -456,7 +412,20 @@ class TestWeek < MiniTest::Unit::TestCase #:nodoc:
 
 ### @pattern_week centric
 
-  
+  def must_diff_day_week_day_in_patterned_week
+    start=DateTime.new(2013,9,23,0,0)
+    finish=DateTime.new(2013,10,20,23,59)
+    working_week=week(start,finish,1)
+    working_week.workpattern :all, Workpattern.clock(0,0),Workpattern.clock(8,59),0
+    working_week.workpattern :all, Workpattern.clock(12,0),Workpattern.clock(12,59),0
+    working_week.workpattern :all, Workpattern.clock(18,0),Workpattern.clock(23,59),0
+
+    duration, start =working_week.diff(DateTime.civil(2013,10,3,16,0),DateTime.civil(2013,10,15,12,30))
+
+    assert_equal 5640, duration
+    assert_equal DateTime.civil(2013,10,15,12,30), start
+ 
+  end  
   def test_must_calculate_difference_between_dates_in_working_week
     late_date=DateTime.new(2000,1,6,9,32)
     early_date=DateTime.new(2000,1,6,8,20)
@@ -479,6 +448,51 @@ class TestWeek < MiniTest::Unit::TestCase #:nodoc:
     result_dur, result_date = @pattern_week.diff(early_date,late_date)
     assert_equal 1, result_dur
     assert_equal late_date, result_date
+  end
+
+  def test_must_diff_from_last_day_of_patterned_week
+    #issue 15
+    start=DateTime.new(2013,9,23,0,0)
+    finish=DateTime.new(2013,9,26,23,59)
+    working_week=week(start,finish,1)
+    working_week.workpattern :all, Workpattern.clock(0,0),Workpattern.clock(8,59),0
+    working_week.workpattern :all, Workpattern.clock(12,0),Workpattern.clock(12,59),0
+    working_week.workpattern :all, Workpattern.clock(18,0),Workpattern.clock(23,59),0
+
+    duration, start =working_week.diff(DateTime.civil(2013,9,26,17,0),DateTime.civil(2013,9,27,10,0))
+
+    assert_equal 60, duration
+    assert_equal DateTime.civil(2013,9,27,0,0), start
+  end
+
+  def test_must_diff_long_distances_beyond_end_of_patterned_week
+    start=DateTime.new(2013,9,23,0,0)
+    finish=DateTime.new(2013,10,20,23,59)
+    working_week=week(start,finish,1)
+    working_week.workpattern :all, Workpattern.clock(0,0),Workpattern.clock(8,59),0
+    working_week.workpattern :all, Workpattern.clock(12,0),Workpattern.clock(12,59),0
+    working_week.workpattern :all, Workpattern.clock(18,0),Workpattern.clock(23,59),0
+
+    duration, start =working_week.diff(DateTime.civil(2013,9,26,17,0),DateTime.civil(2018,9,27,10,0))
+
+    assert_equal 11580, duration
+    assert_equal DateTime.civil(2013,10,21,0,0), start
+
+  end
+
+  def test_must_diff_long_distances_within_patterned_week
+    start=DateTime.new(2013,9,23,0,0)
+    finish=DateTime.new(2013,10,20,23,59)
+    working_week=week(start,finish,1)
+    working_week.workpattern :all, Workpattern.clock(0,0),Workpattern.clock(8,59),0
+    working_week.workpattern :all, Workpattern.clock(12,0),Workpattern.clock(12,59),0
+    working_week.workpattern :all, Workpattern.clock(18,0),Workpattern.clock(23,59),0
+
+    duration, start =working_week.diff(DateTime.civil(2013,9,26,17,0),DateTime.civil(2013,10,15,10,0))
+
+    assert_equal 8760, duration
+    assert_equal DateTime.civil(2013,10,15,10,0), start
+
   end
   
   private
