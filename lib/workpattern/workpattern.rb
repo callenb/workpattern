@@ -277,14 +277,19 @@ module Workpattern
     # 
     def clone_and_adjust_current_wp(current_wp, current_start,current_finish,clone_start,clone_finish=nil)
       clone_wp=current_wp.duplicate
-      current_wp.adjust(current_start,current_finish)
-      clone_finish.nil? ? clone_wp.adjust(clone_start,clone_wp.finish) : clone_wp.adjust(clone_start,clone_finish)
+      adjust_date_range(current_wp,current_start,current_finish)
+      clone_finish.nil? ? adjust_date_range(clone_wp,clone_start,clone_wp.finish) : adjust_date_range(clone_wp, clone_start,clone_finish)
       return clone_wp
     end
 
     def set_workpattern_and_store(new_wp, args)
       new_wp.workpattern(args[:days],args[:from_time],args[:to_time],args[:work_type])
       weeks<< new_wp
+    end
+
+    def adjust_date_range(week_pattern,start_date,finish_date)
+      week_pattern.start = start_date
+      week_pattern.finish = finish_date
     end
   end
 end

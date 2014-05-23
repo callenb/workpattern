@@ -1,3 +1,8 @@
+## Workpattern v0.4.0 ( May 23, 2014)  ##
+
+* Updated Week class to use bits and removed Day and Hour class as a consequence * Barrie Callender *
+* This resulted in a performance improvement and some new tests
+
 ## Workpattern v0.3.6 (Mar 25, 2014)  ##
 
 * total minutes of week is zero when short week starting after Sunday (#17) * Barrie Callender *
