@@ -8,8 +8,8 @@ Gem::Specification.new do |s|
   s.authors     = ["Barrie Callender"]
   s.email       = ["barrie@callenb.org"]
   s.homepage    = ""
-  s.summary     = %q{temporal calculations}
-  s.description = %q{Workpattern performs date calculations that take into account working and resting periods.}
+  s.summary     = %q{Calculates dates and durations whilst taking into account weekends, holidays and working hours}
+  s.description = %q{Calculates dates and durations using working hours that can include holidays and weekends}
   s.license     = 'MIT'
 
   s.rubyforge_project = "workpattern"
