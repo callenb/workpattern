@@ -15,13 +15,9 @@ module Workpattern
     end
 
     def <=>(other_week)
-      if self.start < other_week.start
-        return -1
-      elsif self.start == other_week.start
-        return 0
-      else
-        return 1
-      end      
+      return -1 if self.start < other_week.start
+      return 0 if self.start == other_week.start
+      1      
     end
  
     def week_total
