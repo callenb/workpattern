@@ -21,18 +21,11 @@ module Workpattern
     end
  
     def week_total
-      span_in_days > 6 ? full_week_total_minutes : part_week_total_minutes
+      elapsed_days > 6 ? full_week_total_minutes : part_week_total_minutes
     end 
 
     def total
-      total_days = span_in_days
-      return week_total if total_days < 8
-      sum = sum_of_minutes_in_day_range(self.start.wday, 6)
-      total_days -= (7-self.start.wday)
-      sum += sum_of_minutes_in_day_range(0,self.finish.wday)
-      total_days-=(self.finish.wday+1)
-      sum += week_total * total_days / 7
-      return sum
+      elapsed_days < 8 ? week_total : range_total
     end
 
     def workpattern(days,from_time,to_time,type)
@@ -54,8 +47,8 @@ module Workpattern
       return subtract(start_date,duration, midnight) if duration <0  
     end
 
-    def working?(date)
-      return true if bit_pos_time(date) & @values[date.wday] > 0
+    def working?(datetime)
+      return true if bit_pos(datetime.hour, datetime.min) & @values[datetime.wday] > 0
       false
     end
 
@@ -79,53 +72,49 @@ module Workpattern
 
   private
 
-    def span_in_days
+    def elapsed_days
       (self.finish-self.start).to_i + 1
     end
 
     def full_week_total_minutes
-      sum_of_minutes_in_day_range 0, 6
+      minutes_in_day_range 0, 6
     end
     
     def part_week_total_minutes
-
-      if self.start.wday <= self.finish.wday
-        total = sum_of_minutes_in_day_range(self.start.wday, self.finish.wday)
-      else
-        total = sum_of_minutes_in_day_range(self.start.wday, 6)
-        total += sum_of_minutes_in_day_range(0, self.finish.wday)
-      end
-      return total
+      self.start.wday <= self.finish.wday ? no_rollover_minutes : rollover_minutes
     end
 
-    def sum_of_minutes_in_day_range(first,last)
+    def no_rollover_minutes
+      minutes_in_day_range(self.start.wday, self.finish.wday)
+    end
+
+    def rollover_minutes
+      minutes_to_first_saturday + minutes_to_finish_day
+    end
+
+    def range_total
+      total_days = elapsed_days
+
+      sum = minutes_to_first_saturday
+      total_days -= (7 - self.start.wday)
+
+      sum += minutes_to_finish_day
+      total_days-=(self.finish.wday + 1)
+
+      sum += week_total * total_days / 7
+      sum
+    end
+    
+    def minutes_to_first_saturday
+      minutes_in_day_range(self.start.wday, 6)
+    end
+
+    def minutes_to_finish_day
+      minutes_in_day_range(0, self.finish.wday)
+    end
+
+    def minutes_in_day_range(first,last)
       @values[first..last].inject(0) {|sum,item| sum + item.to_s(2).count('1')}
-    end
-
-    def work_on_day(day,from_time,to_time)
-      self.values[day] = self.values[day] | time_mask(from_time, to_time)  
-    end
-
-    def rest_on_day(day,from_time,to_time) 
-      mask_of_1s = time_mask(from_time, to_time)
-      mask = mask_of_1s ^ working_day & working_day
-      self.values[day] = self.values[day] & mask
-    end
-
-    def time_mask(from_time, to_time)
-      bit_pos_above_time(to_time) - bit_pos_time(from_time)      
-    end
-
-    def bit_pos_above_time(time)
-      bit_pos(time.hour, time.min+1)
-    end
-
-    def bit_pos(hour,minute)
-      2**( (hour * 60) + minute )
-    end
-
-    def bit_pos_time(time)
-      bit_pos(time.hour,time.min)
     end
 
     def add(initial_date,duration)
@@ -162,6 +151,24 @@ module Workpattern
         duration=0
       end
       return initial_date, duration
+    end
+
+    def work_on_day(day,from_time,to_time)
+      self.values[day] = self.values[day] | time_mask(from_time, to_time)  
+    end
+
+    def rest_on_day(day,from_time,to_time) 
+      mask_of_1s = time_mask(from_time, to_time)
+      mask = mask_of_1s ^ working_day & working_day
+      self.values[day] = self.values[day] & mask
+    end
+
+    def time_mask(from_time, to_time)
+      bit_pos(to_time.hour, to_time.min + 1) - bit_pos(from_time.hour, from_time.min)
+    end
+
+    def bit_pos(hour,minute)
+      2**( (hour * 60) + minute )
     end
 
     def minutes_to_end_of_day(date) 
