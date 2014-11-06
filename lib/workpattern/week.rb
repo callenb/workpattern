@@ -64,16 +64,11 @@ module Workpattern
 
     def diff(start_date,finish_date)
       start_date,finish_date=finish_date,start_date if ((start_date <=> finish_date))==1
-      
-      if (start_date.jd==finish_date.jd) 
-        duration, start_date=diff_in_same_day(start_date, finish_date)
-      elsif (finish_date.jd<=self.finish.jd)
-        duration, start_date=diff_in_same_weekpattern(start_date,finish_date)
-      else 
-        duration, start_date=diff_beyond_weekpattern(start_date,finish_date)
-      end
-      return duration, start_date
 
+      return diff_in_same_day(start_date, finish_date) if (start_date.jd==finish_date.jd) 
+      return diff_in_same_weekpattern(start_date,finish_date) if (finish_date.jd<=self.finish.jd)
+      diff_beyond_weekpattern(start_date,finish_date)
+      
     end
 
   private
