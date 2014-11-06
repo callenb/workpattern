@@ -1,5 +1,11 @@
 module Workpattern
-    
+
+# The representation of a week might not be obvious so I am writing about it here.  It
+# will also help me if I ever need to come back to this in the future.
+#
+# Each day is represented by a binary number where a 1 represents a working minute and 
+# a 0 represents a resting minute.
+#
   class Week
     
     attr_accessor :values, :hours_per_day, :start, :finish, :week_total, :total
@@ -71,6 +77,10 @@ module Workpattern
     end
 
   private
+
+    def working_minutes_in(value)
+      value.to_s(2).count('1')
+    end
 
     def elapsed_days
       (self.finish-self.start).to_i + 1
@@ -172,7 +182,7 @@ module Workpattern
     end
 
     def minutes_to_end_of_day(date) 
-      pattern_to_end_of_day(date).to_s(2).count('1')
+      working_minutes_in pattern_to_end_of_day(date)
     end
 
     def pattern_to_end_of_day(date) 
@@ -211,7 +221,7 @@ module Workpattern
 
     def diff_minutes_to_end_of_day(start_date) 
       mask = ((2**(60*self.hours_per_day + 1)) - (2**(start_date.hour*60 + start_date.min))).to_i
-      return (self.values[start.wday] & mask).to_s(2).count('1')
+      working_minutes_in (self.values[start.wday] & mask)
     end
 
     def mask_to_start_of_day(date)
@@ -224,7 +234,7 @@ module Workpattern
     end
 
     def minutes_to_start_of_day(date)
-      pattern_to_start_of_day(date).to_s(2).count('1')
+      working_minutes_in pattern_to_start_of_day(date)
     end
 
     def consume_minutes(date,duration) 
@@ -372,12 +382,12 @@ module Workpattern
 
     def diff_to_tomorrow(start_date)
       mask = bit_pos(self.hours_per_day, 0) - bit_pos(start_date.hour, start_date.min)
-      return (self.values[start_date.wday] & mask).to_s(2).count('1'), start_of_next_day(start_date)
+      return working_minutes_in(self.values[start_date.wday] & mask), start_of_next_day(start_date)
     end
 
     def diff_in_same_day(start_date, finish_date)
        mask = bit_pos(finish_date.hour, finish_date.min) - bit_pos(start_date.hour, start_date.min)
-       return (self.values[start_date.wday] & mask).to_s(2).count('1'), finish_date
+       return working_minutes_in(self.values[start_date.wday] & mask), finish_date
     end
 
   end
