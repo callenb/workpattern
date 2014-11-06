@@ -119,7 +119,7 @@ module Workpattern
     end
 
     def minutes_in_day_range(first,last)
-      @values[first..last].inject(0) {|sum,item| sum + item.to_s(2).count('1')}
+      @values[first..last].inject(0) {|sum,item| sum + working_minutes_in(item)}
     end
 
     def add(initial_date,duration)
