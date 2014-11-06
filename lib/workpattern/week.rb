@@ -43,7 +43,7 @@ module Workpattern
     def duplicate()
       duplicate_week=Week.new(self.start,self.finish)
       0.upto(6).each do |i| duplicate_week.values[i] = @values[i] end
-      return duplicate_week
+      duplicate_week
     end
 
     def calc(start_date,duration, midnight=false)
