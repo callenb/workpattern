@@ -124,21 +124,12 @@ module Workpattern
 
     def add(initial_date,duration)
 
-      initial_date, duration = add_to_end_of_day(initial_date,duration)
-
-      while ( duration != 0) && (initial_date.wday != self.finish.next_day.wday) && (initial_date.jd <= self.finish.jd)
-        initial_date, duration = add_to_end_of_day(initial_date,duration)
-      end
-
-      while (duration != 0) && (duration >= self.week_total) && ((initial_date.jd + 6) <= self.finish.jd)
-        duration -= self.week_total
-        initial_date += 7
-      end
-
-      while (duration != 0) && (initial_date.jd <= self.finish.jd)
-        initial_date, duration = add_to_end_of_day(initial_date,duration)
-      end
-      return initial_date, duration, false
+      running_date, duration = add_to_end_of_day(initial_date,duration)
+      
+      running_date, duration = add_to_finish_day running_date, duration
+      running_date, duration = add_full_weeks running_date, duration   
+      running_date, duration = add_remaining_days running_date, duration
+      return running_date, duration, false
       
     end
 
@@ -156,6 +147,31 @@ module Workpattern
         duration=0
       end
       return initial_date, duration
+    end
+    
+    def add_to_finish_day(date, duration)
+      while ( duration != 0) && (date.wday != self.finish.next_day.wday) && (date.jd <= self.finish.jd)
+        date, duration = add_to_end_of_day(date,duration)
+      end
+
+      return date, duration
+    end
+
+    def add_full_weeks(date, duration)
+
+      while (duration != 0) && (duration >= self.week_total) && ((date.jd + 6) <= self.finish.jd)
+        duration -= self.week_total
+        date += 7
+      end
+
+      return date, duration
+    end
+
+    def add_remaining_days(date, duration)
+      while (duration != 0) && (date.jd <= self.finish.jd)
+        date, duration = add_to_end_of_day(date,duration)
+      end
+      return date, duration
     end
 
     def work_on_day(day,from_time,to_time)
