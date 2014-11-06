@@ -50,7 +50,7 @@ module Workpattern
       return start_date,duration,false if duration==0
       return add(start_date,duration) if duration > 0
       return subtract(self.start,duration, midnight) if (self.total==0) && (duration <0)
-      return subtract(start_date,duration, midnight) if duration <0  
+      return subtract(start_date,duration, midnight)
     end
 
     def working?(datetime)
