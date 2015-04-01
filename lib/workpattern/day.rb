@@ -38,7 +38,11 @@ module Workpattern
     end
     
     def time_range_mask(from_hour, from_min, to_hour, to_min)
-      binary_time(to_hour,to_min) - binary_time(from_hour, from_min)
+      if from_hour == to_hour && from_min == to_min
+        binary_time(to_hour,to_min)
+      else
+        binary_time(to_hour,to_min) - binary_time(from_hour, from_min)
+      end
     end
 
     def work_to_end_of_day(time)
