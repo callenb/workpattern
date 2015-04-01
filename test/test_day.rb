@@ -4,6 +4,7 @@ class TestDay < MiniTest::Unit::TestCase #:nodoc:
 
   def setup
     @working = Workpattern::Day.new(1)
+    @resting = Workpattern::Day.new(0)
   end
 
   def test_must_create_a_default_day_as_working
@@ -33,6 +34,11 @@ class TestDay < MiniTest::Unit::TestCase #:nodoc:
     assert_equal 1440, @working.minutes_remaining(clock(0,0))
   end 
 
+  def test_must_be_0_minutes_after_21_19_in_rest
+    assert_equal 0, @resting.minutes_remaining(clock(21,19))
+  end 
+
+  
   def clock(hours,minutes)
     DateTime.new(2000,1,1,hours,minutes)
   end
