@@ -63,6 +63,14 @@ class TestDay < MiniTest::Unit::TestCase #:nodoc:
     assert_equal 1, @working.minutes_remaining(clock(23,58))
   end
 
+  def must_work_09_00_to_17_00
+    @working.rest clock(0,0), clock(8,59)
+    @working.rest clock(17,0), clock(23,59)
+    assert_equal (8*60), @workig.total
+  end
+### work patterns
+
+
 ### helper  
   def clock(hours,minutes)
     DateTime.new(2000,1,1,hours,minutes)
