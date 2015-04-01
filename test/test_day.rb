@@ -29,6 +29,10 @@ class TestDay < MiniTest::Unit::TestCase #:nodoc:
     assert_equal 1, @working.minutes_remaining(clock(23,59))
   end 
 
+  def test_must_be_1440_minutes_after_00_00
+    assert_equal 1440, @working.minutes_remaining(clock(0,0))
+  end 
+
   def clock(hours,minutes)
     DateTime.new(2000,1,1,hours,minutes)
   end
