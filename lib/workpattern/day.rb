@@ -17,6 +17,11 @@ module Workpattern
       working_minutes_in remaining_binary_minutes(time)
     end
 
+    def rest(start, finish)
+      range_mask = time_range_mask(start.hour, start.min, finish.hour, finish.min)
+      mask = range_mask ^ working_day & working_day
+      self.value = self.value & mask
+    end
 
     private
 
@@ -31,9 +36,13 @@ module Workpattern
     def binary_time(hour,minute)
       2**( (hour * 60) + minute )
     end
+    
+    def time_range_mask(from_hour, from_min, to_hour, to_min)
+      binary_time(to_hour,to_min) - binary_time(from_hour, from_min)
+    end
 
     def work_to_end_of_day(time)
-      binary_time(self.hours_per_day,0) - binary_time(time.hour, time.min)
+      time_range_mask(time.hour, time.min,self.hours_per_day,0)
     end
 
     def remaining_binary_minutes(time)
