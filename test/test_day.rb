@@ -69,6 +69,12 @@ class TestDay < MiniTest::Unit::TestCase #:nodoc:
     assert_equal (8*60), @working.total
   end
 
+  def test_must_rest_first_and_last_min
+    @working.rest clock(0,0), clock(0,0)
+    @working.rest clock(23,59), clock(23,59)
+    assert_equal 1438, @working.total
+  end
+
 ### work patterns
 
 
