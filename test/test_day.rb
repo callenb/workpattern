@@ -53,8 +53,8 @@ class TestDay < MiniTest::Unit::TestCase #:nodoc:
 
   def test_must_rest_11_21_to_13_42
     @working.rest clock(11,21), clock(13,42)
-    assert_equal 1299, @working.total, 'total minutes'
-    assert_equal 618, @working.minutes_remaining(clock(11,22))
+    assert_equal 1298, @working.total, 'total minutes'
+    assert_equal 617, @working.minutes_remaining(clock(11,22))
   end
 
   def test_must_rest_23_59
@@ -63,11 +63,12 @@ class TestDay < MiniTest::Unit::TestCase #:nodoc:
     assert_equal 1, @working.minutes_remaining(clock(23,58))
   end
 
-  def must_work_09_00_to_17_00
+  def test_must_work_09_00_to_17_00
     @working.rest clock(0,0), clock(8,59)
     @working.rest clock(17,0), clock(23,59)
-    assert_equal (8*60), @workig.total
+    assert_equal (8*60), @working.total
   end
+
 ### work patterns
 
 

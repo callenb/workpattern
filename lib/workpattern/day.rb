@@ -23,6 +23,10 @@ module Workpattern
       self.value = self.value & mask
     end
 
+    def binary_value
+      self.value.to_s(2)
+    end
+
     private
 
     def working_day
@@ -38,11 +42,7 @@ module Workpattern
     end
     
     def time_range_mask(from_hour, from_min, to_hour, to_min)
-      if from_hour == to_hour && from_min == to_min
-        binary_time(to_hour,to_min)
-      else
-        binary_time(to_hour,to_min) - binary_time(from_hour, from_min)
-      end
+      binary_time(to_hour,to_min + 1) - binary_time(from_hour, from_min)
     end
 
     def work_to_end_of_day(time)
