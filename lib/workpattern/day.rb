@@ -27,6 +27,15 @@ module Workpattern
       self.value.to_s(2)
     end
 
+    def working?(time)
+      return true if binary_time(time.hour, time.min) & @value > 0
+      false
+    end
+
+    def resting?(time)
+      !working?(time)
+    end
+
     private
 
     def working_day

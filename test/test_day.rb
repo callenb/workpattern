@@ -76,7 +76,25 @@ class TestDay < MiniTest::Unit::TestCase #:nodoc:
   end
 
 ### work patterns
+  def test_must_work_9_to_5
+    @working.rest clock(0,0), clock(8,59)
+    @working.rest clock(17,0), clock(23,59)
+    assert_equal (60*8), @working.total
+    assert @working.resting? clock(8,59)
+    assert @working.working? clock(9,0)
+  end
 
+  def test_must_lunch_at_12
+    @working.rest clock(0,0), clock(8,59)
+    @working.rest clock(17,0), clock(23,59)
+    @working.rest clock(12,0), clock(12,59)
+    assert_equal (60*7), @working.total
+    assert @working.resting? clock(8,59)
+    assert @working.working? clock(9,0)
+    assert @working.resting? clock(12,0)
+    assert @working.resting? clock(12,59)
+    assert @working.working? clock(13,0)
+  end
 
 ### helper  
   def clock(hours,minutes)
