@@ -22,6 +22,7 @@ Gem::Specification.new do |s|
   # specify any dependencies here; for example:
   # s.add_development_dependency "rspec"
   # s.add_runtime_dependency "rest-client"
+  s.add_runtime_dependency 'tzinfo'
   s.add_development_dependency('rake', ['~> 0.9.2'])
   s.add_development_dependency('minitest')
 end

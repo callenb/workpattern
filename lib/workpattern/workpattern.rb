@@ -1,5 +1,6 @@
 module Workpattern
   require 'set'
+  require 'tzinfo'
   
   # Represents the working and resting periods across a given number of whole years.  Each <tt>Workpattern</tt>
   # has a unique name so it can be easily identified amongst all the other <tt>Workpattern</tt> objects.
@@ -14,6 +15,8 @@ module Workpattern
     # Holds collection of <tt>Workpattern</tt> objects
     @@workpatterns = Hash.new()
     
+    # Holds local timezone info
+    @@tz = nil
     # @!attribute [r] name
     #   Name given to the <tt>Workpattern</tt>
     # @!attribute [r] base
@@ -55,8 +58,8 @@ module Workpattern
       @name = name
       @base = base
       @span = span
-      @from = DateTime.new(base.abs - offset)
-      @to = DateTime.new(from.year + span.abs - 1,12,31,23,59)
+      @from = to_utc(DateTime.new(base.abs - offset))
+      @to = to_utc(DateTime.new(from.year + span.abs - 1,12,31,23,59))
       @weeks = SortedSet.new
       @weeks << Week.new(from,to,1)
            
@@ -128,8 +131,8 @@ module Workpattern
       args[:from_time] = hhmn_date(args[:from_time])
       args[:to_time] = hhmn_date(args[:to_time])
 
-      upd_start=args[:start]
-      upd_finish=args[:finish]
+      upd_start = to_utc(args[:start])
+      upd_finish = to_utc(args[:finish])
       while (upd_start <= upd_finish)
 
         current_wp=find_weekpattern(upd_start)
@@ -188,18 +191,19 @@ module Workpattern
       return start if duration==0 
       midnight=false
       
+      utc_start = to_utc(start)
       while (duration !=0)
-        week=find_weekpattern(start)
-        if (week.start==start) && (duration<0) && (!midnight)
-          start=start.prev_day
-          week=find_weekpattern(start)
+        week=find_weekpattern(utc_start)
+        if (week.start == utc_start) && (duration<0) && (!midnight)
+          utc_start = utc_start.prev_day
+          week=find_weekpattern(utc_start)
           midnight=true
         end    
         
-        start,duration,midnight=week.calc(start,duration,midnight)
+        utc_start,duration,midnight=week.calc(utc_start,duration,midnight)
       end 
       
-      return start
+      return to_local(utc_start)
     end
 
     # Returns true if the given minute is working and false if it is resting.
@@ -208,7 +212,8 @@ module Workpattern
     # @return [Boolean] true if working and false if resting
     #
     def working?(start)
-      return find_weekpattern(start).working?(start)
+      utc_start = to_utc(start)
+      return find_weekpattern(utc_start).working?(utc_start)
     end    
     
     # Returns number of minutes between two dates
@@ -219,11 +224,13 @@ module Workpattern
     #
     def diff(start,finish)
     
-      start,finish=finish,start if finish<start
+      utc_start = to_utc(start)
+      utc_finish = to_utc(finish)
+      utc_start,utc_finish = utc_finish,utc_start if finish<start
       duration=0
-      while(start!=finish) do
-        week=find_weekpattern(start)
-        result_duration,start=week.diff(start,finish)
+      while(utc_start!=utc_finish) do
+        week=find_weekpattern(utc_start)
+        result_duration,utc_start=week.diff(utc_start,utc_finish)
         duration+=result_duration
       end
       return duration
@@ -290,6 +297,15 @@ module Workpattern
     def adjust_date_range(week_pattern,start_date,finish_date)
       week_pattern.start = start_date
       week_pattern.finish = finish_date
+    end
+    def to_utc(date)
+      timezone.local_to_utc(date)
+    end
+    def to_local(date)
+      timezone.utc_to_local(date)
+    end
+    def timezone
+      @@tz || @@tz=TZInfo::Timezone.get(Time.now.zone)
     end
   end
 end
