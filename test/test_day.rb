@@ -1,6 +1,6 @@
 require File.dirname(__FILE__) + '/test_helper.rb'
 
-class TestDay < MiniTest::Unit::TestCase #:nodoc:
+class TestDay < MiniTest::Test #:nodoc:
 
   def setup
     @working = Workpattern::Day.new(1)

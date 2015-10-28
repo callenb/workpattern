@@ -1,6 +1,6 @@
 require File.dirname(__FILE__) + '/test_helper.rb'
 
-class TestWeek < MiniTest::Unit::TestCase #:nodoc:
+class TestWeek < MiniTest::Test #:nodoc:
 
   def setup
     start=DateTime.new(2000,1,3)
