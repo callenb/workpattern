@@ -10,7 +10,7 @@ require 'rubygems'
 require 'date'
 require 'workpattern/utility/base.rb'
 require 'workpattern/clock'
-require 'workpattern/day'
+#require 'workpattern/day'
 require 'workpattern/week'
 require 'workpattern/workpattern'
 
