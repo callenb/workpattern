@@ -44,15 +44,21 @@ module Workpattern
   # The default span in years
   # @since 0.2.0
   DEFAULT_SPAN = 100
-  
-  # Hour in terms of days
-  # @since 0.2.0
-  HOUR = 60*60
-  
-  # Minute in terms of days
-  # @since 0.2.0
+
+ 
+  # Minute in terms of seconds
+  # 
   MINUTE = 60
   
+  # Hour interms od seconds
+  #
+  HOUR = MINUTE * 60
+
+  # Day in terms of seconds
+  #
+  DAY = HOUR * 24
+
+
   # Earliest or first time in the day
   # @since 0.0.1
   FIRST_TIME_IN_DAY=Clock.new(0,0)

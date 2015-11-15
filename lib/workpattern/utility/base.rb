@@ -11,13 +11,13 @@ module Workpattern
     # Converts a date like object into utc
     #
     def to_utc(date)
-      timezone.local_to_utc(date)
+      date.to_time.utc
     end
     
     # Converts a date like object into local time
     #
     def to_local(date)
-      timezone.utc_to_local(date)
+      date.to_time.getgm
     end
     
     # Retrieves the local timezone

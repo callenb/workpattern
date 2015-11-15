@@ -139,23 +139,23 @@ module Workpattern
 
         if (current_wp.start == upd_start)
           if (current_wp.finish > upd_finish)
-            clone_wp=clone_and_adjust_current_wp(current_wp, upd_finish+1,current_wp.finish,upd_start,upd_finish)
+            clone_wp=clone_and_adjust_current_wp(current_wp, upd_finish + DAY,current_wp.finish,upd_start,upd_finish)
             set_workpattern_and_store(clone_wp,args)
-            upd_start=upd_finish+1
+            upd_start=upd_finish + DAY
           else # (current_wp.finish == upd_finish)
             current_wp.workpattern(args[:days],args[:from_time],args[:to_time],args[:work_type])
-            upd_start=current_wp.finish + 1 
+            upd_start=current_wp.finish + DAY 
           end
         else
-          clone_wp=clone_and_adjust_current_wp(current_wp, current_wp.start,upd_start-1,upd_start)
+          clone_wp=clone_and_adjust_current_wp(current_wp, current_wp.start,upd_start - DAY,upd_start)
           if (clone_wp.finish <= upd_finish)
             set_workpattern_and_store(clone_wp,args)
-            upd_start=clone_wp.finish+1
+            upd_start=clone_wp.finish + DAY
           else
-            after_wp=clone_and_adjust_current_wp(clone_wp, upd_start,upd_finish,upd_finish+1)
+            after_wp=clone_and_adjust_current_wp(clone_wp, upd_start,upd_finish,upd_finish + DAY)
             weeks<< after_wp
             set_workpattern_and_store(clone_wp,args)
-            upd_start=clone_wp.finish+1
+            upd_start=clone_wp.finish + DAY
           end
         end    
       end
@@ -250,12 +250,12 @@ module Workpattern
       # find the pattern that fits the date
       #
       if date<from
-        result = Week.new(DateTime.jd(0),from-MINUTE,1)
+        result = Week.new(Time.at(0),from-MINUTE,1)
       elsif date>to
-        result = Week.new(to+MINUTE,DateTime.new(9999),1)
+        result = Week.new(to+MINUTE,Time.new(9999),1)
       else
       
-        date = DateTime.new(date.year,date.month,date.day)
+        date = Time.gm(date.year,date.month,date.day)
 
         result=weeks.find {|week| week.start <= date and week.finish >= date}
       end
