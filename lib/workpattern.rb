@@ -47,11 +47,11 @@ module Workpattern
   
   # Hour in terms of days
   # @since 0.2.0
-  HOUR = Rational(1,24)
+  HOUR = 60*60
   
   # Minute in terms of days
   # @since 0.2.0
-  MINUTE = Rational(1,1440)
+  MINUTE = 60
   
   # Earliest or first time in the day
   # @since 0.0.1

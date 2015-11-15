@@ -11,12 +11,12 @@ module Workpattern
   # @since 0.2.0
   #
   class Workpattern
+    include Base
     
     # Holds collection of <tt>Workpattern</tt> objects
     @@workpatterns = Hash.new()
     
-    # Holds local timezone info
-    @@tz = nil
+    
     # @!attribute [r] name
     #   Name given to the <tt>Workpattern</tt>
     # @!attribute [r] base
@@ -58,8 +58,8 @@ module Workpattern
       @name = name
       @base = base
       @span = span
-      @from = to_utc(DateTime.new(base.abs - offset))
-      @to = to_utc(DateTime.new(from.year + span.abs - 1,12,31,23,59))
+      @from = Time.gm(base.abs - offset)
+      @to = Time.gm(from.year + span.abs - 1,12,31,23,59)
       @weeks = SortedSet.new
       @weeks << Week.new(from,to,1)
            
@@ -269,7 +269,7 @@ module Workpattern
     # @return [DateTime] with zero hours, minutes, seconds and so forth.
     #    
     def dmy_date(date)
-      return DateTime.new(date.year,date.month,date.day)
+      return Time.gm(date.year,date.month,date.day)
     end
     
     # Extract the time into a <tt>Clock</tt> object
@@ -298,15 +298,7 @@ module Workpattern
       week_pattern.start = start_date
       week_pattern.finish = finish_date
     end
-    def to_utc(date)
-      timezone.local_to_utc(date)
-    end
-    def to_local(date)
-      timezone.utc_to_local(date)
-    end
-    def timezone
-      @@tz || @@tz=TZInfo::Timezone.get(Time.now.zone)
-    end
+    
   end
 end
     

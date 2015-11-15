@@ -1,6 +1,7 @@
 require File.dirname(__FILE__) + '/test_helper.rb'
 
 class TestDay < MiniTest::Test #:nodoc:
+  include Workpattern::Base
 
   def setup
     @working = Workpattern::Day.new(1)
@@ -98,6 +99,6 @@ class TestDay < MiniTest::Test #:nodoc:
 
 ### helper  
   def clock(hours,minutes)
-    DateTime.new(2000,1,1,hours,minutes)
+    Time.gm(2000,1,1,hours,minutes)
   end
 end

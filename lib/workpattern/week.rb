@@ -12,8 +12,8 @@ module Workpattern
 
     def initialize(start,finish,type=1,hours_per_day=24)
       @hours_per_day = hours_per_day
-      @start=DateTime.new(start.year,start.month,start.day)
-      @finish=DateTime.new(finish.year,finish.month,finish.day)
+      @start=Time.gm(start.year,start.month,start.day)
+      @finish=Time.gm(finish.year,finish.month,finish.day)
       @values = Array.new(6)
       0.upto(6) do |i| 
         @values[i] = working_day * type
@@ -65,8 +65,8 @@ module Workpattern
     def diff(start_date,finish_date)
       start_date,finish_date=finish_date,start_date if ((start_date <=> finish_date))==1
 
-      return diff_in_same_day(start_date, finish_date) if (start_date.jd==finish_date.jd) 
-      return diff_in_same_weekpattern(start_date,finish_date) if (finish_date.jd<=self.finish.jd)
+      return diff_in_same_day(start_date, finish_date) if (jd(start_date) == jd(finish_date)) 
+      return diff_in_same_weekpattern(start_date,finish_date) if (jd(finish_date) <= jd(self.finish))
       diff_beyond_weekpattern(start_date,finish_date)
       
     end
@@ -78,7 +78,7 @@ module Workpattern
     end
 
     def elapsed_days
-      (self.finish-self.start).to_i + 1
+      (self.finish-self.start).to_i/86400 + 1
     end
 
     def full_week_total_minutes
@@ -150,7 +150,7 @@ module Workpattern
     end
     
     def add_to_finish_day(date, duration)
-      while ( duration != 0) && (date.wday != self.finish.next_day.wday) && (date.jd <= self.finish.jd)
+      while ( duration != 0) && (date.wday != next_day(self.finish).wday) && (jd(date) <= jd(self.finish))
         date, duration = add_to_end_of_day(date,duration)
       end
 
@@ -159,16 +159,16 @@ module Workpattern
 
     def add_full_weeks(date, duration)
 
-      while (duration != 0) && (duration >= self.week_total) && ((date.jd + 6) <= self.finish.jd)
+      while (duration != 0) && (duration >= self.week_total) && ((jd(date) + (6*86400)) <= jd(self.finish))
         duration -= self.week_total
-        date += 7
+        date += (7*86400)
       end
 
       return date, duration
     end
 
     def add_remaining_days(date, duration)
-      while (duration != 0) && (date.jd <= self.finish.jd)
+      while (duration != 0) && (jd(date) <= jd(self.finish))
         date, duration = add_to_end_of_day(date,duration)
       end
       return date, duration
@@ -210,15 +210,15 @@ module Workpattern
     end
 
     def start_of_next_day(date)
-      date.next_day - (HOUR * date.hour) - (MINUTE * date.minute)
+      next_day(date) - (HOUR * date.hour) - (MINUTE * date.min)
     end
 
     def start_of_previous_day(date)
-      start_of_next_day(date).prev_day.prev_day
+      prev_day(prev_day(start_of_next_day(date)))
     end
 
     def start_of_today(date)
-      start_of_next_day(date.prev_day)
+      start_of_next_day(prev_day(date))
     end
 
     def end_of_this_day(date) 
@@ -329,7 +329,7 @@ module Workpattern
       
       initial_date -= (HOUR * initial_date.hour)
       initial_date -= (MINUTE * initial_date.min)
-      initial_date = initial_date.next_day - MINUTE
+      initial_date = next_day(initial_date) - MINUTE
 
       return initial_date, duration, false  
     end
@@ -340,16 +340,16 @@ module Workpattern
 
       initial_date, duration, midnight = subtract_to_start_of_day(initial_date, duration, midnight)
 
-      while ( duration != 0) && (initial_date.wday != self.start.prev_day.wday) && (initial_date.jd >= self.start.jd)
+      while ( duration != 0) && (initial_date.wday != prev_day(self.start.wday)) && (jd(initial_date) >= jd(self.start))
         initial_date, duration, midnight = subtract_to_start_of_day(initial_date,duration, midnight)
       end
 
-      while (duration != 0) && (duration >= self.week_total) && ((initial_date.jd - 6) >= self.start.jd)
+      while (duration != 0) && (duration >= self.week_total) && ((jd(initial_date) - (6*86400)) >= jd(self.start))
         duration += self.week_total
         initial_date -= 7
       end
 
-      while (duration != 0) && (initial_date.jd >= self.start.jd)
+      while (duration != 0) && (jd(initial_date) >= jd(self.start))
         initial_date, duration, midnight = subtract_to_start_of_day(initial_date,duration, midnight)
       end
 
@@ -361,22 +361,22 @@ module Workpattern
       duration, start_date = diff_to_tomorrow(start_date)
       while true
         break if (start_date.wday == (self.finish.wday + 1))
-        break if (start_date.jd == self.finish.jd)
-        break if (start_date.jd == finish_date.jd)
+        break if (jd(start_date) == jd(self.finish))
+        break if (jd(start_date) == jd(finish_date))
         duration += minutes_to_end_of_day(start_date)
         start_date = start_of_next_day(start_date)
       end 
 
       while true
-        break if ((start_date + 7) > finish_date)
-        break if ((start_date + 6).jd > self.finish.jd)
+        break if ((start_date + (7*86400)) > finish_date)
+        break if (jd(start_date + (6*86400)) > jd(self.finish))
         duration += week_total
-        start_date += 7
+        start_date += (7*86400)
       end
 
       while true
-        break if (start_date.jd >= self.finish.jd)
-        break if (start_date.jd >= finish_date.jd)
+        break if (jd(start_date) >= jd(self.finish))
+        break if (jd(start_date) >= jd(finish_date))
         duration += minutes_to_end_of_day(start_date)
         start_date = start_of_next_day(start_date)
       end 
@@ -400,6 +400,15 @@ module Workpattern
        mask = bit_pos(finish_date.hour, finish_date.min) - bit_pos(start_date.hour, start_date.min)
        return working_minutes_in(self.values[start_date.wday] & mask), finish_date
     end
-
+   
+    def next_day(time)
+      time + 86400
+    end
+    def prev_day(time)
+      time - 86400
+    end
+    def jd(time)
+      Time.gm(time.year,time.month,time.day)
+    end
   end
 end
