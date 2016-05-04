@@ -7,12 +7,12 @@ Gem::Specification.new do |s|
   s.version     = Workpattern::VERSION
   s.authors     = ["Barrie Callender"]
   s.email       = ["barrie@callenb.org"]
-  s.homepage    = ""
+  s.homepage    = "http://github.com/callenb/workpattern"
   s.summary     = %q{Calculates dates and durations whilst taking into account weekends, holidays and working hours}
   s.description = %q{Calculates dates and durations using working hours that can include holidays and weekends}
   s.license     = 'MIT'
 
-  s.rubyforge_project = "workpattern"
+  s.required_ruby_version = ">= 1.9.3"
 
   s.files         = `git ls-files`.split("\n")
   s.test_files    = `git ls-files -- {test,spec,features}/*`.split("\n")
