@@ -1,6 +1,6 @@
 require File.dirname(__FILE__) + '/test_helper.rb'
 
-class TestClock < MiniTest::Unit::TestCase #:nodoc:
+class TestClock < MiniTest::Test #:nodoc:
 
   def setup
   end
