@@ -1,3 +1,16 @@
+## Workpattern v0.5.0 ( MMM DD, YYYY) ##
+
+* Workpattern now handles Timezones.  It changes the date into UTC, does the calculation and then changes it back * Barrie Callender
+* Code makes use of Time objects where it use to use DateTime.  Time comes with a Timezone * Barrie Callender
+* Rewrote/refactored methods in the Week class - which needs refactoring into new classes * Barrie Callender
+* Removed rubyforge_project from workpattern.gemspec * Barrie Callender
+* Added homepage & required_ruby_version to workpattern.gemspec * Barrie Callender
+* Added versions to test in Travis CI to include 1.9.3, 2.0.0, 2.1.0, 2.1.9, 2.2.0, 2.2.5, 2.3.0 & 2.3.1 * Barrie Callender
+* Dealt with Travis CI issue with version of bundler * Barrie Callender
+* Removed config directory & contents * Barrie Callender
+* Changed Description * barrie Callender
+* Specified minitest ~> 5.4.3 due to an issue I no longer recall * Barrie Callender
+
 ## Workpattern v0.4.0 ( May 23, 2014)  ##
 
 * Updated Week class to use bits and removed Day and Hour class as a consequence * Barrie Callender *
