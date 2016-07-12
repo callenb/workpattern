@@ -73,8 +73,8 @@ module Workpattern
 
   private
 
-    def working_minutes_in(value)
-      value.to_s(2).count('1')
+    def working_minutes_in(day)
+      day.to_s(2).count('1')
     end
 
     def elapsed_days
