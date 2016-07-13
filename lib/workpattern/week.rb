@@ -230,11 +230,6 @@ module Workpattern
       date - (HOUR * date.hour) - (MINUTE * date.min) + (MINUTE * adjustment)
     end
 
-    def diff_minutes_to_end_of_day(start_date) 
-      mask = ((2**(60*self.hours_per_day + 1)) - (2**(start_date.hour*60 + start_date.min))).to_i
-      working_minutes_in (self.values[start.wday] & mask)
-    end
-
     def mask_to_start_of_day(date)
       bit_pos(date.hour, date.min) - bit_pos(0,0)
     end
