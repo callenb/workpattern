@@ -10,6 +10,7 @@ require 'rubygems'
 require 'date'
 require 'workpattern/utility/base.rb'
 require 'workpattern/clock'
+#require 'workpattern/day'
 require 'workpattern/week'
 require 'workpattern/workpattern'
 
@@ -43,15 +44,21 @@ module Workpattern
   # The default span in years
   # @since 0.2.0
   DEFAULT_SPAN = 100
+
+ 
+  # Minute in terms of seconds
+  # 
+  MINUTE = 60
   
-  # Hour in terms of days
-  # @since 0.2.0
-  HOUR = Rational(1,24)
-  
-  # Minute in terms of days
-  # @since 0.2.0
-  MINUTE = Rational(1,1440)
-  
+  # Hour interms od seconds
+  #
+  HOUR = MINUTE * 60
+
+  # Day in terms of seconds
+  #
+  DAY = HOUR * 24
+
+
   # Earliest or first time in the day
   # @since 0.0.1
   FIRST_TIME_IN_DAY=Clock.new(0,0)

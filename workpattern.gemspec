@@ -7,12 +7,12 @@ Gem::Specification.new do |s|
   s.version     = Workpattern::VERSION
   s.authors     = ["Barrie Callender"]
   s.email       = ["barrie@callenb.org"]
-  s.homepage    = ""
-  s.summary     = %q{temporal calculations}
-  s.description = %q{Workpattern performs date calculations that take into account working and resting periods.}
+  s.homepage    = "http://github.com/callenb/workpattern"
+  s.summary     = %q{Calculates dates and durations whilst taking into account weekends, holidays and working hours}
+  s.description = %q{Calculates dates and durations using working hours that can include holidays and weekends}
   s.license     = 'MIT'
 
-  s.rubyforge_project = "workpattern"
+  s.required_ruby_version = ">= 1.9.3"
 
   s.files         = `git ls-files`.split("\n")
   s.test_files    = `git ls-files -- {test,spec,features}/*`.split("\n")
@@ -20,7 +20,8 @@ Gem::Specification.new do |s|
   s.require_paths = ["lib"]
 
   # specify any dependencies here; for example:
-  # s.add_development_dependency "rspec"
-  # s.add_runtime_dependency "rest-client"
+  s.add_runtime_dependency 'tzinfo'
   s.add_development_dependency('rake', ['~> 0.9.2'])
+  s.add_development_dependency('minitest', ['~> 5.4.3'])
 end
+

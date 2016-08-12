@@ -4,28 +4,25 @@ module Workpattern
   #
   # @since 0.2.0
   #
-  module Utility
-
-    # Returns the supplied <tt>DateTime</tt> at the very start of the day.
+  module Base
+    # Holds local timezone info
+    @@tz = nil
+    
+    # Converts a date like object into utc
     #
-    # @param [DateTime] adate is the <tt>DateTime</tt> to be changed
-    # @return [DateTime] 
-    # 
-    # @todo Consider mixin for DateTime class 
-    #
-    def midnight_before(adate)
-      return adate -(HOUR * adate.hour) - (MINUTE * adate.min)
+    def to_utc(date)
+      date.to_time.utc
     end
     
-    # Returns the supplied <tt>DateTime</tt> at the very start of the next day.
+    # Converts a date like object into local time
     #
-    # @param [DateTime] adate is the <tt>DateTime</tt> to be changed
-    # @return [DateTime] 
-    # 
-    # @todo Consider mixin for DateTime class  
-    #
-    def midnight_after(adate)
-      return midnight_before(adate.next_day)
+    def to_local(date)
+      date.to_time.getgm
+    end
+    
+    # Retrieves the local timezone
+    def timezone
+      @@tz || @@tz=TZInfo::Timezone.get(Time.now.zone)
     end
     
   end

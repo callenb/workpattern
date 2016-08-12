@@ -1,5 +1,6 @@
 module Workpattern
   require 'set'
+  require 'tzinfo'
   
   # Represents the working and resting periods across a given number of whole years.  Each <tt>Workpattern</tt>
   # has a unique name so it can be easily identified amongst all the other <tt>Workpattern</tt> objects.
@@ -10,9 +11,11 @@ module Workpattern
   # @since 0.2.0
   #
   class Workpattern
+    include Base
     
     # Holds collection of <tt>Workpattern</tt> objects
     @@workpatterns = Hash.new()
+    
     
     # @!attribute [r] name
     #   Name given to the <tt>Workpattern</tt>
@@ -55,8 +58,8 @@ module Workpattern
       @name = name
       @base = base
       @span = span
-      @from = DateTime.new(base.abs - offset)
-      @to = DateTime.new(from.year + span.abs - 1,12,31,23,59)
+      @from = Time.gm(base.abs - offset)
+      @to = Time.gm(from.year + span.abs - 1,12,31,23,59)
       @weeks = SortedSet.new
       @weeks << Week.new(from,to,1)
            
@@ -128,31 +131,31 @@ module Workpattern
       args[:from_time] = hhmn_date(args[:from_time])
       args[:to_time] = hhmn_date(args[:to_time])
 
-      upd_start=args[:start]
-      upd_finish=args[:finish]
+      upd_start = to_utc(args[:start])
+      upd_finish = to_utc(args[:finish])
       while (upd_start <= upd_finish)
 
         current_wp=find_weekpattern(upd_start)
 
         if (current_wp.start == upd_start)
           if (current_wp.finish > upd_finish)
-            clone_wp=clone_and_adjust_current_wp(current_wp, upd_finish+1,current_wp.finish,upd_start,upd_finish)
+            clone_wp=clone_and_adjust_current_wp(current_wp, upd_finish + DAY,current_wp.finish,upd_start,upd_finish)
             set_workpattern_and_store(clone_wp,args)
-            upd_start=upd_finish+1
+            upd_start=upd_finish + DAY
           else # (current_wp.finish == upd_finish)
             current_wp.workpattern(args[:days],args[:from_time],args[:to_time],args[:work_type])
-            upd_start=current_wp.finish + 1 
+            upd_start=current_wp.finish + DAY 
           end
         else
-          clone_wp=clone_and_adjust_current_wp(current_wp, current_wp.start,upd_start-1,upd_start)
+          clone_wp=clone_and_adjust_current_wp(current_wp, current_wp.start,upd_start - DAY,upd_start)
           if (clone_wp.finish <= upd_finish)
             set_workpattern_and_store(clone_wp,args)
-            upd_start=clone_wp.finish+1
+            upd_start=clone_wp.finish + DAY
           else
-            after_wp=clone_and_adjust_current_wp(clone_wp, upd_start,upd_finish,upd_finish+1)
+            after_wp=clone_and_adjust_current_wp(clone_wp, upd_start,upd_finish,upd_finish + DAY)
             weeks<< after_wp
             set_workpattern_and_store(clone_wp,args)
-            upd_start=clone_wp.finish+1
+            upd_start=clone_wp.finish + DAY
           end
         end    
       end
@@ -188,18 +191,19 @@ module Workpattern
       return start if duration==0 
       midnight=false
       
+      utc_start = to_utc(start)
       while (duration !=0)
-        week=find_weekpattern(start)
-        if (week.start==start) && (duration<0) && (!midnight)
-          start=start.prev_day
-          week=find_weekpattern(start)
+        week=find_weekpattern(utc_start)
+        if (week.start == utc_start) && (duration<0) && (!midnight)
+          utc_start = utc_start.prev_day
+          week=find_weekpattern(utc_start)
           midnight=true
         end    
         
-        start,duration,midnight=week.calc(start,duration,midnight)
+        utc_start,duration,midnight=week.calc(utc_start,duration,midnight)
       end 
       
-      return start
+      return to_local(utc_start)
     end
 
     # Returns true if the given minute is working and false if it is resting.
@@ -208,7 +212,8 @@ module Workpattern
     # @return [Boolean] true if working and false if resting
     #
     def working?(start)
-      return find_weekpattern(start).working?(start)
+      utc_start = to_utc(start)
+      return find_weekpattern(utc_start).working?(utc_start)
     end    
     
     # Returns number of minutes between two dates
@@ -219,11 +224,13 @@ module Workpattern
     #
     def diff(start,finish)
     
-      start,finish=finish,start if finish<start
+      utc_start = to_utc(start)
+      utc_finish = to_utc(finish)
+      utc_start,utc_finish = utc_finish,utc_start if finish<start
       duration=0
-      while(start!=finish) do
-        week=find_weekpattern(start)
-        result_duration,start=week.diff(start,finish)
+      while(utc_start!=utc_finish) do
+        week=find_weekpattern(utc_start)
+        result_duration,utc_start=week.diff(utc_start,utc_finish)
         duration+=result_duration
       end
       return duration
@@ -243,12 +250,12 @@ module Workpattern
       # find the pattern that fits the date
       #
       if date<from
-        result = Week.new(DateTime.jd(0),from-MINUTE,1)
+        result = Week.new(Time.at(0),from-MINUTE,1)
       elsif date>to
-        result = Week.new(to+MINUTE,DateTime.new(9999),1)
+        result = Week.new(to+MINUTE,Time.new(9999),1)
       else
       
-        date = DateTime.new(date.year,date.month,date.day)
+        date = Time.gm(date.year,date.month,date.day)
 
         result=weeks.find {|week| week.start <= date and week.finish >= date}
       end
@@ -262,7 +269,7 @@ module Workpattern
     # @return [DateTime] with zero hours, minutes, seconds and so forth.
     #    
     def dmy_date(date)
-      return DateTime.new(date.year,date.month,date.day)
+      return Time.gm(date.year,date.month,date.day)
     end
     
     # Extract the time into a <tt>Clock</tt> object
@@ -291,6 +298,7 @@ module Workpattern
       week_pattern.start = start_date
       week_pattern.finish = finish_date
     end
+    
   end
 end
     
