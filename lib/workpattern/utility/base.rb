@@ -4,6 +4,7 @@ module Workpattern
   #
   # @since 0.2.0
   #
+  # @private
   module Base
     # Holds local timezone info
     @@tz = nil

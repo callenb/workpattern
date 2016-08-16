@@ -6,8 +6,9 @@ module Workpattern
 # Each day is represented by a binary number where a 1 represents a working minute and 
 # a 0 represents a resting minute.
 #
+# @private
   class Week
-    
+     
     attr_accessor :values, :hours_per_day, :start, :finish, :week_total, :total
 
     def initialize(start,finish,type=1,hours_per_day=24)
