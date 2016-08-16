@@ -10,6 +10,8 @@
 * Removed config directory & contents * Barrie Callender
 * Changed Description * barrie Callender
 * Specified minitest ~> 5.4.3 due to an issue I no longer recall * Barrie Callender
+* Hid all the documentation apart from public api * Barrie Callender
+* improved the README.md (IMHO) * Barrie Callender
 
 ## Workpattern v0.4.0 ( May 23, 2014)  ##
 
