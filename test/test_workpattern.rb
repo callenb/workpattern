@@ -192,14 +192,15 @@ class TestWorkpattern < MiniTest::Test #:nodoc:
   end
 
   def test_must_follow_the_example_in_workpattern
-    mywp=Workpattern.new('My Workpattern',2011,10)
-    mywp.resting(:days => :weekend)
-    mywp.resting(:days =>:weekday, :from_time=>Workpattern.clock(0,0),:to_time=>Workpattern.clock(8,59))
-    mywp.resting(:days =>:weekday, :from_time=>Workpattern.clock(12,0),:to_time=>Workpattern.clock(12,59))
-    mywp.resting(:days =>:weekday, :from_time=>Workpattern.clock(18,0),:to_time=>Workpattern.clock(23,59))
-    mydate=Time.gm(2011,9,1,9,0)
-    result_date = mywp.calc(mydate,1920) # => 6/9/11@18:00
+    mywp=Workpattern.new 'My Workpattern',2011,10 
+    mywp.resting :days => :weekend 
+    mywp.resting :days =>:weekday, :from_time=>Workpattern.clock(0,0),:to_time=>Workpattern.clock(8,59) 
+    mywp.resting :days =>:weekday, :from_time=>Workpattern.clock(12,0),:to_time=>Workpattern.clock(12,59) 
+    mywp.resting :days =>:weekday, :from_time=>Workpattern.clock(18,0),:to_time=>Workpattern.clock(23,59) 
+    mydate=Time.gm 2011,9,1,9,0 
+    result_date = mywp.calc mydate,1920  # => 6/9/11@18:00
     assert_equal Time.gm(2011,9,6,18,0), result_date, 'example in workpattern'
+    assert_equal 1920, mywp.diff( mydate, result_date)
   end
   
   def test_must_calculate_across_week_patterns
