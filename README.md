@@ -1,7 +1,5 @@
 # Workpattern [![Build Status](https://secure.travis-ci.org/callenb/workpattern.png)](https://secure.travis-ci.org/callenb/workpattern.png)
 
-# Workpattern
-
 Calculates dates and durations whilst taking into account working and non-working times.  It creates calendars similar to what you can find in project scheduling software like Microsoft project and Primavera P6.
 
 Please use [Github Issues] to report bugs.  If you have a question about the library, please use the `workpattern` tag on [Stack Overflow].  This tag is monitored by contributors.
@@ -26,7 +24,9 @@ gem "workpattern"
 
 Then run the bundle command to install it.
 
-## use
+## Use
+
+## Configure and Calculate
 
 First create a `Workpattern` to hold all the working and resting times.
 
@@ -71,6 +71,26 @@ Vacations can be added to the `Workpattern` using the `#resting` method:
 
 ``` ruby
 mywp.resting(:days => :all, :start => DateTime.civil(2011,5,1), :finish => DateTime.civil(2011,5,7))
+```
+Find out if a specific date and time is working or not.
+
+``` ruby
+mydate = DateTime.civil 2011,5,2,9,10
+mywp.resting? mydate  # => true
+mywp.working? mydate  # => false
+```
+
+### Manage
+
+``` ruby
+# Fetch a specific Workpattern
+Workpattern.get "My Workpattern"
+
+# Delete a specific Workpattern
+Workpattern.delete "My Workpattern"
+
+# Delete all Workpatterns
+Workpattern.clear
 ```
 
 ## License
