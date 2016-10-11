@@ -7,7 +7,7 @@ module Workpattern
   #   myClock.hour #=> 3
   #   myClock.min  #=> 32
   #   myClock.time #=> Time.new(1963,6,10,3,32)
-  #   myClock.to_s #=> 3:32 212 
+  #   myClock.to_s #=> 3:32 212
   #
   #   aClock=Clock.new(27,80)
   #   aClock.minutes #=> 1700
@@ -19,64 +19,61 @@ module Workpattern
   # @since 0.2.0
   #
   class Clock
-    
-    # Initialises an instance of <tt>Clock</tt> using the hours and minutes supplied
-    # or 0 if they are absent.  Although there are 24 hours in a day
+    # Initialises an instance of <tt>Clock</tt> using the hours and minutes
+    # supplied or 0 if they are absent.  Although there are 24 hours in a day
     # (0-23) and 60 minutes in an hour (0-59), <tt>Clock</tt> calculates
     # the full hours and remaining minutes of whatever is supplied.
     #
     # @param [Integer] hour number of hours
     # @param [Integer] min number of minutes
     #
-    def initialize(hour=0,min=0)
-      @hour = total_minutes(hour,min).div(60)
-      @min = total_minutes(hour,min) % 60
+    def initialize(hour = 0, min = 0)
+      @hour = total_minutes(hour, min).div(60)
+      @min = total_minutes(hour, min) % 60
     end
-    
+
     # Returns the total number of minutes
     #
     # @return [Integer] total minutes represented by the Clock object
     #
     def minutes
-      return total_minutes(@hour,@min)
+      total_minutes(@hour, @min)
     end
-    
+
     # Returns the hour of the clock (0-23)
     #
     # @return [Integer] hour of Clock from 0 to 23.
     #
     def hour
-      return @hour % 24
+      @hour % 24
     end
-    
+
     # Returns the minute of the clock (0-59)
     #
     # @return [Integer] minute of Clock from 0 to 59
     #
     def min
-      return @min % 60
+      @min % 60
     end
-    
+
     # Returns a <tt>Time</tt> object with the correct
     # <tt>hour</tt> and <tt>min</tt> values.  The date
     # is 10th June 1963.
     #
     # @return [DateTime] The time using the date of 10th June 1963 (My Birthday)
     def time
-      return DateTime.new(1963,6,10,hour,min)
+      DateTime.new(1963, 6, 10, hour, min)
     end
-    
 
     # @return [String] representation of <tt>Clock</tt> value as 'hh:mn minutes'
-    def to_s      
+    def to_s
       hour.to_s.concat(':').concat(min.to_s).concat(' ').concat(minutes.to_s)
     end
-    
+
     private
 
     def total_minutes(hours, mins)
-      return (hours*60) + mins
+      (hours * 60) + mins
     end
-
   end
 end
