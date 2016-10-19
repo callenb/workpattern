@@ -1,6 +1,10 @@
-## Workpattern v0.5.0 ( MMM DD, YYYY) ##
+## Workpattern v0.5.0 ( Oct 19, 2016) ##
 
 * Workpattern now handles Timezones.  It changes the date into UTC, does the calculation and then changes it back * Barrie Callender
+* Removed Day class and associated tests as it is no longer used * Barrie Callender
+* Reviewed the README and removed a lot of cruft and also updated it a little to demonstrate features * Barrie Callender
+* Hid documentation unless it was part of the public api * Barrie Callender
+* Used Rubocop to help me be more consistent.  I ignored some of the offences to do with long lines/methods and classes * Barrie Callender
 * Code makes use of Time objects where it use to use DateTime.  Time comes with a Timezone * Barrie Callender
 * Rewrote/refactored methods in the Week class - which needs refactoring into new classes * Barrie Callender
 * Removed rubyforge_project from workpattern.gemspec * Barrie Callender
@@ -10,6 +14,8 @@
 * Removed config directory & contents * Barrie Callender
 * Changed Description * barrie Callender
 * Specified minitest ~> 5.4.3 due to an issue I no longer recall * Barrie Callender
+* Hid all the documentation apart from public api * Barrie Callender
+* improved the README.md (IMHO) * Barrie Callender
 
 ## Workpattern v0.4.0 ( May 23, 2014)  ##
 

@@ -8,8 +8,8 @@ Gem::Specification.new do |s|
   s.authors     = ["Barrie Callender"]
   s.email       = ["barrie@callenb.org"]
   s.homepage    = "http://github.com/callenb/workpattern"
-  s.summary     = %q{Calculates dates and durations whilst taking into account weekends, holidays and working hours}
-  s.description = %q{Calculates dates and durations using working hours that can include holidays and weekends}
+  s.summary     = %q{Calculates dates and durations whilst taking into account working and non-working periods down to a minute}
+  s.description = %q{Calculates dates and durations whilst taking into account working and non-working times down to a minute.  Business working time with holidays are a breeze.}
   s.license     = 'MIT'
 
   s.required_ruby_version = ">= 1.9.3"
