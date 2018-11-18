@@ -312,7 +312,7 @@ class TestWeek < MiniTest::Test #:nodoc:
     r_date, r_dur, m_flag = @w_week.calc(Time.gm(2000, 1, 8, 7, 31), -7652)
     assert_equal Time.gm(2000, 1, 2, 0, 0), r_date
     assert m_flag
-    assert_equal -1, r_dur
+    assert_equal (-1), r_dur
   end
 
   def test_must_subtract_1_minute_from_start_of_next_day_after_w_week
@@ -333,28 +333,28 @@ class TestWeek < MiniTest::Test #:nodoc:
     r_date, r_dur, m_flag = @r_week.calc(Time.gm(2000, 1, 10, 7, 31), -29)
     assert_equal Time.gm(2000, 1, 2, 0, 0), r_date
     assert m_flag
-    assert_equal -29, r_dur
+    assert_equal (-29), r_dur
   end
 
   def test_must_subtract_minutes_from_middle_day_in_a_resting_week
     r_date, r_dur, m_flag = @r_week.calc(Time.gm(2000, 1, 8, 7, 31), -452)
     assert_equal Time.gm(2000, 1, 2, 0, 0), r_date
     assert m_flag
-    assert_equal -452, r_dur
+    assert_equal (-452), r_dur
   end
 
   def test_must_subtract_minutes_from_start_of_resting_week
     r_date, r_dur, m_flag = @r_week.calc(Time.gm(2000, 1, 3, 0, 0), -1892)
     assert_equal Time.gm(2000, 1, 2, 0, 0), r_date
     assert m_flag
-    assert_equal -1_892, r_dur
+    assert_equal (-1_892), r_dur
   end
 
   def test_must_subtract_minutes_from_start_of_next_day_after_resting_week
     r_date, r_dur, m_flag = @r_week.calc(Time.gm(2000, 1, 9, 0, 0), -1, true)
     assert_equal Time.gm(2000, 1, 2, 0, 0), r_date
     assert m_flag
-    assert_equal -1, r_dur
+    assert_equal (-1), r_dur
   end
 
   def test_must_subtract_minutes_from_resting_day_in_a_pattern_week
@@ -403,7 +403,7 @@ class TestWeek < MiniTest::Test #:nodoc:
     r_date, r_dur, m_flag = @p_week.calc(Time.gm(2000, 1, 7, 9, 0), -1797)
     assert_equal Time.gm(2000, 1, 2, 0, 0), r_date
     assert m_flag
-    assert_equal -1, r_dur
+    assert_equal (-1), r_dur
   end
 
   def test_must_subtract_1_minute_from_start_of_next_day_after_pattern_week
