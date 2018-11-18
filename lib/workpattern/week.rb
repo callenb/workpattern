@@ -8,7 +8,8 @@ module Workpattern
   #
   # @private
   class Week
-    attr_accessor :values, :hours_per_day, :start, :finish, :week_total, :total
+    attr_accessor :values, :hours_per_day, :start, :finish
+    attr_writer :week_total, :total
 
     def initialize(start, finish, type = 1, hours_per_day = 24)
       @hours_per_day = hours_per_day
