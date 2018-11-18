@@ -152,35 +152,11 @@ module Workpattern
     end
 
     def add_to_finish_day(date, duration)
-      while (duration != 0) && (date.wday != next_day(finish).wday) && (jd(date) <= jd(finish))
-        date, duration = add_to_end_of_day(date, duration)
-      end
-
-      [date, duration]
-    end
-
-    def add_full_weeks(date, duration)
-      while (duration != 0) && (duration >= week_total) && ((jd(date) + (6 * 86_400)) <= jd(finish))
-        duration -= week_total
-        date += (7 * 86_400)
-      end
-
-      [date, duration]
-    end
-
-    def add_remaining_days(date, duration)
-      while (duration != 0) && (jd(date) <= jd(finish))
-        date, duration = add_to_end_of_day(date, duration)
-      end
-      [date, duration]
-    end
-    
-    def add_to_finish_day(date, duration)
       while ( duration != 0) && (date.wday != next_day(self.finish).wday) && (jd(date) <= jd(self.finish))
         date, duration = add_to_end_of_day(date,duration)
       end
 
-      return date, duration
+      [date, duration]
     end
 
     def add_full_weeks(date, duration)
@@ -190,14 +166,14 @@ module Workpattern
         date += (7*86400)
       end
 
-      return date, duration
+      [date, duration]
     end
 
     def add_remaining_days(date, duration)
       while (duration != 0) && (jd(date) <= jd(self.finish))
         date, duration = add_to_end_of_day(date,duration)
       end
-      return date, duration
+      [date, duration]
     end
 
     def work_on_day(day,from_time,to_time)
@@ -216,24 +192,6 @@ module Workpattern
 
     def bit_pos(hour,minute)
       2**( (hour * 60) + minute )
-    end
-
-    def work_on_day(day, from_time, to_time)
-      values[day] = values[day] | time_mask(from_time, to_time)
-    end
-
-    def rest_on_day(day, from_time, to_time)
-      mask_of_ones = time_mask(from_time, to_time)
-      mask = mask_of_ones ^ working_day & working_day
-      values[day] = values[day] & mask
-    end
-
-    def time_mask(from_time, to_time)
-      bit_pos(to_time.hour, to_time.min + 1) - bit_pos(from_time.hour, from_time.min)
-    end
-
-    def bit_pos(hour, minute)
-      2**((hour * 60) + minute)
     end
 
     def minutes_to_end_of_day(date)
