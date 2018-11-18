@@ -16,7 +16,7 @@ module Workpattern
       @start = Time.gm(start.year, start.month, start.day)
       @finish = Time.gm(finish.year, finish.month, finish.day)
       @values = Array.new(6)
-      0.upto(6) do |i|
+      FIRST_DAY_OF_WEEK.upto(LAST_DAY_OF_WEEK) do |i|
         @values[i] = working_day * type
       end
     end
@@ -47,7 +47,7 @@ module Workpattern
 
     def duplicate
       duplicate_week = Week.new(start, finish)
-      0.upto(6).each { |i| duplicate_week.values[i] = @values[i] }
+      FIRST_DAY_OF_WEEK.upto(LAST_DAY_OF_WEEK).each { |i| duplicate_week.values[i] = @values[i] }
       duplicate_week
     end
 
@@ -86,7 +86,7 @@ module Workpattern
     end
 
     def full_week_total_minutes
-      minutes_in_day_range 0, 6
+      minutes_in_day_range FIRST_DAY_OF_WEEK, LAST_DAY_OF_WEEK
     end
 
     def part_week_total_minutes
@@ -115,11 +115,11 @@ module Workpattern
     end
 
     def minutes_to_first_saturday
-      minutes_in_day_range(start.wday, 6)
+      minutes_in_day_range(start.wday, LAST_DAY_OF_WEEK)
     end
 
     def minutes_to_finish_day
-      minutes_in_day_range(0, finish.wday)
+      minutes_in_day_range(FIRST_DAY_OF_WEEK, finish.wday)
     end
 
     def minutes_in_day_range(first, last)

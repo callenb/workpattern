@@ -76,6 +76,16 @@ module Workpattern
   # @since 0.0.1
   REST = 0
 
+  # All the days of the week
+  SUNDAY=0
+  MONDAY=1
+  TUESDAY=2
+  WEDNESDAY=3
+  THURSDAY=4
+  FRIDAY=5
+  SATURDAY=6
+  FIRST_DAY_OF_WEEK = SUNDAY
+  LAST_DAY_OF_WEEK = SATURDAY
   # Represents the days of the week to be used in applying working
   # and resting patterns.
   # Values exist for each day of the week as well as for the weekend
