@@ -52,9 +52,13 @@ module Workpattern
   #
   HOUR = MINUTE * 60
 
+  # Hours in a day
+  # #
+  HOURS_IN_DAY = 24
+
   # Day in terms of seconds
   #
-  DAY = HOUR * 24
+  DAY = HOUR * HOURS_IN_DAY
 
   # Earliest or first time in the day
   # @since 0.0.1
