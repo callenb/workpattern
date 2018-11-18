@@ -82,7 +82,7 @@ module Workpattern
     end
 
     def elapsed_days
-      (finish - start).to_i / 86_400 + 1
+      (finish - start).to_i / DAY + 1
     end
 
     def full_week_total_minutes
@@ -336,7 +336,7 @@ module Workpattern
         initial_date, duration, midnight = subtract_to_start_of_day(initial_date, duration, midnight)
       end
 
-      while (duration != 0) && (duration >= week_total) && ((jd(initial_date) - (6 * 86_400)) >= jd(start))
+      while (duration != 0) && (duration >= week_total) && ((jd(initial_date) - (6 * DAY)) >= jd(start))
         duration += week_total
         initial_date -= 7
       end
@@ -361,10 +361,10 @@ module Workpattern
       end
 
       loop do
-        break if (start_date + (7 * 86_400)) > finish_date
-        break if jd(start_date + (6 * 86_400)) > jd(finish)
+        break if (start_date + (7 * DAY)) > finish_date
+        break if jd(start_date + (6 * DAY)) > jd(finish)
         duration += week_total
-        start_date += (7 * 86_400)
+        start_date += (7 * DAY)
       end
 
       loop do
@@ -403,11 +403,11 @@ module Workpattern
     end
 
     def next_day(time)
-      time + 86_400
+      time + DAY
     end
 
     def prev_day(time)
-      time - 86_400
+      time - DAY
     end
 
     def jd(time)
