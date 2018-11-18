@@ -11,7 +11,7 @@ module Workpattern
     attr_accessor :values, :hours_per_day, :start, :finish
     attr_writer :week_total, :total
 
-    def initialize(start, finish, type = 1, hours_per_day = 24)
+    def initialize(start, finish, type = WORK, hours_per_day = 24)
       @hours_per_day = hours_per_day
       @start = Time.gm(start.year, start.month, start.day)
       @finish = Time.gm(finish.year, finish.month, finish.day)
@@ -37,7 +37,7 @@ module Workpattern
 
     def workpattern(days, from_time, to_time, type)
       DAYNAMES[days].each do |day|
-        if type == 1
+        if type == WORK
           work_on_day(day, from_time, to_time)
         else
           rest_on_day(day, from_time, to_time)
