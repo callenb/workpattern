@@ -281,9 +281,9 @@ module Workpattern
       # find the pattern that fits the date
       #
       if date < from
-        result = Week.new(Time.at(0), from - MINUTE, 1)
+        result = Week.new(Time.at(0), from - MINUTE, WORK_TYPE)
       elsif date > to
-        result = Week.new(to + MINUTE, Time.new(9999), 1)
+        result = Week.new(to + MINUTE, Time.new(9999), WORK_TYPE)
       else
 
         date = Time.gm(date.year, date.month, date.day)
