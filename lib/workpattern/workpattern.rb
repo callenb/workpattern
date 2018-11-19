@@ -10,8 +10,6 @@ module Workpattern
   # referenced by calling applications when
   # using this gem.
   #
-  # @since 0.2.0
-  #
   class Workpattern
 
     # Holds collection of <tt>Workpattern</tt> objects
@@ -81,7 +79,7 @@ module Workpattern
       @from = Time.gm(base.abs - offset)
       @to = Time.gm(from.year + span.abs - 1, 12, 31, 23, 59)
       @weeks = SortedSet.new
-      @weeks << Week.new(from, to, 1)
+      @weeks << Week.new(@from, @to)
 
       @@workpatterns[name] = self
     end
