@@ -132,7 +132,7 @@ module Workpattern
     # days to apply the pattern. Defaults to <tt>00:00</tt>.
     # @option opts [(#hour, #min)] :finish_time The last time in the selected
     # days to apply the pattern. Defaults to <tt>23:59</tt>.
-    # @option opts [(WORK || REST)] :work_type Either working or resting.
+    # @option opts [(WORK_TYPE || REST_TYPE)] :work_type Either working or resting.
     # Defaults to working.
     # @see #working
     # @see #resting
@@ -140,7 +140,7 @@ module Workpattern
     def workpattern(opts = {})
       args = { start: from, finish: to, days: :all,
                from_time: FIRST_TIME_IN_DAY, to_time: LAST_TIME_IN_DAY,
-               work_type: WORK }
+               work_type: WORK_TYPE }
 
       args.merge! opts
 
@@ -193,7 +193,7 @@ module Workpattern
     # @see #workpattern
     #
     def resting(args = {})
-      args[:work_type] = REST
+      args[:work_type] = REST_TYPE
       workpattern(args)
     end
 
@@ -203,7 +203,7 @@ module Workpattern
     # @see #workpattern
     #
     def working(args = {})
-      args[:work_type] = WORK
+      args[:work_type] = WORK_TYPE
       workpattern(args)
     end
 
