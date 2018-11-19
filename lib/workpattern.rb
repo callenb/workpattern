@@ -57,10 +57,10 @@ module Workpattern
   LAST_TIME_IN_DAY = Clock.new(23, 59)
 
   # Specifies a working pattern
-  WORK = 1
+  WORK_TYPE = 1
 
   # Specifies a resting pattern
-  REST = 0
+  REST_TYPE = 0
 
   # All the days of the week
   SUNDAY=0
