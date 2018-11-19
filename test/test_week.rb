@@ -1,7 +1,6 @@
 require File.dirname(__FILE__) + '/test_helper.rb'
 
 class TestWeek < MiniTest::Test #:nodoc:
-  include Workpattern::Base
   def setup
     start = Time.gm(2000, 1, 3)
     finish = Time.gm(2000, 1, 9)

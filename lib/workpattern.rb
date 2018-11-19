@@ -8,9 +8,7 @@ $LOAD_PATH.unshift(File.dirname(__FILE__)) unless
 
 require 'rubygems'
 require 'date'
-require 'workpattern/utility/base.rb'
 require 'workpattern/clock'
-#require 'workpattern/day'
 require 'workpattern/week'
 require 'workpattern/workpattern'
 
@@ -148,4 +146,5 @@ module Workpattern
   def self.clock(hour, min)
     Clock.new(hour, min)
   end
+
 end
