@@ -139,15 +139,14 @@ module Workpattern
     #
     def workpattern(opts = {})
       args = all_workpattern_options(opts)
+
       @@persist.store(name: @name, workpattern: args) if self.class.persistence?
 
-      args[:start] = dmy_date(args[:start])
-      args[:finish] = dmy_date(args[:finish])
-      args[:from_time] = hhmn_date(args[:from_time])
-      args[:to_time] = hhmn_date(args[:to_time])
+      args = standardise_args(args)
 
       upd_start = to_utc(args[:start])
       upd_finish = to_utc(args[:finish])
+
       while upd_start <= upd_finish
 
         current_wp = find_weekpattern(upd_start)
@@ -270,6 +269,16 @@ module Workpattern
 
       args.merge! opts
     end  
+
+    def standardise_args(args)
+
+      args[:start] = dmy_date(args[:start])
+      args[:finish] = dmy_date(args[:finish])
+      args[:from_time] = hhmn_date(args[:from_time])
+      args[:to_time] = hhmn_date(args[:to_time])
+
+      args
+    end
     # Retrieve the correct <tt>Week</tt> pattern for the supplied date.
     #
     # If the supplied <tt>date</tt> is outside the span of the
