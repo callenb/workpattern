@@ -153,7 +153,7 @@ module Workpattern
 
         if current_wp.start == upd_start
           if current_wp.finish > upd_finish
-            clone_wp = clone_and_adjust_current_wp(current_wp,
+            clone_wp = fetch_updatable_week_pattern(current_wp,
                                                    upd_finish + DAY,
                                                    current_wp.finish,
                                                    upd_start,
@@ -166,10 +166,10 @@ module Workpattern
             upd_start = current_wp.finish + DAY
           end
         else
-          clone_wp = clone_and_adjust_current_wp(current_wp, current_wp.start,
+          clone_wp = fetch_updatable_week_pattern(current_wp, current_wp.start,
                                                  upd_start - DAY, upd_start)
           if clone_wp.finish > upd_finish
-            after_wp = clone_and_adjust_current_wp(clone_wp,
+            after_wp = fetch_updatable_week_pattern(clone_wp,
                                                    upd_start,
                                                    upd_finish,
                                                    upd_finish + DAY)
@@ -323,18 +323,20 @@ module Workpattern
       Clock.new(date.hour, date.min)
     end
 
-    # Handles cloning of Week Pattern including date adjustments
+    # Clones the supplied Week Pattern then changes the dates on it
+    # The newly cloned Week pattern dates are also changed and it is 
+    # returned by this method
     #
-    def clone_and_adjust_current_wp(current_wp, current_start, current_finish,
-                                    clone_start, clone_finish = nil)
-      clone_wp = current_wp.duplicate
-      adjust_date_range(current_wp, current_start, current_finish)
-      if clone_finish.nil?
-        adjust_date_range(clone_wp, clone_start, clone_wp.finish)
+    def fetch_updatable_week_pattern(keep_week, keep_start, keep_finish,
+                                    change_start, change_finish = nil)
+      change_week = keep_week.duplicate
+      adjust_date_range(keep_week, keep_start, keep_finish)
+      if change_finish.nil?
+        adjust_date_range(change_week, change_start, change_week.finish)
       else
-        adjust_date_range(clone_wp, clone_start, clone_finish)
+        adjust_date_range(change_week, change_start, change_finish)
       end
-      clone_wp
+      change_week
     end
 
     def set_workpattern_and_store(new_wp, args)
