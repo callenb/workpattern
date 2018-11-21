@@ -76,12 +76,12 @@ module Workpattern
       @name = name
       @base = base
       @span = span
-      @from = Time.gm(base.abs - offset)
-      @to = Time.gm(from.year + span.abs - 1, 12, 31, 23, 59)
+      @from = Time.gm(@base.abs - offset)
+      @to = Time.gm(@from.year + @span.abs - 1, 12, 31, 23, 59)
       @weeks = SortedSet.new
       @weeks << Week.new(@from, @to)
 
-      @@workpatterns[name] = self
+      @@workpatterns[@name] = self
     end
 
     # Deletes all <tt>Workpattern</tt> objects
@@ -138,13 +138,13 @@ module Workpattern
     # @see #resting
     #
     def workpattern(opts = {})
-      args = { start: from, finish: to, days: :all,
+      args = { start: @from, finish: @to, days: :all,
                from_time: FIRST_TIME_IN_DAY, to_time: LAST_TIME_IN_DAY,
                work_type: WORK_TYPE }
 
       args.merge! opts
 
-      @@persist.store(name: name, workpattern: args) if self.class.persistence?
+      @@persist.store(name: @name, workpattern: args) if self.class.persistence?
 
       args[:start] = dmy_date(args[:start])
       args[:finish] = dmy_date(args[:finish])
@@ -179,7 +179,7 @@ module Workpattern
                                                    upd_start,
                                                    upd_finish,
                                                    upd_finish + DAY)
-            weeks << after_wp
+            @weeks << after_wp
           end
           set_workpattern_and_store(clone_wp, args)
           upd_start = clone_wp.finish + DAY
@@ -280,15 +280,15 @@ module Workpattern
     def find_weekpattern(date)
       # find the pattern that fits the date
       #
-      if date < from
-        result = Week.new(Time.at(0), from - MINUTE, WORK_TYPE)
+      if date < @from
+        result = Week.new(Time.at(0), @from - MINUTE, WORK_TYPE)
       elsif date > to
-        result = Week.new(to + MINUTE, Time.new(9999), WORK_TYPE)
+        result = Week.new(@to + MINUTE, Time.new(9999), WORK_TYPE)
       else
 
         date = Time.gm(date.year, date.month, date.day)
 
-        result = weeks.find { |week| week.start <= date && week.finish >= date }
+        result = @weeks.find { |week| week.start <= date && week.finish >= date }
       end
       result
     end
@@ -328,7 +328,7 @@ module Workpattern
     def set_workpattern_and_store(new_wp, args)
       new_wp.workpattern(args[:days], args[:from_time],
                          args[:to_time], args[:work_type])
-      weeks << new_wp
+      @weeks << new_wp
     end
 
     def adjust_date_range(week_pattern, start_date, finish_date)
