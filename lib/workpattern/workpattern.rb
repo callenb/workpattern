@@ -138,12 +138,7 @@ module Workpattern
     # @see #resting
     #
     def workpattern(opts = {})
-      args = { start: @from, finish: @to, days: :all,
-               from_time: FIRST_TIME_IN_DAY, to_time: LAST_TIME_IN_DAY,
-               work_type: WORK_TYPE }
-
-      args.merge! opts
-
+      args = all_workpattern_options(opts)
       @@persist.store(name: @name, workpattern: args) if self.class.persistence?
 
       args[:start] = dmy_date(args[:start])
@@ -267,6 +262,14 @@ module Workpattern
 
     private
 
+    def all_workpattern_options(opts)
+	    
+      args = { start: @from, finish: @to, days: :all,
+               from_time: FIRST_TIME_IN_DAY, to_time: LAST_TIME_IN_DAY,
+               work_type: WORK_TYPE }
+
+      args.merge! opts
+    end  
     # Retrieve the correct <tt>Week</tt> pattern for the supplied date.
     #
     # If the supplied <tt>date</tt> is outside the span of the
