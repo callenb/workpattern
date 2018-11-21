@@ -158,7 +158,7 @@ module Workpattern
                                                    current_wp.finish,
                                                    upd_start,
                                                    upd_finish)
-            set_workpattern_and_store(clone_wp, args)
+            update_and_store_week_pattern(clone_wp, args)
             upd_start = upd_finish + DAY
           else # (current_wp.finish == upd_finish)
             current_wp.workpattern(args[:days], args[:from_time],
@@ -175,7 +175,7 @@ module Workpattern
                                                    upd_finish + DAY)
             @weeks << after_wp
           end
-          set_workpattern_and_store(clone_wp, args)
+          update_and_store_week_pattern(clone_wp, args)
           upd_start = clone_wp.finish + DAY
         end
       end
@@ -339,10 +339,10 @@ module Workpattern
       change_week
     end
 
-    def set_workpattern_and_store(new_wp, args)
-      new_wp.workpattern(args[:days], args[:from_time],
+    def update_and_store_week_pattern(week_pattern, args)
+      week_pattern.workpattern(args[:days], args[:from_time],
                          args[:to_time], args[:work_type])
-      @weeks << new_wp
+      @weeks << week_pattern
     end
 
     def adjust_date_range(week_pattern, start_date, finish_date)
