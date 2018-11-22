@@ -90,6 +90,11 @@ module Workpattern
       @weeks << Week.new(@from, @to)
 
       workpatterns[@name] = self
+      @week_pattern = WeekPattern.new(self)
+    end
+
+    def week_pattern
+      @week_pattern
     end
 
     # Deletes all <tt>Workpattern</tt> objects
@@ -146,47 +151,7 @@ module Workpattern
     # @see #resting
     #
     def workpattern(opts = {})
-      args = all_workpattern_options(opts)
-
-      @@persist.store(name: @name, workpattern: args) if self.class.persistence?
-
-      args = standardise_args(args)
-
-      upd_start = to_utc(args[:start])
-      upd_finish = to_utc(args[:finish])
-
-      while upd_start <= upd_finish
-
-        current_wp = find_weekpattern(upd_start)
-
-        if current_wp.start == upd_start
-          if current_wp.finish > upd_finish
-            clone_wp = fetch_updatable_week_pattern(current_wp,
-                                                   upd_finish + DAY,
-                                                   current_wp.finish,
-                                                   upd_start,
-                                                   upd_finish)
-            update_and_store_week_pattern(clone_wp, args)
-            upd_start = upd_finish + DAY
-          else # (current_wp.finish == upd_finish)
-            current_wp.workpattern(args[:days], args[:from_time],
-                                   args[:to_time], args[:work_type])
-            upd_start = current_wp.finish + DAY
-          end
-        else
-          clone_wp = fetch_updatable_week_pattern(current_wp, current_wp.start,
-                                                 upd_start - DAY, upd_start)
-          if clone_wp.finish > upd_finish
-            after_wp = fetch_updatable_week_pattern(clone_wp,
-                                                   upd_start,
-                                                   upd_finish,
-                                                   upd_finish + DAY)
-            @weeks << after_wp
-          end
-          update_and_store_week_pattern(clone_wp, args)
-          upd_start = clone_wp.finish + DAY
-        end
-      end
+      week_pattern.workpattern(opts)
     end
 
     # Convenience method that calls <tt>#workpattern</tt> with the
@@ -267,26 +232,6 @@ module Workpattern
       duration
     end
 
-    private
-
-    def all_workpattern_options(opts)
-	    
-      args = { start: @from, finish: @to, days: :all,
-               from_time: FIRST_TIME_IN_DAY, to_time: LAST_TIME_IN_DAY,
-               work_type: WORK_TYPE }
-
-      args.merge! opts
-    end  
-
-    def standardise_args(args)
-
-      args[:start] = dmy_date(args[:start])
-      args[:finish] = dmy_date(args[:finish])
-      args[:from_time] = hhmn_date(args[:from_time])
-      args[:to_time] = hhmn_date(args[:to_time])
-
-      args
-    end
     # Retrieve the correct <tt>Week</tt> pattern for the supplied date.
     #
     # If the supplied <tt>date</tt> is outside the span of the
@@ -313,50 +258,5 @@ module Workpattern
       result
     end
 
-    # Strips off hours, minutes, seconds etc from a supplied <tt>Date</tt> or
-    # <tt>DateTime</tt>
-    #
-    # @param [DateTime] date
-    # @return [DateTime] with zero hours, minutes, seconds and so forth.
-    #
-    def dmy_date(date)
-      Time.gm(date.year, date.month, date.day)
-    end
-
-    # Extract the time into a <tt>Clock</tt> object
-    #
-    # @param [DateTime] date
-    # @return [Clock]
-    def hhmn_date(date)
-      Clock.new(date.hour, date.min)
-    end
-
-    # Clones the supplied Week Pattern then changes the dates on it
-    # The newly cloned Week pattern dates are also changed and it is 
-    # returned by this method
-    #
-    def fetch_updatable_week_pattern(keep_week, keep_start, keep_finish,
-                                    change_start, change_finish = nil)
-      change_week = keep_week.duplicate
-      adjust_date_range(keep_week, keep_start, keep_finish)
-      if change_finish.nil?
-        adjust_date_range(change_week, change_start, change_week.finish)
-      else
-        adjust_date_range(change_week, change_start, change_finish)
-      end
-      change_week
-    end
-
-    def update_and_store_week_pattern(week_pattern, args)
-      week_pattern.workpattern(args[:days], args[:from_time],
-                         args[:to_time], args[:work_type])
-      @weeks << week_pattern
-    end
-
-    def adjust_date_range(week_pattern, start_date, finish_date)
-      week_pattern.start = start_date
-      week_pattern.finish = finish_date
-    end
-    
   end
 end
