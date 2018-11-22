@@ -15,6 +15,14 @@ module Workpattern
     # Holds collection of <tt>Workpattern</tt> objects
     @@workpatterns = {}
 
+    def self.workpatterns
+      @@workpatterns
+    end
+
+    def workpatterns
+      @@workpatterns
+    end
+
     # @!attribute [r] name
     #   Name given to the <tt>Workpattern</tt>
     # @!attribute [r] base
@@ -68,7 +76,7 @@ module Workpattern
     # @raise [NameError] if the given name already exists
     #
     def initialize(name = DEFAULT_NAME, base = DEFAULT_BASE_YEAR, span = DEFAULT_SPAN)
-      if @@workpatterns.key?(name)
+      if workpatterns.key?(name)
         raise(NameError, "Workpattern '#{name}' already exists and can't be created again")
       end
       offset = span < 0 ? span.abs - 1 : 0
@@ -81,20 +89,20 @@ module Workpattern
       @weeks = SortedSet.new
       @weeks << Week.new(@from, @to)
 
-      @@workpatterns[@name] = self
+      workpatterns[@name] = self
     end
 
     # Deletes all <tt>Workpattern</tt> objects
     #
     def self.clear
-      @@workpatterns.clear
+      workpatterns.clear
     end
 
     # Returns an Array containing all the <tt>Workpattern</tt> objects
     # @return [Array] all <tt>Workpattern</tt> objects
     #
     def self.to_a
-      @@workpatterns.to_a
+      workpatterns.to_a
     end
 
     # Returns the specific named <tt>Workpattern</tt>
@@ -103,7 +111,7 @@ module Workpattern
     # exist
     #
     def self.get(name)
-      return @@workpatterns[name] if @@workpatterns.key?(name)
+      return workpatterns[name] if workpatterns.key?(name)
       raise(NameError, "Workpattern '#{name}' doesn't exist so can't be retrieved")
     end
 
@@ -113,7 +121,7 @@ module Workpattern
     # if it doesn't
     #
     def self.delete(name)
-      @@workpatterns.delete(name).nil? ? false : true
+      workpatterns.delete(name).nil? ? false : true
     end
 
     # Applys a working or resting pattern to the <tt>Workpattern</tt> object.
