@@ -151,7 +151,11 @@ module Workpattern
     # @see #resting
     #
     def workpattern(opts = {})
-      week_pattern.workpattern(opts)
+      if self.class.persistence?
+        week_pattern.workpattern(opts, @@persistence)
+      else
+        week_pattern.workpattern(opts)
+      end
     end
 
     # Convenience method that calls <tt>#workpattern</tt> with the

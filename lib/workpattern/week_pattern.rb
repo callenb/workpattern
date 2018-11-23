@@ -40,10 +40,10 @@ module Workpattern
     # @see #working
     # @see #resting
     #
-    def workpattern(opts = {})
+    def workpattern(opts = {}, persist = nil)
       args = all_workpattern_options(opts)
 
-      #@@persist.store(name: @name, workpattern: args) if self.class.persistence?
+      persist.store(name: @name, workpattern: args) if !persist.nil?
 
       args = standardise_args(args)
 
