@@ -15,7 +15,7 @@ module Workpattern
       @hours_per_day = hours_per_day
       @start = Time.gm(start.year, start.month, start.day)
       @finish = Time.gm(finish.year, finish.month, finish.day)
-      @values = Array.new(6)
+      @values = Array.new(LAST_DAY_OF_WEEK)
       FIRST_DAY_OF_WEEK.upto(LAST_DAY_OF_WEEK) do |i|
         @values[i] = working_day * type
       end
