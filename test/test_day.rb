@@ -58,6 +58,11 @@ class TestDay < MiniTest::Test #:nodoc:
         assert myday.resting?(hour, minute), "Failed on #{hour}:#{minute}"
       end
     end    
+    9.upto(23) do | hour |
+      0.upto(59) do | minute |
+        assert myday.working?(hour, minute), "Failed on #{hour}:#{minute}"
+      end
+    end
   end
 
   private
