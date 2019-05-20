@@ -16,9 +16,19 @@ module Workpattern
     end
 
     def set_resting(from_time, to_time)
-      mask = bit_time(24,59) - bit_time(to_time.hour, to_time.min + 1) if !last_minute?(to_time)
-      mask = mask + bit_time(from_time.hour, from_time.min) - 1 if !first_minute?(from_time) 
+      mask = 0 if last_minute?(to_time) && first_minute?(from_time)
+      mask = bit_time(from_time.hour, from_time.min) - 1 if last_minute?(to_time)
+      mask = bit_time(23, 59, 1) - bit_time(to_time.hour, to_time.min,1)  if first_minute?(from_time) 
+      mask = working_day - (bit_time(to_time.hour, to_time.min,1) - bit_time(from_time.hour, from_time.min)) if !first_minute?(from_time) && !last_minute?(to_time)
       @pattern = @pattern & mask
+    end
+
+    def set_working(from_time, to_time)
+      mask = working_day if last_minute?(to_time) && first_minute?(from_time)
+      mask = bit_time(to_time.hour, to_time.min, 1) - 1 if first_minute?(from_time) 
+      mask = bit_time(23,59,1) - bit_time(from_time.hour, from_time.min ) if last_minute?(to_time)
+      mask = bit_time(to_time.hour, to_time.min,1) - bit_time(from_time.hour, from_time.min) if !first_minute?(from_time) && !last_minute?(to_time)
+      @pattern = @pattern | mask
     end
 
     #REMOVE
@@ -61,7 +71,7 @@ module Workpattern
     end
 
     def last_minute?(time)
-      return true if time.hour == 24 && time.min == 59
+      return true if time.hour == 23 && time.min == 59
       false
     end
 
