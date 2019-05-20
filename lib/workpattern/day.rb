@@ -16,8 +16,8 @@ module Workpattern
     end
 
     def set_resting(from_time, to_time)
-      mask = bit_time(24,59) - bit_time(to_time.hour, to_time.min + 1) if not_last_minute(to_time)
-      mask = mask + bit_time(from.hour, from.min) - bit_time(0,0) if not_first_minute(from_time) 
+      mask = bit_time(24,59) - bit_time(to_time.hour, to_time.min + 1) if !last_minute?(to_time)
+      mask = mask + bit_time(from_time.hour, from_time.min) - 1 if !first_minute?(from_time) 
       @pattern = @pattern & mask
     end
 
@@ -60,13 +60,13 @@ module Workpattern
       2**((60 * hour) + minute + offset)
     end
 
-    def not_last_minute(time)
-      return false if time.hour == 24 && time.min == 59
-      true
+    def last_minute?(time)
+      return true if time.hour == 24 && time.min == 59
+      false
     end
 
-    def not_first_minute(time)
-      return false if time.hour == 0 && time.min == 0
+    def first_minute?(time)
+      return true if time.hour == 0 && time.min == 0
       false
     end
 

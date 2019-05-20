@@ -65,6 +65,32 @@ class TestDay < MiniTest::Test #:nodoc:
     end
   end
 
+  def test_add_rest_in_midday
+    myday = working_day
+    from_time = set_time(11,0)
+    to_time = set_time(12,59)
+    myday.set_resting(from_time, to_time)
+    0.upto(10) do | hour |
+      0.upto(59) do | minute |
+        assert myday.working?(hour, minute), "Failed on #{hour}:#{minute}"
+      end
+    end    
+    
+    11.upto(12) do | hour |
+      0.upto(59) do | minute |
+        assert myday.resting?(hour, minute), "Failed on #{hour}:#{minute}"
+      end
+    end    
+    13.upto(23) do | hour |
+      0.upto(59) do | minute |
+        assert myday.working?(hour, minute), "Failed on #{hour}:#{minute}"
+      end
+    end    
+  end
+
+  def test_add_rest_at_end_of_day
+  end
+
   private
 
   def working_day
