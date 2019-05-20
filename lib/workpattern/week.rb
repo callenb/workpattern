@@ -16,8 +16,10 @@ module Workpattern
       @start = Time.gm(start.year, start.month, start.day)
       @finish = Time.gm(finish.year, finish.month, finish.day)
       @values = Array.new(LAST_DAY_OF_WEEK)
+      @days = Array.new(LAST_DAY_OF_WEEK)
       FIRST_DAY_OF_WEEK.upto(LAST_DAY_OF_WEEK) do |i|
-        @values[i] = working_day * type
+        @days[i] = Day.new(hours_per_day, type)
+        @values[i] = @days[i].pattern
       end
     end
 
@@ -76,6 +78,10 @@ module Workpattern
     end
 
     private
+
+    def day_pattern(day)
+      day.pattern
+    end
 
     def working_minutes_in(day)
       day.to_s(2).count('1')
@@ -176,8 +182,9 @@ module Workpattern
       [date, duration]
     end
 
-    def work_on_day(day,from_time,to_time)
-      self.values[day] = self.values[day] | time_mask(from_time, to_time)  
+    def work_on_day(day,from_time,to_time)    
+      @days[day].work(from_time, to_time)  
+
     end
 
     def rest_on_day(day,from_time,to_time) 
