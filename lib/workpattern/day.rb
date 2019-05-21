@@ -2,7 +2,7 @@ module Workpattern
   
   class Day
     
-    attr_reader  :pattern, :hours_per_day
+    attr_accessor  :pattern, :hours_per_day
 
     def initialize(hours_per_day = HOURS_IN_DAY, type = WORK_TYPE)
       @hours_per_day = hours_per_day
