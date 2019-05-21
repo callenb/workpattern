@@ -6,12 +6,12 @@ class TestDay < MiniTest::Test #:nodoc:
 
   def test_creates_full_working_day
     myday = working_day
-    assert_equal 1440, myday.total_minutes
+    assert_equal 1440, myday.working_minutes
   end
 
   def test_creates_non_working_day
     myday = resting_day
-    assert_equal 0, myday.total_minutes
+    assert_equal 0, myday.working_minutes
   end
 
   def test_when_working_minute
@@ -40,12 +40,12 @@ class TestDay < MiniTest::Test #:nodoc:
 
   def test_total_minutes_working_day
     myday = working_day
-    assert_equal 1440, myday.total_minutes
+    assert_equal 1440, myday.working_minutes
   end
 
   def test_total_minutes_resting_day
     myday = resting_day
-    assert_equal 0, myday.total_minutes
+    assert_equal 0, myday.working_minutes
   end
 
   def test_add_rest_in_morning
@@ -64,7 +64,7 @@ class TestDay < MiniTest::Test #:nodoc:
       end
     end
 
-    assert_equal 900, myday.total_minutes
+    assert_equal 900, myday.working_minutes
   end
 
   def test_add_rest_in_midday
@@ -90,7 +90,7 @@ class TestDay < MiniTest::Test #:nodoc:
       end
     end    
 
-    assert_equal 1320, myday.total_minutes
+    assert_equal 1320, myday.working_minutes
   end
 
   def test_add_rest_at_end_of_day
@@ -110,7 +110,7 @@ class TestDay < MiniTest::Test #:nodoc:
       end
     end    
 
-    assert_equal 1260, myday.total_minutes
+    assert_equal 1260, myday.working_minutes
   end
 
 
@@ -130,7 +130,7 @@ class TestDay < MiniTest::Test #:nodoc:
       end
     end
 
-    assert_equal 540, myday.total_minutes
+    assert_equal 540, myday.working_minutes
   end
 
   def test_add_work_in_midday
@@ -155,7 +155,7 @@ class TestDay < MiniTest::Test #:nodoc:
       end
     end    
 
-    assert_equal 120, myday.total_minutes
+    assert_equal 120, myday.working_minutes
   end
 
   def test_add_work_at_end_of_day
@@ -175,7 +175,7 @@ class TestDay < MiniTest::Test #:nodoc:
       end
     end    
 
-    assert_equal 180, myday.total_minutes
+    assert_equal 180, myday.working_minutes
   end
 
   private

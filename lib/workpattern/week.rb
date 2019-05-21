@@ -30,7 +30,7 @@ module Workpattern
     end
 
     def week_total
-      elapsed_days > 6 ? full_week_total_minutes : part_week_total_minutes
+      elapsed_days > 6 ? full_week_working_minutes : part_week_total_minutes
     end
 
     def total
@@ -40,9 +40,9 @@ module Workpattern
     def workpattern(days, from_time, to_time, type)
       DAYNAMES[days].each do |day|
         if type == WORK_TYPE
-          work_on_day(day, from_time, to_time)
+          @days[day].set_working(from_time, to_time)  
         else
-          rest_on_day(day, from_time, to_time)
+          @days[day].set_resting(from_time, to_time)  
         end
       end
     end
@@ -93,7 +93,7 @@ module Workpattern
       (finish - start).to_i / DAY + 1
     end
 
-    def full_week_total_minutes
+    def full_week_working_minutes
       minutes_in_day_range FIRST_DAY_OF_WEEK, LAST_DAY_OF_WEEK
     end
 
@@ -131,7 +131,7 @@ module Workpattern
     end
 
     def minutes_in_day_range(first, last)
-      @days[first..last].inject(0) { |sum, day| sum + day.total_minutes }
+      @days[first..last].inject(0) { |sum, day| sum + day.working_minutes }
     end
 
     def add(initial_date, duration)
@@ -182,15 +182,6 @@ module Workpattern
         date, duration = add_to_end_of_day(date,duration)
       end
       [date, duration]
-    end
-
-    def work_on_day(day,from_time,to_time)    
-      @days[day].set_working(from_time, to_time)  
-
-    end
-
-    def rest_on_day(day,from_time,to_time) 
-      @days[day].set_resting(from_time, to_time)
     end
 
     def time_mask(from_time, to_time)

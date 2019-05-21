@@ -9,12 +9,6 @@ module Workpattern
       @pattern = working_day * type
     end
 
-    #REMOVE
-    def work_on_day(from_time,to_time)
-      #@pattern = @pattern | time_mask(from_time, to_time)
-      @pattern = work(from_time, to_time)
-    end
-
     def set_resting(from_time, to_time)
       mask = 0 if last_minute?(to_time) && first_minute?(from_time)
       mask = bit_time(from_time.hour, from_time.min) - 1 if last_minute?(to_time)
@@ -46,7 +40,7 @@ module Workpattern
       2**(60 * @hours_per_day) - 1
     end
 
-    def total_minutes
+    def working_minutes
       @pattern.to_s(2).count('1')
     end
 
