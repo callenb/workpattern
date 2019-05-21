@@ -8,18 +8,16 @@ module Workpattern
   #
   # @private
   class Week
-    attr_accessor :values, :hours_per_day, :start, :finish, :days
+    attr_accessor :hours_per_day, :start, :finish, :days
     attr_writer :week_total, :total
 
     def initialize(start, finish, type = WORK_TYPE, hours_per_day = HOURS_IN_DAY)
       @hours_per_day = hours_per_day
       @start = Time.gm(start.year, start.month, start.day)
       @finish = Time.gm(finish.year, finish.month, finish.day)
-      @values = Array.new(LAST_DAY_OF_WEEK)
       @days = Array.new(LAST_DAY_OF_WEEK)
       FIRST_DAY_OF_WEEK.upto(LAST_DAY_OF_WEEK) do |i|
         @days[i] = Day.new(hours_per_day, type)
-        @values[i] = @days[i].pattern
       end
     end
 
@@ -51,7 +49,6 @@ module Workpattern
       duplicate_week = Week.new(start, finish)
       FIRST_DAY_OF_WEEK.upto(LAST_DAY_OF_WEEK) do |i|
 	duplicate_week.days[i] = @days[i]
-        duplicate_week.values[i] = @values[i]
       end
       duplicate_week
     end
@@ -198,7 +195,7 @@ module Workpattern
 
     def pattern_to_end_of_day(date)
       mask = mask_to_end_of_day(date)
-      (values[date.wday] & mask)
+      (@days[date.wday].pattern & mask)
     end
 
     def mask_to_end_of_day(date)
@@ -236,7 +233,7 @@ module Workpattern
 
     def pattern_to_start_of_day(date)
       mask = mask_to_start_of_day(date)
-      (values[date.wday] & mask)
+      (@days[date.wday].pattern & mask)
     end
 
     def minutes_to_start_of_day(date)
@@ -388,7 +385,7 @@ module Workpattern
       finish_bit_pos = bit_pos(hours_per_day, 0)
       start_bit_pos = bit_pos(start_date.hour, start_date.min)
       mask = finish_bit_pos - start_bit_pos
-      minutes = working_minutes_in(values[start_date.wday] & mask)
+      minutes = working_minutes_in(@days[start_date.wday].pattern & mask)
       [minutes, start_of_next_day(start_date)]
     end
 
@@ -396,7 +393,7 @@ module Workpattern
       finish_bit_pos = bit_pos(finish_date.hour, finish_date.min)
       start_bit_pos = bit_pos(start_date.hour, start_date.min)
       mask = finish_bit_pos - start_bit_pos
-      minutes = working_minutes_in(values[start_date.wday] & mask)
+      minutes = working_minutes_in(@days[start_date.wday].pattern & mask)
       [minutes, finish_date]
     end
 
