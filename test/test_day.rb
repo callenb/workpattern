@@ -63,10 +63,13 @@ class TestDay < MiniTest::Test #:nodoc:
         assert myday.working?(hour, minute), "Failed on #{hour}:#{minute}"
       end
     end
+
+    assert_equal 900, myday.total_minutes
   end
 
   def test_add_rest_in_midday
     myday = working_day
+
     from_time = set_time(11,0)
     to_time = set_time(12,59)
     myday.set_resting(from_time, to_time)
@@ -86,6 +89,8 @@ class TestDay < MiniTest::Test #:nodoc:
         assert myday.working?(hour, minute), "Failed on #{hour}:#{minute}"
       end
     end    
+
+    assert_equal 1320, myday.total_minutes
   end
 
   def test_add_rest_at_end_of_day
@@ -104,6 +109,8 @@ class TestDay < MiniTest::Test #:nodoc:
         assert myday.resting?(hour, minute), "Failed on #{hour}:#{minute}"
       end
     end    
+
+    assert_equal 1260, myday.total_minutes
   end
 
 
@@ -122,6 +129,8 @@ class TestDay < MiniTest::Test #:nodoc:
         assert myday.resting?(hour, minute), "Failed on #{hour}:#{minute}"
       end
     end
+
+    assert_equal 540, myday.total_minutes
   end
 
   def test_add_work_in_midday
@@ -145,6 +154,8 @@ class TestDay < MiniTest::Test #:nodoc:
         assert myday.resting?(hour, minute), "Failed on #{hour}:#{minute}"
       end
     end    
+
+    assert_equal 120, myday.total_minutes
   end
 
   def test_add_work_at_end_of_day
@@ -163,6 +174,8 @@ class TestDay < MiniTest::Test #:nodoc:
         assert myday.working?(hour, minute), "Failed on #{hour}:#{minute}"
       end
     end    
+
+    assert_equal 180, myday.total_minutes
   end
 
   private
