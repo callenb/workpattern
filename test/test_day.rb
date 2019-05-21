@@ -6,12 +6,12 @@ class TestDay < MiniTest::Test #:nodoc:
 
   def test_creates_full_working_day
     myday = working_day
-    assert_equal myday.total_minutes, 1440
+    assert_equal 1440, myday.total_minutes
   end
 
   def test_creates_non_working_day
     myday = resting_day
-    assert_equal myday.total_minutes, 0
+    assert_equal 0, myday.total_minutes
   end
 
   def test_when_working_minute
@@ -40,12 +40,12 @@ class TestDay < MiniTest::Test #:nodoc:
 
   def test_total_minutes_working_day
     myday = working_day
-    assert myday.total_minutes, 1440
+    assert_equal 1440, myday.total_minutes
   end
 
   def test_total_minutes_resting_day
     myday = resting_day
-    assert myday.total_minutes, 0
+    assert_equal 0, myday.total_minutes
   end
 
   def test_add_rest_in_morning
