@@ -8,7 +8,7 @@ module Workpattern
   #
   # @private
   class Week
-    attr_accessor :values, :hours_per_day, :start, :finish
+    attr_accessor :values, :hours_per_day, :start, :finish, :days
     attr_writer :week_total, :total
 
     def initialize(start, finish, type = WORK_TYPE, hours_per_day = HOURS_IN_DAY)
@@ -49,7 +49,10 @@ module Workpattern
 
     def duplicate
       duplicate_week = Week.new(start, finish)
-      FIRST_DAY_OF_WEEK.upto(LAST_DAY_OF_WEEK).each { |i| duplicate_week.values[i] = @values[i] }
+      FIRST_DAY_OF_WEEK.upto(LAST_DAY_OF_WEEK) do |i|
+	duplicate_week.days[i] = @days[i]
+        duplicate_week.values[i] = @values[i]
+      end
       duplicate_week
     end
 
@@ -61,12 +64,11 @@ module Workpattern
     end
 
     def working?(time)
-      return true if bit_pos(time.hour, time.min) & @values[time.wday] > 0
-      false
+      @days[time.wday].working?(time.hour, time.min)
     end
 
-    def resting?(date)
-      !working?(date)
+    def resting?(time)
+      @days[time.wday].resting?(time.hour, time.min)
     end
 
     def diff(start_d, finish_d)
@@ -129,7 +131,7 @@ module Workpattern
     end
 
     def minutes_in_day_range(first, last)
-      @values[first..last].inject(0) { |a, e| a + working_minutes_in(e) }
+      @days[first..last].inject(0) { |sum, day| sum + day.total_minutes }
     end
 
     def add(initial_date, duration)
@@ -183,14 +185,12 @@ module Workpattern
     end
 
     def work_on_day(day,from_time,to_time)    
-      @days[day].work(from_time, to_time)  
+      @days[day].set_working(from_time, to_time)  
 
     end
 
     def rest_on_day(day,from_time,to_time) 
-      mask_of_1s = time_mask(from_time, to_time)
-      mask = mask_of_1s ^ working_day & working_day
-      self.values[day] = self.values[day] & mask
+      @days[day].set_resting(from_time, to_time)
     end
 
     def time_mask(from_time, to_time)
