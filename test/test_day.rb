@@ -178,6 +178,18 @@ class TestDay < MiniTest::Test #:nodoc:
     assert_equal 180, myday.working_minutes
   end
 
+  def test_minutes_in_part_of_day
+    myday = working_day
+    myday.set_resting(set_time(0,13), set_time(1,19))
+    myday.set_resting(set_time(11,47), set_time(12,21))
+    myday.set_resting(set_time(22,43), set_time(23,11))
+
+    assert_equal 114, myday.working_minutes(set_time(0,0), set_time(3,0))
+    assert_equal 146, myday.working_minutes(set_time(11,0), set_time(14,0))
+    assert_equal 151, myday.working_minutes(set_time(21,0), set_time(23,59))
+    assert_equal 1309, myday.working_minutes(set_time(0,0), set_time(23,59))
+  end
+
   private
 
   def working_day

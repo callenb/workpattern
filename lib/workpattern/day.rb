@@ -22,7 +22,7 @@ module Workpattern
       mask = bit_time(to_time, 1) - 1 if first_minute?(from_time) 
       mask = bit_time(LAST_TIME_IN_DAY,1) - bit_time(from_time ) if last_minute?(to_time)
       mask = bit_time(to_time,1) - bit_time(from_time) if !first_minute?(from_time) && !last_minute?(to_time)
-      @pattern = @pattern | mask
+      @pattern = @pattern | working_mask(from_time, to_time)
     end
 
     def working_day
@@ -30,7 +30,8 @@ module Workpattern
     end
 
     def working_minutes(from_time = FIRST_TIME_IN_DAY, to_time = LAST_TIME_IN_DAY)
-      @pattern.to_s(2).count('1')
+      section = @pattern & working_mask(from_time, to_time)
+      section.to_s(2).count('1')
     end
 
     def working?(hour, minute)
@@ -51,6 +52,14 @@ module Workpattern
 
     def bit_time(time, offset=0)
 	    2**((60 * time.hour) + time.min + offset)
+    end
+
+    def working_mask(from_time, to_time)
+      mask = working_day if last_minute?(to_time) && first_minute?(from_time)
+      mask = bit_time(to_time, 1) - 1 if first_minute?(from_time) 
+      mask = bit_time(LAST_TIME_IN_DAY,1) - bit_time(from_time ) if last_minute?(to_time)
+      mask = bit_time(to_time,1) - bit_time(from_time) if !first_minute?(from_time) && !last_minute?(to_time)
+      mask
     end
 
     def last_minute?(time)
