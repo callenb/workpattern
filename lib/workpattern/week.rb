@@ -80,10 +80,6 @@ module Workpattern
 
     private
 
-    def day_pattern(day)
-      day.pattern
-    end
-
     def working_minutes_in(day)
       day.to_s(2).count('1')
     end
