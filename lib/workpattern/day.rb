@@ -25,17 +25,6 @@ module Workpattern
       @pattern = @pattern | mask
     end
 
-    #REMOVE
-    def work(from_time, to_time)
-      if from_time.hour == 0 && from_time.min == 0 
-        mask = (2**((60*to_time.hour) + to_time.min) - 1)
-      else
-        mask = (2**((60*to_time.hour) + to_time.min + 1)) - (2**((60*from_time.hour) + from_time.min))
-      end
-      @pattern = @pattern | mask
-    end	
-
-
     def working_day
       2**(60 * @hours_per_day) - 1
     end
