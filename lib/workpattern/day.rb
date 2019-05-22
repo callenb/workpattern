@@ -11,17 +11,17 @@ module Workpattern
 
     def set_resting(from_time, to_time)
       mask = 0 if last_minute?(to_time) && first_minute?(from_time)
-      mask = bit_time(from_time.hour, from_time.min) - 1 if last_minute?(to_time)
-      mask = bit_time(23, 59, 1) - bit_time(to_time.hour, to_time.min,1)  if first_minute?(from_time) 
-      mask = working_day - (bit_time(to_time.hour, to_time.min,1) - bit_time(from_time.hour, from_time.min)) if !first_minute?(from_time) && !last_minute?(to_time)
+      mask = bit_time(from_time) - 1 if last_minute?(to_time)
+      mask = bit_time(LAST_TIME_IN_DAY, 1) - bit_time(to_time,1)  if first_minute?(from_time) 
+      mask = working_day - (bit_time(to_time,1) - bit_time(from_time)) if !first_minute?(from_time) && !last_minute?(to_time)
       @pattern = @pattern & mask
     end
 
     def set_working(from_time, to_time)
       mask = working_day if last_minute?(to_time) && first_minute?(from_time)
-      mask = bit_time(to_time.hour, to_time.min, 1) - 1 if first_minute?(from_time) 
-      mask = bit_time(23,59,1) - bit_time(from_time.hour, from_time.min ) if last_minute?(to_time)
-      mask = bit_time(to_time.hour, to_time.min,1) - bit_time(from_time.hour, from_time.min) if !first_minute?(from_time) && !last_minute?(to_time)
+      mask = bit_time(to_time, 1) - 1 if first_minute?(from_time) 
+      mask = bit_time(LAST_TIME_IN_DAY,1) - bit_time(from_time ) if last_minute?(to_time)
+      mask = bit_time(to_time,1) - bit_time(from_time) if !first_minute?(from_time) && !last_minute?(to_time)
       @pattern = @pattern | mask
     end
 
@@ -29,7 +29,7 @@ module Workpattern
       2**(60 * @hours_per_day) - 1
     end
 
-    def working_minutes
+    def working_minutes(from_time = FIRST_TIME_IN_DAY, to_time = LAST_TIME_IN_DAY)
       @pattern.to_s(2).count('1')
     end
 
@@ -49,8 +49,8 @@ module Workpattern
     
     private
 
-    def bit_time(hour, minute, offset=0)
-      2**((60 * hour) + minute + offset)
+    def bit_time(time, offset=0)
+	    2**((60 * time.hour) + time.min + offset)
     end
 
     def last_minute?(time)
