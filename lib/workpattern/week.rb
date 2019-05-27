@@ -38,9 +38,9 @@ module Workpattern
     def workpattern(days, from_time, to_time, type)
       DAYNAMES[days].each do |day|
         if type == WORK_TYPE
-          @days[day].set_working(from_time, to_time)  
+          @days[day].set_working(from_time, to_time)
         else
-          @days[day].set_resting(from_time, to_time)  
+          @days[day].set_resting(from_time, to_time)
         end
       end
     end
@@ -188,7 +188,8 @@ module Workpattern
     end
 
     def minutes_to_end_of_day(date)
-      working_minutes_in pattern_to_end_of_day(date)
+       @days[date.wday].working_minutes(date, LAST_TIME_IN_DAY)
+
     end
 
     def pattern_to_end_of_day(date)
@@ -235,31 +236,34 @@ module Workpattern
     end
 
     def minutes_to_start_of_day(date)
-      working_minutes_in pattern_to_start_of_day(date)
+puts "date=#{date}"
+puts "pattern=#{@days[date.wday].pattern.to_s(2)}"
+      @days[date.wday].working_minutes(FIRST_TIME_IN_DAY, date)
+    #working_minutes_in pattern_to_start_of_day(date)
     end
 
+
     def consume_minutes(date, duration)
+      puts "consume_minutes(date=#{date},duration=#{duration})"
       minutes = pattern_to_end_of_day(date).to_s(2).reverse! if duration > 0
       minutes = pattern_to_start_of_day(date).to_s(2) if duration < 0
-
+      puts "minutes=#{minutes}"
       top = minutes.size
       bottom = 1
       mark = top / 2
-
+      puts "top=#{top},bottom=#{bottom}, mark=#{mark}"
       while minutes[0, mark].count('1') != duration.abs
         last_mark = mark
         if minutes[0, mark].count('1') < duration.abs
-
           bottom = mark
           mark = (top - mark) / 2 + mark
           mark = top if last_mark == mark
-
+puts "IF: top=#{top},bottom=#{bottom}, mark=#{mark}"
         else
-
           top = mark
           mark = (mark - bottom) / 2 + bottom
           mark = bottom if last_mark == mark
-
+puts "ELSE: top=#{top},bottom=#{bottom}, mark=#{mark}"
         end
       end
 
@@ -291,9 +295,10 @@ module Workpattern
     end
 
     def subtract_to_start_of_day(initial_date, duration, midnight)
+puts "subtract: initial_date=#{initial_date}, duration=#{duration}, midnight=#{midnight}"
       initial_date, duration, midnight = handle_midnight(initial_date, duration) if midnight
       available_minutes_in_day = minutes_to_start_of_day(initial_date)
-
+puts "available_minutes_in_day=#{available_minutes_in_day}"
       if duration != 0
         if available_minutes_in_day < duration.abs
           duration += available_minutes_in_day
