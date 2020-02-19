@@ -18,10 +18,6 @@ module Workpattern
     end
 
     def set_working(from_time, to_time)
-#     mask = working_day if last_minute?(to_time) && first_minute?(from_time)
-#     mask = bit_time(to_time, 1) - 1 if first_minute?(from_time) 
-#     mask = bit_time(LAST_TIME_IN_DAY,1) - bit_time(from_time ) if last_minute?(to_time)
-#     mask = bit_time(to_time,1) - bit_time(from_time) if !first_minute?(from_time) && !last_minute?(to_time)
       @pattern = @pattern | working_mask(from_time, to_time)
     end
 
