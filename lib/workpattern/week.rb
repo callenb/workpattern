@@ -379,10 +379,9 @@ module Workpattern
     end
 
     def diff_to_tomorrow(start_date)
-      finish_bit_pos = bit_pos(hours_per_day, 0)
-      start_bit_pos = bit_pos(start_date.hour, start_date.min)
-      mask = finish_bit_pos - start_bit_pos
-      minutes = working_minutes_in(@days[start_date.wday].pattern & mask)
+      start_time=Clock.new(start_date.hour, start_date.min)
+      finish_time=Clock.new(hours_per_day-1,59)
+      minutes = @days[start_date.wday].working_minutes(start_time,finish_time)
       [minutes, start_of_next_day(start_date)]
     end
 
