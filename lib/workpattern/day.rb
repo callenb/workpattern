@@ -68,21 +68,6 @@ module Workpattern
       false
     end
 
-
-
-    #REMOVE
-    def time_mask(from_time, to_time)
-      if from_time.hour == 0 && from_time.min == 0
-        bit_pos(to_time.hour, to_time.min)-1
-      else
-        bit_pos(to_time.hour, to_time.min + 1) - bit_pos(from_time.hour, from_time.min)
-      end	
-    end
-
-    #REMOVE
-    def bit_pos(hour,minute)
-      2**( (hour * 60) + minute )
-    end
   end
 
 end
