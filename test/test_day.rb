@@ -207,9 +207,9 @@ class TestDay < MiniTest::Test #:nodoc:
      start_minutes = d_day.working_minutes(s_date)
      finish_minutes = d_day.working_minutes(Workpattern::FIRST_TIME_IN_DAY,f_date)
  
+     assert_equal 61, finish_minutes, "finish_minutes"
      assert_equal 60, start_minutes,"start_minutes"
      assert_equal 480, d_minutes, "d_minutes"
-     assert_equal 61, finish_minutes, "finish_minutes"
    end
  
   private

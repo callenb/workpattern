@@ -9,11 +9,8 @@ module Workpattern
       @pattern = initial_day(type)
     end
 
-    def set_resting(from_time, to_time)
-      mask = 0 if last_minute?(to_time) && first_minute?(from_time)
-      mask = bit_time(from_time) - 1 if last_minute?(to_time)
-      mask = bit_time(LAST_TIME_IN_DAY, 1) - bit_time(to_time,1)  if first_minute?(from_time) 
-      mask = working_day - (bit_time(to_time,1) - bit_time(from_time)) if !first_minute?(from_time) && !last_minute?(to_time)
+    def set_resting(start_time, finish_time)
+      mask = resting_mask(start_time, finish_time)
       @pattern = @pattern & mask
     end
 
@@ -57,10 +54,10 @@ module Workpattern
       pattern
     end
 
-    def working_mask(start_time, finish_time, offset = 0)
+    def working_mask(start_time, finish_time)
     
-      start = minutes_in_time(start_time)
-      finish = minutes_in_time(finish_time) + offset
+      start = minutes_in_time(start_time) 
+      finish = minutes_in_time(finish_time) 
 
       mask = initial_day
 
@@ -71,34 +68,17 @@ module Workpattern
     def resting_mask(start_time, finish_time)
 
       start = minutes_in_time(start_time)
-      finish = minutes_in_time(finish_time)
+      finish_clock = Clock.new(finish_time.hour, finish_time.min + 1) 
 
-      mask = initial_day
-
-      mask = mask & (2**(finish + 1) - 1)
-      mask & (2**start - 1)
-     
+      mask = initial_day(REST_TYPE)
+      if minutes_in_time(finish_time) != LAST_TIME_IN_DAY.minutes
+        mask = mask | working_mask(finish_clock,LAST_TIME_IN_DAY)
+      end	
+      mask | ((2**start) - 1)
     end 
 
     def minutes_in_time(a_time)
       (a_time.hour * 60) + a_time.min
-    end
-
-
-    ############################
-
-    def bit_time(time, offset=0)
-      2**((60 * time.hour) + time.min + offset)
-    end
-
-    def last_minute?(time)
-      return true if time.hour == 23 && time.min == 59
-      false
-    end
-
-    def first_minute?(time)
-      return true if time.hour == 0 && time.min == 0
-      false
     end
 
   end
