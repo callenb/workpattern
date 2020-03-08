@@ -80,6 +80,31 @@ module Workpattern
       end
     end
 
+    def subtract(a_date, a_duration)
+      minutes_left = working_minutes(FIRST_TIME_IN_DAY,a_date - 60)
+      abs_duration = a_duration.abs
+      if abs_duration > minutes_left
+        return [a_date, a_duration + minutes_left, PREVIOUS_DAY]
+      elsif abs_duration < minutes_left
+        return subtract_minutes(a_date, abs_duration)
+      else
+        return [Time.gm(a_date.year,a_date.month,a_date.day,@first_working_minute.hour,@first_working_minute.min), 0, SAME_DAY]
+      end	
+    end
+
+    def subtract_minutes(a_date, abs_duration)
+      elapsed_date = a_date - (abs_duration * 60)
+      if working_minutes(elapsed_date, a_date - 60) == abs_duration
+        return [elapsed_date, 0, SAME_DAY]
+      else
+        a_date -= 60
+        begin
+          elapsed_date -= 60
+	end while working_minutes(elapsed_date, a_date) != abs_duration
+	return [elapsed_date, 0, SAME_DAY]
+      end
+    end
+
     def working_day
       2**((60 * @hours_per_day) +1) - 1
     end

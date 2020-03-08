@@ -237,6 +237,34 @@ class TestDay < MiniTest::Test #:nodoc:
 
    end
  
+   def test_subtract_durations_from_working_day
+
+     a_day = working_day
+     a_date = Time.gm(1963,6,10,1,2)
+
+     r_time, r_duration, r_offset = a_day.calc(a_date,-30)
+     
+     assert_equal 0, r_time.hour, "should be 0 hours"
+     assert_equal 32, r_time.min,  "should be 28 minutes"
+     assert_equal 0, r_duration, "should be 0 duration"
+     assert_equal Workpattern::SAME_DAY, r_offset, "should be SAME_DAY"
+
+     
+     r_time, r_duration, r_offset = a_day.calc(a_date,-100)
+     
+     assert_equal 1, r_time.hour, "should be 23 hours"
+     assert_equal 2, r_time.min,  "should be 28 minutes"
+     assert_equal -38, r_duration, "should be 0 duration"
+     assert_equal Workpattern::PREVIOUS_DAY, r_offset, "should be SAME_DAY"
+
+     r_time, r_duration, r_offset = a_day.calc(a_date,-62)
+     
+     assert_equal 0, r_time.hour, "should be 1 hours"
+     assert_equal 0, r_time.min,  "should be 2 minutes"
+     assert_equal 0, r_duration, "should be 0 duration"
+     assert_equal Workpattern::SAME_DAY, r_offset, "should be SAME_DAY"
+
+   end
   private
 
   def working_day
