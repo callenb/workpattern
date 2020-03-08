@@ -33,6 +33,11 @@ module Workpattern
   # Latest or last time in the day
   LAST_TIME_IN_DAY = Clock.new(23, 59)
 
+  # Flags for calculations
+  PREVIOUS_DAY = -1
+  SAME_DAY = 0
+  NEXT_DAY = 1
+
   # Specifies a working pattern
   WORK_TYPE = 1
 

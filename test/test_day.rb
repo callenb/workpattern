@@ -9,11 +9,7 @@ class TestDay < MiniTest::Test #:nodoc:
     assert_equal 1440, myday.working_minutes
   end
 
-  def test_creates_non_working_day
-     myday = resting_day
-     assert_equal 0, myday.working_minutes
-  end
- 
+
   def test_when_working_minute
      myday = working_day
      assert myday.working?(0,0)
@@ -210,6 +206,35 @@ class TestDay < MiniTest::Test #:nodoc:
      assert_equal 61, finish_minutes, "finish_minutes"
      assert_equal 60, start_minutes,"start_minutes"
      assert_equal 480, d_minutes, "d_minutes"
+   end
+
+   def test_add_durations_to_working_day
+
+     a_day = working_day
+     a_date = Time.gm(1963,6,10,22,58)
+
+     r_time, r_duration, r_offset = a_day.calc(a_date,30)
+     
+     assert_equal 23, r_time.hour, "should be 23 hours"
+     assert_equal 28, r_time.min,  "should be 28 minutes"
+     assert_equal 0, r_duration, "should be 0 duration"
+     assert_equal Workpattern::SAME_DAY, r_offset, "should be SAME_DAY"
+
+     
+     r_time, r_duration, r_offset = a_day.calc(a_date,100)
+     
+     assert_equal 22, r_time.hour, "should be 23 hours"
+     assert_equal 58, r_time.min,  "should be 28 minutes"
+     assert_equal 38, r_duration, "should be 0 duration"
+     assert_equal Workpattern::NEXT_DAY, r_offset, "should be SAME_DAY"
+
+     r_time, r_duration, r_offset = a_day.calc(a_date,62)
+     
+     assert_equal 22, r_time.hour, "should be 23 hours"
+     assert_equal 58, r_time.min,  "should be 28 minutes"
+     assert_equal 0, r_duration, "should be 0 duration"
+     assert_equal Workpattern::NEXT_DAY, r_offset, "should be SAME_DAY"
+
    end
  
   private
