@@ -69,7 +69,8 @@ module Workpattern
     end
 
     def add_minutes(a_date, a_duration)
-      elapsed_date = a_date + (a_duration * 60)
+      elapsed_date = a_date + (a_duration * 60) - 60
+
       if working_minutes(a_date, elapsed_date) == a_duration
         return [elapsed_date += 60, 0, SAME_DAY]
       else
@@ -148,6 +149,10 @@ module Workpattern
     end
 
     def last_minute
+      if working?(LAST_TIME_IN_DAY.hour, LAST_TIME_IN_DAY.min)
+        return LAST_TIME_IN_DAY
+      end
+
       top = minutes_in_time(LAST_TIME_IN_DAY)
       bottom = minutes_in_time(FIRST_TIME_IN_DAY)
       mark = top / 2
@@ -174,15 +179,24 @@ module Workpattern
         
 	end  
 
-        if mark == bottom 
+        if mark == bottom #& last_mark != mark
 	  mark = mark + 1
 	end  
+
+        if mark == 1 && top == 1 
+          mark = 0
+        end
+
       end
       minutes_to_time(mark)
 
     end
 
     def first_minute
+      if working?(FIRST_TIME_IN_DAY.hour, FIRST_TIME_IN_DAY.min)
+        return FIRST_TIME_IN_DAY
+      end
+
       top = minutes_in_time(LAST_TIME_IN_DAY)
       bottom = minutes_in_time(FIRST_TIME_IN_DAY)
       mark = top / 2
@@ -214,11 +228,12 @@ module Workpattern
         
 	end  
         
-	if mark == top
-	  mark = mark - 1
+	if mark == 1 && top == 1
+	  mark = 0
 	end
 
       end
+      
       minutes_to_time(mark)
     end  
 

@@ -55,11 +55,14 @@ module Workpattern
       duplicate_week
     end
 
-    def calc(start_date, duration, midnight = false)
-      return start_date, duration, false if duration == 0
-      return add(start_date, duration) if duration > 0
-      return subtract(start, duration, midnight) if total == 0 && duration < 0
-      subtract(start_date, duration, midnight)
+    def calc(a_date, a_duration, a_day = SAME_DAY) 
+      if a_duration == 0
+        return a_date, a_duration
+      elsif a_duration > 0	
+        return add(a_date, a_duration)
+      else	
+        subtract(a_date, a_duration, a_day)
+      end	
     end
 
     def working?(time)
@@ -79,10 +82,6 @@ module Workpattern
     end
 
     private
-
-    def working_minutes_in(day)
-      day.to_s(2).count('1')
-    end
 
     def elapsed_days
       (finish - start).to_i / DAY + 1
@@ -129,58 +128,50 @@ module Workpattern
       @days[first..last].inject(0) { |sum, day| sum + day.working_minutes }
     end
 
-    def add(initial_date, duration)
-      running_date, duration = add_to_end_of_day(initial_date, duration)
+    def add(a_date, a_duration)
 
-      running_date, duration = add_to_finish_day running_date, duration
-      running_date, duration = add_full_weeks running_date, duration
-      running_date, duration = add_remaining_days running_date, duration
-      [running_date, duration, false]
+      r_date, r_duration = add_to_end_of_day(a_date, a_duration)
+
+      r_date, r_duration = add_to_finish_day r_date, r_duration
+      r_date, r_duration = add_full_weeks r_date, r_duration
+      r_date, r_duration = add_remaining_days r_date, r_duration
+      [r_date, r_duration, false]
     end
 
-    def add_to_end_of_day(initial_date, duration)
-      available_minutes_in_day = minutes_to_end_of_day(initial_date)
+    def add_to_end_of_day(a_date, a_duration)
+      r_date, r_duration, r_day = @days[a_date.wday].calc(a_date,a_duration)
 
-      if available_minutes_in_day < duration
-        duration -= available_minutes_in_day
-        initial_date = start_of_next_day(initial_date)
-      elsif available_minutes_in_day == duration
-        duration -= available_minutes_in_day
-        initial_date = end_of_this_day(initial_date)
-      else
-        initial_date = consume_minutes(initial_date, duration)
-        duration = 0
-      end
-      [initial_date, duration]
-    end
+      if r_day == NEXT_DAY
+        r_date = start_of_next_day(r_date)
 
-    def add_to_finish_day(date, duration)
-      while ( duration != 0) && (date.wday != next_day(self.finish).wday) && (jd(date) <= jd(self.finish))
-        date, duration = add_to_end_of_day(date,duration)
       end
 
-      [date, duration]
+      [r_date, r_duration]
     end
 
-    def add_full_weeks(date, duration)
-
-      while (duration != 0) && (duration >= self.week_total) && ((jd(date) + (6*86400)) <= jd(self.finish))
-        duration -= self.week_total
-        date += (7*86400)
+    def add_to_finish_day(a_date, a_duration)
+      while ( a_duration != 0) && (a_date.wday != next_day(self.finish).wday) && (jd(a_date) <= jd(self.finish))
+        a_date, a_duration = add_to_end_of_day(a_date,a_duration)
       end
 
-      [date, duration]
+      [a_date, a_duration]
     end
 
-    def add_remaining_days(date, duration)
-      while (duration != 0) && (jd(date) <= jd(self.finish))
-        date, duration = add_to_end_of_day(date,duration)
+    def add_full_weeks(a_date, a_duration)
+
+      while (a_duration != 0) && (a_duration >= self.week_total) && ((jd(a_date) + (6*86400)) <= jd(self.finish))
+        a_duration -= self.week_total
+        a_date += (7*86400)
       end
-      [date, duration]
+
+      [a_date, a_duration]
     end
 
-    def time_mask(from_time, to_time)
-      bit_pos(to_time.hour, to_time.min + 1) - bit_pos(from_time.hour, from_time.min)
+    def add_remaining_days(a_date, a_duration)
+      while (a_duration != 0) && (jd(a_date) <= jd(self.finish))
+        a_date, a_duration = add_to_end_of_day(a_date,a_duration)
+      end
+      [a_date, a_duration]
     end
 
     def bit_pos(hour,minute)
@@ -189,20 +180,6 @@ module Workpattern
 
     def minutes_to_end_of_day(date)
        @days[date.wday].working_minutes(date, LAST_TIME_IN_DAY)
-
-    end
-
-    def pattern_to_end_of_day(date)
-      mask = mask_to_end_of_day(date)
-      (@days[date.wday].pattern & mask)
-    end
-
-    def mask_to_end_of_day(date)
-      bit_pos(hours_per_day, 0) - bit_pos(date.hour, date.min)
-    end
-
-    def working_day
-      2**(60 * hours_per_day) - 1
     end
 
     def start_of_next_day(date)
@@ -215,15 +192,6 @@ module Workpattern
 
     def start_of_today(date)
       start_of_next_day(prev_day(date))
-    end
-
-    def end_of_this_day(date)
-      position = pattern_to_end_of_day(date).to_s(2).size
-      adjust_date(date, position)
-    end
-
-    def adjust_date(date, adjustment)
-      date - (HOUR * date.hour) - (MINUTE * date.min) + (MINUTE * adjustment)
     end
 
     def mask_to_start_of_day(date)
@@ -240,106 +208,52 @@ module Workpattern
       minutes = minutes - 1 if working?(date)
       minutes
 
-    #working_minutes_in pattern_to_start_of_day(date)
     end
 
+    def subtract_to_start_of_day(a_date, a_duration, a_day)
+      
+      
+      a_date, a_duration, a_day = handle_midnight(a_date, a_duration, a_day)
 
-    def consume_minutes(date, duration)
-      minutes = pattern_to_end_of_day(date).to_s(2).reverse! if duration > 0
-      minutes = pattern_to_start_of_day(date).to_s(2) if duration < 0
-      top = minutes.size
-      bottom = 1
-      mark = top / 2
-      while (minutes[0, mark].count('1') != duration.abs ) # & ((top != bottom) & (top != mark))
-        last_mark = mark
-        if minutes[0, mark].count('1') < duration.abs
-          bottom = mark
-          mark = (top - mark) / 2 + mark
-          mark = top if last_mark == mark
-        else
-          top = mark
-          mark = (mark - bottom) / 2 + bottom
-          mark = bottom if last_mark == mark
-        end
-      end
+      r_date, r_duration, r_day = @days[a_date.wday].calc(a_date, a_duration)
 
-      mark = minutes_addition_adjustment(minutes, mark) if duration > 0
-      mark = minutes_subtraction_adjustment(minutes, mark) if duration < 0
+      [r_date, r_duration, r_day]
 
-      return adjust_date(date, mark) if duration > 0
-      return start_of_today(date) + (MINUTE * mark) if duration < 0
     end
 
-    def minutes_subtraction_adjustment(minutes, mark)
-      i = mark - 1
+    def handle_midnight(a_date, a_duration, a_day)
+      
+      if a_day == PREVIOUS_DAY
+        a_date -= DAY
+        a_date = Time.gm(a_date.year, a_date.month, a_date.day,LAST_TIME_IN_DAY.hour, LAST_TIME_IN_DAY.min)
 
-      while minutes[i] == '0'
-        i -= 1
+        if @days[a_date.wday].working?(a_date.hour, a_date.min)
+          a_duration += 1
+        end	
       end
 
-      minutes.size - (i + 1)
+      [a_date, a_duration, SAME_DAY]
     end
 
-    def minutes_addition_adjustment(minutes, mark)
-      minutes = minutes[0, mark]
-
-      while minutes[minutes.size - 1] == '0'
-        minutes.chop!
+    def subtract(a_date, a_duration, a_day)
+      a_date, a_duration, a_day = handle_midnight(a_date, a_duration, a_day)
+      a_date, a_duration, a_day = subtract_to_start_of_day(a_date, a_duration, a_day)
+      
+      while (a_duration != 0) && (a_date.wday != start.wday) && (jd(a_date) > jd(start))  
+        a_date, a_duration, a_day = handle_midnight(a_date, a_duration, a_day)
+        a_date, a_duration, a_day = subtract_to_start_of_day(a_date, a_duration, a_day)
       end
 
-      minutes.size
-    end
-
-    def subtract_to_start_of_day(initial_date, duration, midnight)
-      initial_date, duration, midnight = handle_midnight(initial_date, duration) if midnight
-      available_minutes_in_day = minutes_to_start_of_day(initial_date)
-      if duration != 0
-        if available_minutes_in_day < duration.abs
-          duration += available_minutes_in_day
-          initial_date = start_of_previous_day(initial_date)
-          midnight = true
-        else
-          initial_date = consume_minutes(initial_date, duration)
-          duration = 0
-          midnight = false
-        end
-      end
-      [initial_date, duration, midnight]
-    end
-
-    def handle_midnight(initial_date, duration)
-      if working?(start_of_next_day(initial_date) - MINUTE)
-        duration += 1
+      while (a_duration != 0) && (a_duration >= week_total) && ((jd(a_date) - (6 * DAY)) >= jd(start))
+        a_duration += week_total
+        a_date -= 7
       end
 
-      initial_date -= (HOUR * initial_date.hour)
-      initial_date -= (MINUTE * initial_date.min)
-      initial_date = next_day(initial_date) - MINUTE
-
-      [initial_date, duration, false]
-    end
-
-    def subtract(initial_date, duration, midnight)
-      initial_date, duration, midnight = handle_midnight(initial_date, duration) if midnight
-
-      initial_date, duration, midnight = subtract_to_start_of_day(initial_date, duration, midnight)
-
-      while (duration != 0) && (initial_date.wday != prev_day(start.wday)) && (jd(initial_date) >= jd(start))
-        initial_date, duration, midnight = subtract_to_start_of_day(initial_date, duration, midnight)
+      while (a_duration != 0) && (jd(a_date) > jd(start))
+        a_date, a_duration, a_day = subtract_to_start_of_day(a_date,a_duration,a_day)
       end
 
-      while (duration != 0) && (duration >= week_total) && ((jd(initial_date) - (6 * DAY)) >= jd(start))
-        duration += week_total
-        initial_date -= 7
-      end
-
-      while (duration != 0) && (jd(initial_date) >= jd(start))
-        initial_date, duration, midnight = subtract_to_start_of_day(initial_date,
-                                                                    duration,
-                                                                    midnight)
-      end
-
-      [initial_date, duration, midnight]
+      [a_date, a_duration, a_day]
     end
 
     def diff_in_same_weekpattern(start_date, finish_date)
@@ -389,7 +303,8 @@ module Workpattern
       finish_bit_pos = bit_pos(finish_date.hour, finish_date.min)
       start_bit_pos = bit_pos(start_date.hour, start_date.min)
       mask = finish_bit_pos - start_bit_pos
-      minutes = working_minutes_in(@days[start_date.wday].pattern & mask)
+      mask = mask # to avoid warning for what will soon be deleted code and probably doesn't work anyway
+      minutes = @days[start_date.wday].working_minutes(start_date, finish_date)
       [minutes, finish_date]
     end
 
