@@ -418,105 +418,105 @@ class TestWeek < MiniTest::Test #:nodoc:
     assert_equal 0, r_dur
   end
 
-#  def must_diff_day_week_day_in_patterned_week
-#    start = Time.gm(2013, 9, 23, 0, 0)
-#    finish = Time.gm(2013, 10, 20, 23, 59)
-#    w_week = week(start, finish, 1)
-#    w_week.workpattern :all, Workpattern.clock(0, 0),
-#                       Workpattern.clock(8, 59), 0
-#    w_week.workpattern :all, Workpattern.clock(12, 0),
-#                       Workpattern.clock(12, 59), 0
-#    w_week.workpattern :all, Workpattern.clock(18, 0),
-#                       Workpattern.clock(23, 59), 0
-#    s_date = Time.gm(2013, 10, 3, 16, 0)
-#    f_date = Time.gm(2013, 10, 15, 12, 30)
-#    duration, start = w_week.diff(s_date, f_date)
-#
-#    assert_equal 5_640, duration
-#    assert_equal Time.gm(2013, 10, 15, 12, 30), start
-#  end
-#
-#  def test_must_calculate_difference_between_dates_in_w_week
-#    late_date = Time.gm(2000, 1, 6, 9, 32)
-#    early_date = Time.gm(2000, 1, 6, 8, 20)
-#    result_dur, r_date = @w_week.diff(early_date, late_date)
-#    assert_equal 72, result_dur
-#    assert_equal late_date, r_date
-#  end
-#
-#  def test_must_calculate_difference_between_dates_in_resting_week
-#    late_date = Time.gm(2000, 1, 6, 9, 32)
-#    early_date = Time.gm(2000, 1, 6, 8, 20)
-#    result_dur, r_date = @r_week.diff(early_date, late_date)
-#    assert_equal 0, result_dur
-#    assert_equal late_date, r_date
-#  end
-#
-#  def test_must_calculate_difference_between_dates_in_pattern_week
-#    late_date = Time.gm(2000, 1, 6, 13, 1)
-#    early_date = Time.gm(2000, 1, 6, 12, 29)
-#    result_dur, r_date = @p_week.diff(early_date, late_date)
-#    assert_equal 1, result_dur
-#    assert_equal late_date, r_date
-#  end
-#
-#  def test_must_diff_from_last_day_of_patterned_week
-#    # #issue 15
-#    start = Time.gm(2013, 9, 23, 0, 0)
-#    finish = Time.gm(2013, 9, 26, 23, 59)
-#    w_week = week(start, finish, 1)
-#    w_week.workpattern :all, Workpattern.clock(0, 0),
-#                       Workpattern.clock(8, 59), 0
-#    w_week.workpattern :all, Workpattern.clock(12, 0),
-#                       Workpattern.clock(12, 59), 0
-#    w_week.workpattern :all, Workpattern.clock(18, 0),
-#                       Workpattern.clock(23, 59), 0
-#
-#    s_date = Time.gm(2013, 9, 26, 17, 0)
-#    f_date = Time.gm(2013, 9, 27, 10, 0)
-#    duration, start = w_week.diff(s_date, f_date)
-#
-#    assert_equal 60, duration
-#    assert_equal Time.gm(2013, 9, 27, 0, 0), start
-#  end
-#
-#  def test_must_diff_long_distances_beyond_end_of_patterned_week
-#    start = Time.gm(2013, 9, 23, 0, 0)
-#    finish = Time.gm(2013, 10, 20, 23, 59)
-#    w_week = week(start, finish, 1)
-#    w_week.workpattern :all, Workpattern.clock(0, 0),
-#                       Workpattern.clock(8, 59), 0
-#    w_week.workpattern :all, Workpattern.clock(12, 0),
-#                       Workpattern.clock(12, 59), 0
-#    w_week.workpattern :all, Workpattern.clock(18, 0),
-#                       Workpattern.clock(23, 59), 0
-#
-#    s_date = Time.gm(2013, 9, 26, 17, 0)
-#    f_date = Time.gm(2018, 9, 27, 10, 0)
-#    duration, start = w_week.diff(s_date, f_date)
-#
-#    assert_equal 11_580, duration
-#    assert_equal Time.gm(2013, 10, 21, 0, 0), start
-#  end
-#
-#  def test_must_diff_long_distances_within_patterned_week
-#    start = Time.gm(2013, 9, 23, 0, 0)
-#    finish = Time.gm(2013, 10, 20, 23, 59)
-#    w_week = week(start, finish, 1)
-#    w_week.workpattern :all, Workpattern.clock(0, 0),
-#                       Workpattern.clock(8, 59), 0
-#    w_week.workpattern :all, Workpattern.clock(12, 0),
-#                       Workpattern.clock(12, 59), 0
-#    w_week.workpattern :all, Workpattern.clock(18, 0),
-#                       Workpattern.clock(23, 59), 0
-#
-#    s_date = Time.gm(2013, 9, 26, 17, 0)
-#    f_date = Time.gm(2013, 10, 15, 10, 0)
-#    duration, start = w_week.diff(s_date, f_date)
-#
-#    assert_equal 8_760, duration
-#    assert_equal Time.gm(2013, 10, 15, 10, 0), start
-#  end
+  def must_diff_day_week_day_in_patterned_week
+    start = Time.gm(2013, 9, 23, 0, 0)
+    finish = Time.gm(2013, 10, 20, 23, 59)
+    w_week = week(start, finish, 1)
+    w_week.workpattern :all, Workpattern.clock(0, 0),
+                       Workpattern.clock(8, 59), 0
+    w_week.workpattern :all, Workpattern.clock(12, 0),
+                       Workpattern.clock(12, 59), 0
+    w_week.workpattern :all, Workpattern.clock(18, 0),
+                       Workpattern.clock(23, 59), 0
+    s_date = Time.gm(2013, 10, 3, 16, 0)
+    f_date = Time.gm(2013, 10, 15, 12, 30)
+    duration, start = w_week.diff(s_date, f_date)
+
+    assert_equal 5_640, duration
+    assert_equal Time.gm(2013, 10, 15, 12, 30), start
+  end
+
+  def test_must_calculate_difference_between_dates_in_w_week
+    late_date = Time.gm(2000, 1, 6, 9, 32)
+    early_date = Time.gm(2000, 1, 6, 8, 20)
+    result_dur, r_date = @w_week.diff(early_date, late_date)
+    assert_equal 72, result_dur
+    assert_equal late_date, r_date
+  end
+
+  def test_must_calculate_difference_between_dates_in_resting_week
+    late_date = Time.gm(2000, 1, 6, 9, 32)
+    early_date = Time.gm(2000, 1, 6, 8, 20)
+    result_dur, r_date = @r_week.diff(early_date, late_date)
+    assert_equal 0, result_dur
+    assert_equal late_date, r_date
+  end
+
+  def test_must_calculate_difference_between_dates_in_pattern_week
+    late_date = Time.gm(2000, 1, 6, 13, 1)
+    early_date = Time.gm(2000, 1, 6, 12, 29)
+    result_dur, r_date = @p_week.diff(early_date, late_date)
+    assert_equal 1, result_dur
+    assert_equal late_date, r_date
+  end
+
+  def test_must_diff_from_last_day_of_patterned_week
+    # #issue 15
+    start = Time.gm(2013, 9, 23, 0, 0)
+    finish = Time.gm(2013, 9, 26, 23, 59)
+    w_week = week(start, finish, 1)
+    w_week.workpattern :all, Workpattern.clock(0, 0),
+                       Workpattern.clock(8, 59), 0
+    w_week.workpattern :all, Workpattern.clock(12, 0),
+                       Workpattern.clock(12, 59), 0
+    w_week.workpattern :all, Workpattern.clock(18, 0),
+                       Workpattern.clock(23, 59), 0
+
+    s_date = Time.gm(2013, 9, 26, 17, 0)
+    f_date = Time.gm(2013, 9, 27, 10, 0)
+    duration, start = w_week.diff(s_date, f_date)
+
+    assert_equal 60, duration
+    assert_equal Time.gm(2013, 9, 27, 0, 0), start
+  end
+
+  def test_must_diff_long_distances_beyond_end_of_patterned_week
+    start = Time.gm(2013, 9, 23, 0, 0)
+    finish = Time.gm(2013, 10, 20, 23, 59)
+    w_week = week(start, finish, 1)
+    w_week.workpattern :all, Workpattern.clock(0, 0),
+                       Workpattern.clock(8, 59), 0
+    w_week.workpattern :all, Workpattern.clock(12, 0),
+                       Workpattern.clock(12, 59), 0
+    w_week.workpattern :all, Workpattern.clock(18, 0),
+                       Workpattern.clock(23, 59), 0
+
+    s_date = Time.gm(2013, 9, 26, 17, 0)
+    f_date = Time.gm(2018, 9, 27, 10, 0)
+    duration, start = w_week.diff(s_date, f_date)
+
+    assert_equal 11_580, duration
+    assert_equal Time.gm(2013, 10, 21, 0, 0), start
+  end
+
+  def test_must_diff_long_distances_within_patterned_week
+    start = Time.gm(2013, 9, 23, 0, 0)
+    finish = Time.gm(2013, 10, 20, 23, 59)
+    w_week = week(start, finish, 1)
+    w_week.workpattern :all, Workpattern.clock(0, 0),
+                       Workpattern.clock(8, 59), 0
+    w_week.workpattern :all, Workpattern.clock(12, 0),
+                       Workpattern.clock(12, 59), 0
+    w_week.workpattern :all, Workpattern.clock(18, 0),
+                       Workpattern.clock(23, 59), 0
+
+    s_date = Time.gm(2013, 9, 26, 17, 0)
+    f_date = Time.gm(2013, 10, 15, 10, 0)
+    duration, start = w_week.diff(s_date, f_date)
+
+    assert_equal 8_760, duration
+    assert_equal Time.gm(2013, 10, 15, 10, 0), start
+  end
 
   private
 

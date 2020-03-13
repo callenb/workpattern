@@ -73,14 +73,18 @@ module Workpattern
       @days[time.wday].resting?(time.hour, time.min)
     end
 
-    def diff(start_d, finish_d)
-      start_d, finish_d = finish_d, start_d if ((start_d <=> finish_d)) == 1
+    def diff(start_date, finish_date)
+      if start_date > finish_date
+        start_date, finish_date = finish_date, start_date
+      end
 
-      return diff_in_same_day(start_d, finish_d) if jd(start_d) == jd(finish_d)
-      return diff_in_same_weekpattern(start_d, finish_d) if jd(finish_d) <= jd(finish)
-      diff_beyond_weekpattern(start_d, finish_d)
+      if jd(start_date) == jd(finish_date)
+        return diff_in_same_day(start_date, finish_date)
+      else jd(finish_date) <= jd(finish)
+        return diff_in_same_weekpattern(start_date, finish_date)
+      end
     end
-
+    
     private
 
     def elapsed_days
@@ -174,40 +178,8 @@ module Workpattern
       [a_date, a_duration]
     end
 
-    def bit_pos(hour,minute)
-      2**( (hour * 60) + minute )
-    end
-
-    def minutes_to_end_of_day(date)
-       @days[date.wday].working_minutes(date, LAST_TIME_IN_DAY)
-    end
-
     def start_of_next_day(date)
       next_day(date) - (HOUR * date.hour) - (MINUTE * date.min)
-    end
-
-    def start_of_previous_day(date)
-      prev_day(prev_day(start_of_next_day(date)))
-    end
-
-    def start_of_today(date)
-      start_of_next_day(prev_day(date))
-    end
-
-    def mask_to_start_of_day(date)
-      bit_pos(date.hour, date.min) - 1# bit_pos(0, 0)
-    end
-
-    def pattern_to_start_of_day(date)
-      mask = mask_to_start_of_day(date)
-      (@days[date.wday].pattern & mask)
-    end
-
-    def minutes_to_start_of_day(date)
-      minutes = @days[date.wday].working_minutes(FIRST_TIME_IN_DAY, date) 
-      minutes = minutes - 1 if working?(date)
-      minutes
-
     end
 
     def subtract_to_start_of_day(a_date, a_duration, a_day)
@@ -257,54 +229,37 @@ module Workpattern
     end
 
     def diff_in_same_weekpattern(start_date, finish_date)
-      duration, start_date = diff_to_tomorrow(start_date)
-      loop do
-        break if start_date.wday == (finish.wday + 1)
-        break if jd(start_date) == jd(finish)
-        break if jd(start_date) == jd(finish_date)
-        duration += minutes_to_end_of_day(start_date)
-        start_date = start_of_next_day(start_date)
+      minutes = @days[start_date.wday].working_minutes(start_date, LAST_TIME_IN_DAY)
+      run_date = start_of_next_day(start_date)
+      while (run_date.wday != start.wday) && (jd(run_date) < jd(finish)) && (jd(run_date) != jd(finish_date))      
+        minutes += @days[run_date.wday].working_minutes
+	run_date += DAY
       end
 
-      loop do
-        break if (start_date + (7 * DAY)) > finish_date
-        break if jd(start_date + (6 * DAY)) > jd(finish)
-        duration += week_total
-        start_date += (7 * DAY)
+      while ((jd(run_date) + (7 * DAY)) < jd(finish_date))  && ((jd(run_date) + (7 * DAY)) < jd(finish))
+        minutes += week_total
+	run_date += (7 * DAY)
       end
 
-      loop do
-        break if jd(start_date) >= jd(finish)
-        break if jd(start_date) >= jd(finish_date)
-        duration += minutes_to_end_of_day(start_date)
-        start_date = start_of_next_day(start_date)
+      while (jd(run_date) < jd(finish_date)) && (jd(run_date) <= jd(finish))
+        minutes += @days[run_date.wday].working_minutes
+	run_date += DAY
       end
 
-      if start_date < finish
-        interim_duration, start_date = diff_in_same_day(start_date, finish_date)
+      if (jd(run_date) == jd(finish_date)) && (jd(run_date) <= jd(finish))
+        minutes += @days[run_date.wday].working_minutes(run_date, finish_date - MINUTE)
+	run_date = finish_date
+      elsif (jd(run_date) <= jd(finish)) 
+        minutes += @days[run_date.wday].working_minutes
+	run_date += DAY
       end
-      duration += interim_duration unless interim_duration.nil?
-      [duration, start_date]
-    end
 
-    def diff_beyond_weekpattern(start_date, finish_date)
-      duration, start_date = diff_in_same_weekpattern(start_date, finish_date)
-      [duration, start_date]
-    end
+      [minutes, run_date]
 
-    def diff_to_tomorrow(start_date)
-      start_time=Clock.new(start_date.hour, start_date.min)
-      finish_time=Clock.new(hours_per_day-1,59)
-      minutes = @days[start_date.wday].working_minutes(start_time,finish_time)
-      [minutes, start_of_next_day(start_date)]
     end
 
     def diff_in_same_day(start_date, finish_date)
-      finish_bit_pos = bit_pos(finish_date.hour, finish_date.min)
-      start_bit_pos = bit_pos(start_date.hour, start_date.min)
-      mask = finish_bit_pos - start_bit_pos
-      mask = mask # to avoid warning for what will soon be deleted code and probably doesn't work anyway
-      minutes = @days[start_date.wday].working_minutes(start_date, finish_date)
+      minutes = @days[start_date.wday].working_minutes(start_date, finish_date - MINUTE)
       [minutes, finish_date]
     end
 
