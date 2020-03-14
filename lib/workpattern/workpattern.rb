@@ -189,19 +189,35 @@ module Workpattern
     # <tt>start</tt>
     #
     def calc(start, duration)
+#puts "calc(#{start}, #{duration})"
       return start if duration == 0
-      midnight = false
+      a_day = SAME_DAY
 
       utc_start = to_utc(start)
-      while duration != 0
-        week = find_weekpattern(utc_start)
-        if (week.start == utc_start) && (duration < 0) && !midnight
-          utc_start = utc_start.prev_day
-          week = find_weekpattern(utc_start)
-          midnight = true
-        end
 
-        utc_start, duration, midnight = week.calc(utc_start, duration, midnight)
+      while duration != 0
+
+        if a_day == PREVIOUS_DAY
+	  utc_start -= DAY
+	  a_day = SAME_DAY
+          utc_start = Time.gm(utc_start.year, utc_start.month, utc_start.day,LAST_TIME_IN_DAY.hour, LAST_TIME_IN_DAY.min)
+	  week = find_weekpattern(utc_start)
+	  
+#puts "WEEK A: #{week.start} - #{week.finish}"	
+	  if week.working?(utc_start)
+	    duration += 1
+	  end
+	else
+	  week = find_weekpattern(utc_start)
+
+#puts "WEEK B: #{week.start} - #{week.finish}"	
+	end
+
+#puts "before test: utc_start=#{utc_start}, duration=#{duration}, a_day=#{a_day}"
+
+#puts "week.calc(#{utc_start}, #{duration}, #{a_day}"
+        utc_start, duration, a_day = week.calc(utc_start, duration, a_day)
+#puts "=#{utc_start}, #{duration}, #{a_day}"	
       end
 
       to_local(utc_start)
@@ -226,14 +242,15 @@ module Workpattern
     def diff(start, finish)
       utc_start = to_utc(start)
       utc_finish = to_utc(finish)
-      utc_start, utc_finish = utc_finish, utc_start if finish < start
-      duration = 0
+      utc_start, utc_finish = utc_finish, utc_start if utc_finish < utc_start
+      minutes = 0
+
       while utc_start != utc_finish
         week = find_weekpattern(utc_start)
-        result_duration, utc_start = week.diff(utc_start, utc_finish)
-        duration += result_duration
+        r_minutes, utc_start = week.diff(utc_start, utc_finish)
+        minutes += r_minutes
       end
-      duration
+      minutes
     end
 
     # Retrieve the correct <tt>Week</tt> pattern for the supplied date.
@@ -261,6 +278,5 @@ module Workpattern
       end
       result
     end
-
   end
 end

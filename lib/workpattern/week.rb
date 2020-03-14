@@ -246,12 +246,15 @@ module Workpattern
 	run_date += DAY
       end
 
-      if (jd(run_date) == jd(finish_date)) && (jd(run_date) <= jd(finish))
-        minutes += @days[run_date.wday].working_minutes(run_date, finish_date - MINUTE)
-	run_date = finish_date
-      elsif (jd(run_date) <= jd(finish)) 
-        minutes += @days[run_date.wday].working_minutes
-	run_date += DAY
+      if run_date != finish_date
+        
+        if (jd(run_date) == jd(finish_date)) && (jd(run_date) <= jd(finish))
+          minutes += @days[run_date.wday].working_minutes(run_date, finish_date - MINUTE)
+	  run_date = finish_date
+        elsif (jd(run_date) <= jd(finish)) 
+          minutes += @days[run_date.wday].working_minutes
+	  run_date += DAY
+	end
       end
 
       [minutes, run_date]

@@ -62,7 +62,7 @@ module Workpattern
         if working?(LAST_TIME_IN_DAY.hour, LAST_TIME_IN_DAY.min)
 	  return [a_date, 0, NEXT_DAY]
 	else
-          return_date = Time.gm(a_date.year, a_date.month, a_date.day, @last_minute.hour, @last_minute.min) + 60
+          return_date = Time.gm(a_date.year, a_date.month, a_date.day, @last_working_minute.hour, @last_working_minute.min) + 60
 	  return [ return_date, 0, SAME_DAY]
 	end
       end	
