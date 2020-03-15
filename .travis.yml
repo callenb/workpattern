@@ -1,21 +1,19 @@
 language: ruby
 rvm:
 - 1.9.3
+- 2.1
+- 2.2
+- 2.3
+- 2.4
+- 2.5
+- 2.6
+- ruby-head
 - jruby-19mode
-- 2.1.0
-- 2.1.9
-- 2.2.0
-- 2.2.5
-- 2.3.0
-- 2.3.1
 - jruby-head
-before_install:
-- gem install bundler
-- gem update bundler
 deploy:
   provider: rubygems
   api_key:
-    secure: fTRzuSL8Oe2tJNZHpbJyN/0u2C0xFONR3sAJe/c/SG0QVfYYurLaRPXhO1Otln2+lmSH664IWWMjxa29Ik2mrjhTRx7XXE9o9DiK21k530NiPmVNqjv9Vyuj4G9ZmkHbPIT2jLqTwOTbsEYZqEkPgZMq9lE1/vBVuGtEYnUf8kE=
+    secure: IXKBqbRf+2aDOpH+g0LpTtIzyagDqjHy6Bo/UYtLqR42CHZUnzre8AvCTvobB+BlHF9W+Igdaf3tzzY+A+XrTf38Iut+zsFI6KnkP7pN8pSMfcpuxZrLi0vd24QAHlHLCHIwsl4WfHj/swIRQGtlhvAV5mcTLW2rhE9/M6pGvRo=
   gem: workpattern
   on:
     tags: true

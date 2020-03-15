@@ -8,11 +8,12 @@ $LOAD_PATH.unshift(File.dirname(__FILE__)) unless
 
 require 'rubygems'
 require 'date'
-require 'workpattern/utility/base.rb'
 require 'workpattern/clock'
-#require 'workpattern/day'
+require 'workpattern/constants'
+require 'workpattern/day'
 require 'workpattern/week'
 require 'workpattern/workpattern'
+require 'workpattern/week_pattern'
 
 #
 # workpattern.rb - date calculation library that takes into account patterns of
@@ -24,67 +25,7 @@ require 'workpattern/workpattern'
 # Documentation: Barrie Callender <barrie@callenb.org>
 #
 module Workpattern
-  # Represents a full working hour
-  # @since 0.2.0
-  WORKING_HOUR = 2**60 - 1
 
-  # Represents a full resting hour
-  # @since 0.2.0
-  RESTING_HOUR = 0
-
-  # The default workpattern name
-  # @since 0.2.0
-  DEFAULT_WORKPATTERN_NAME = 'default'.freeze
-
-  # The default base year
-  # @since 0.2.0
-  DEFAULT_BASE_YEAR = 2000
-
-  # The default span in years
-  # @since 0.2.0
-  DEFAULT_SPAN = 100
-
-  # Minute in terms of seconds
-  #
-  MINUTE = 60
-
-  # Hour interms od seconds
-  #
-  HOUR = MINUTE * 60
-
-  # Day in terms of seconds
-  #
-  DAY = HOUR * 24
-
-  # Earliest or first time in the day
-  # @since 0.0.1
-  FIRST_TIME_IN_DAY = Clock.new(0, 0)
-
-  # Latest or last time in the day
-  # @since 0.0.1
-  LAST_TIME_IN_DAY = Clock.new(23, 59)
-
-  # Specifies a working pattern
-  # @since 0.0.1
-  WORK = 1
-
-  # Specifies a resting pattern
-  # @since 0.0.1
-  REST = 0
-
-  # Represents the days of the week to be used in applying working
-  # and resting patterns.
-  # Values exist for each day of the week as well as for the weekend
-  # (Saturday and Sunday), 
-  # the week (Monday to Friday) and all days in the week.
-  #
-  # @since 0.0.1
-  daynames = { sun: [0], mon: [1], tue: [2], wed: [3],
-               thu: [4], fri: [5], sat: [6], 
-               weekday: [1, 2, 3, 4, 5], 
-               weekend: [0, 6], 
-               all: [0, 1, 2, 3, 4, 5, 6] }
-  DAYNAMES = daynames.freeze
   # Covenience method to obtain a new <tt>Workpattern</tt>
   #
   # A negative <tt>span</tt> counts back from the <tt>base</tt> year
@@ -94,7 +35,6 @@ module Workpattern
   # @param [Integer] number of years ending on 31st December.
   # @return [Workpattern]
   # @raise [NameError] creating a Workpattern with a name that already exists
-  # @since 0.2.0
   #
   def self.new(name = DEFAULT_WORKPATTERN_NAME,
                base = DEFAULT_BASE_YEAR,
@@ -107,8 +47,6 @@ module Workpattern
   #
   # @return [Array] all <tt>Workpattern</tt> objects
   #
-  # @since 0.2.0
-  #
   def self.to_a
     Workpattern.to_a
   end
@@ -118,8 +56,6 @@ module Workpattern
   # @param [String] name The name of the Workpattern to retrieve.
   # @return [Workpattern]
   #
-  # @since 0.2.0
-  #
   def self.get(name)
     Workpattern.get(name)
   end
@@ -128,15 +64,11 @@ module Workpattern
   #
   # @param [String] name The name of the Workpattern to be deleted.
   #
-  # @since 0.2.0
-  #
   def self.delete(name)
     Workpattern.delete(name)
   end
 
   # Convenience method to delete all Workpatterns.
-  #
-  # @since 0.2.0
   #
   def self.clear
     Workpattern.clear
@@ -150,9 +82,8 @@ module Workpattern
   # @return [Clock]
   # @see Clock
   #
-  # @since 0.2.0
-  #
   def self.clock(hour, min)
     Clock.new(hour, min)
   end
+
 end

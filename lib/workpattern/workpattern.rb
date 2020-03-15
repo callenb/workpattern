@@ -10,13 +10,18 @@ module Workpattern
   # referenced by calling applications when
   # using this gem.
   #
-  # @since 0.2.0
-  #
   class Workpattern
-    include Base
 
     # Holds collection of <tt>Workpattern</tt> objects
     @@workpatterns = {}
+
+    def self.workpatterns
+      @@workpatterns
+    end
+
+    def workpatterns
+      @@workpatterns
+    end
 
     # @!attribute [r] name
     #   Name given to the <tt>Workpattern</tt>
@@ -43,6 +48,25 @@ module Workpattern
       @@persist ||= nil
     end
 
+    # Holds local timezone info
+    @@tz = nil
+
+    # Converts a date like object into utc
+    #
+    def to_utc(date)
+      date.to_time.utc
+    end
+    # Converts a date like object into local time
+    #
+    def to_local(date)
+      date.to_time.getgm
+    end
+
+    # Retrieves the local timezone
+    def timezone
+      @@tz || @@tz = TZInfo::Timezone.get(Time.now.zone)
+    end
+
     # The new <tt>Workpattern</tt> object is created with all working minutes.
     #
     # @param [String] name Every workpattern has a unique name
@@ -52,7 +76,7 @@ module Workpattern
     # @raise [NameError] if the given name already exists
     #
     def initialize(name = DEFAULT_NAME, base = DEFAULT_BASE_YEAR, span = DEFAULT_SPAN)
-      if @@workpatterns.key?(name)
+      if workpatterns.key?(name)
         raise(NameError, "Workpattern '#{name}' already exists and can't be created again")
       end
       offset = span < 0 ? span.abs - 1 : 0
@@ -60,25 +84,30 @@ module Workpattern
       @name = name
       @base = base
       @span = span
-      @from = Time.gm(base.abs - offset)
-      @to = Time.gm(from.year + span.abs - 1, 12, 31, 23, 59)
+      @from = Time.gm(@base.abs - offset)
+      @to = Time.gm(@from.year + @span.abs - 1, 12, 31, 23, 59)
       @weeks = SortedSet.new
-      @weeks << Week.new(from, to, 1)
+      @weeks << Week.new(@from, @to)
 
-      @@workpatterns[name] = self
+      workpatterns[@name] = self
+      @week_pattern = WeekPattern.new(self)
+    end
+
+    def week_pattern
+      @week_pattern
     end
 
     # Deletes all <tt>Workpattern</tt> objects
     #
     def self.clear
-      @@workpatterns.clear
+      workpatterns.clear
     end
 
     # Returns an Array containing all the <tt>Workpattern</tt> objects
     # @return [Array] all <tt>Workpattern</tt> objects
     #
     def self.to_a
-      @@workpatterns.to_a
+      workpatterns.to_a
     end
 
     # Returns the specific named <tt>Workpattern</tt>
@@ -87,7 +116,7 @@ module Workpattern
     # exist
     #
     def self.get(name)
-      return @@workpatterns[name] if @@workpatterns.key?(name)
+      return workpatterns[name] if workpatterns.key?(name)
       raise(NameError, "Workpattern '#{name}' doesn't exist so can't be retrieved")
     end
 
@@ -97,7 +126,7 @@ module Workpattern
     # if it doesn't
     #
     def self.delete(name)
-      @@workpatterns.delete(name).nil? ? false : true
+      workpatterns.delete(name).nil? ? false : true
     end
 
     # Applys a working or resting pattern to the <tt>Workpattern</tt> object.
@@ -116,58 +145,16 @@ module Workpattern
     # days to apply the pattern. Defaults to <tt>00:00</tt>.
     # @option opts [(#hour, #min)] :finish_time The last time in the selected
     # days to apply the pattern. Defaults to <tt>23:59</tt>.
-    # @option opts [(WORK || REST)] :work_type Either working or resting.
+    # @option opts [(WORK_TYPE || REST_TYPE)] :work_type Either working or resting.
     # Defaults to working.
     # @see #working
     # @see #resting
     #
     def workpattern(opts = {})
-      args = { start: from, finish: to, days: :all,
-               from_time: FIRST_TIME_IN_DAY, to_time: LAST_TIME_IN_DAY,
-               work_type: WORK }
-
-      args.merge! opts
-
-      @@persist.store(name: name, workpattern: args) if self.class.persistence?
-
-      args[:start] = dmy_date(args[:start])
-      args[:finish] = dmy_date(args[:finish])
-      args[:from_time] = hhmn_date(args[:from_time])
-      args[:to_time] = hhmn_date(args[:to_time])
-
-      upd_start = to_utc(args[:start])
-      upd_finish = to_utc(args[:finish])
-      while upd_start <= upd_finish
-
-        current_wp = find_weekpattern(upd_start)
-
-        if current_wp.start == upd_start
-          if current_wp.finish > upd_finish
-            clone_wp = clone_and_adjust_current_wp(current_wp,
-                                                   upd_finish + DAY,
-                                                   current_wp.finish,
-                                                   upd_start,
-                                                   upd_finish)
-            set_workpattern_and_store(clone_wp, args)
-            upd_start = upd_finish + DAY
-          else # (current_wp.finish == upd_finish)
-            current_wp.workpattern(args[:days], args[:from_time],
-                                   args[:to_time], args[:work_type])
-            upd_start = current_wp.finish + DAY
-          end
-        else
-          clone_wp = clone_and_adjust_current_wp(current_wp, current_wp.start,
-                                                 upd_start - DAY, upd_start)
-          if clone_wp.finish > upd_finish
-            after_wp = clone_and_adjust_current_wp(clone_wp,
-                                                   upd_start,
-                                                   upd_finish,
-                                                   upd_finish + DAY)
-            weeks << after_wp
-          end
-          set_workpattern_and_store(clone_wp, args)
-          upd_start = clone_wp.finish + DAY
-        end
+      if self.class.persistence?
+        week_pattern.workpattern(opts, @@persistence)
+      else
+        week_pattern.workpattern(opts)
       end
     end
 
@@ -177,7 +164,7 @@ module Workpattern
     # @see #workpattern
     #
     def resting(args = {})
-      args[:work_type] = REST
+      args[:work_type] = REST_TYPE
       workpattern(args)
     end
 
@@ -187,7 +174,7 @@ module Workpattern
     # @see #workpattern
     #
     def working(args = {})
-      args[:work_type] = WORK
+      args[:work_type] = WORK_TYPE
       workpattern(args)
     end
 
@@ -202,19 +189,35 @@ module Workpattern
     # <tt>start</tt>
     #
     def calc(start, duration)
+#puts "calc(#{start}, #{duration})"
       return start if duration == 0
-      midnight = false
+      a_day = SAME_DAY
 
       utc_start = to_utc(start)
-      while duration != 0
-        week = find_weekpattern(utc_start)
-        if (week.start == utc_start) && (duration < 0) && !midnight
-          utc_start = utc_start.prev_day
-          week = find_weekpattern(utc_start)
-          midnight = true
-        end
 
-        utc_start, duration, midnight = week.calc(utc_start, duration, midnight)
+      while duration != 0
+
+        if a_day == PREVIOUS_DAY
+	  utc_start -= DAY
+	  a_day = SAME_DAY
+          utc_start = Time.gm(utc_start.year, utc_start.month, utc_start.day,LAST_TIME_IN_DAY.hour, LAST_TIME_IN_DAY.min)
+	  week = find_weekpattern(utc_start)
+	  
+#puts "WEEK A: #{week.start} - #{week.finish}"	
+	  if week.working?(utc_start)
+	    duration += 1
+	  end
+	else
+	  week = find_weekpattern(utc_start)
+
+#puts "WEEK B: #{week.start} - #{week.finish}"	
+	end
+
+#puts "before test: utc_start=#{utc_start}, duration=#{duration}, a_day=#{a_day}"
+
+#puts "week.calc(#{utc_start}, #{duration}, #{a_day}"
+        utc_start, duration, a_day = week.calc(utc_start, duration, a_day)
+#puts "=#{utc_start}, #{duration}, #{a_day}"	
       end
 
       to_local(utc_start)
@@ -239,17 +242,16 @@ module Workpattern
     def diff(start, finish)
       utc_start = to_utc(start)
       utc_finish = to_utc(finish)
-      utc_start, utc_finish = utc_finish, utc_start if finish < start
-      duration = 0
+      utc_start, utc_finish = utc_finish, utc_start if utc_finish < utc_start
+      minutes = 0
+
       while utc_start != utc_finish
         week = find_weekpattern(utc_start)
-        result_duration, utc_start = week.diff(utc_start, utc_finish)
-        duration += result_duration
+        r_minutes, utc_start = week.diff(utc_start, utc_finish)
+        minutes += r_minutes
       end
-      duration
+      minutes
     end
-
-    private
 
     # Retrieve the correct <tt>Week</tt> pattern for the supplied date.
     #
@@ -264,61 +266,17 @@ module Workpattern
     def find_weekpattern(date)
       # find the pattern that fits the date
       #
-      if date < from
-        result = Week.new(Time.at(0), from - MINUTE, 1)
+      if date < @from
+        result = Week.new(Time.at(0), @from - MINUTE, WORK_TYPE)
       elsif date > to
-        result = Week.new(to + MINUTE, Time.new(9999), 1)
+        result = Week.new(@to + MINUTE, Time.new(9999), WORK_TYPE)
       else
 
         date = Time.gm(date.year, date.month, date.day)
 
-        result = weeks.find { |week| week.start <= date && week.finish >= date }
+        result = @weeks.find { |week| week.start <= date && week.finish >= date }
       end
       result
     end
-
-    # Strips off hours, minutes, seconds etc from a supplied <tt>Date</tt> or
-    # <tt>DateTime</tt>
-    #
-    # @param [DateTime] date
-    # @return [DateTime] with zero hours, minutes, seconds and so forth.
-    #
-    def dmy_date(date)
-      Time.gm(date.year, date.month, date.day)
-    end
-
-    # Extract the time into a <tt>Clock</tt> object
-    #
-    # @param [DateTime] date
-    # @return [Clock]
-    def hhmn_date(date)
-      Clock.new(date.hour, date.min)
-    end
-
-    # Handles cloning of Week Pattern including date adjustments
-    #
-    def clone_and_adjust_current_wp(current_wp, current_start, current_finish,
-                                    clone_start, clone_finish = nil)
-      clone_wp = current_wp.duplicate
-      adjust_date_range(current_wp, current_start, current_finish)
-      if clone_finish.nil?
-        adjust_date_range(clone_wp, clone_start, clone_wp.finish)
-      else
-        adjust_date_range(clone_wp, clone_start, clone_finish)
-      end
-      clone_wp
-    end
-
-    def set_workpattern_and_store(new_wp, args)
-      new_wp.workpattern(args[:days], args[:from_time],
-                         args[:to_time], args[:work_type])
-      weeks << new_wp
-    end
-
-    def adjust_date_range(week_pattern, start_date, finish_date)
-      week_pattern.start = start_date
-      week_pattern.finish = finish_date
-    end
-    
   end
 end
