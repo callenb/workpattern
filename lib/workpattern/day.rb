@@ -238,7 +238,7 @@ module Workpattern
     end  
 
     def minutes_to_time(minutes)
-       Clock.new(minutes / 60, minutes - (minutes / 60 * 60))
+      Time.gm(1963,6,10,minutes / 60, minutes - (minutes / 60 * 60))
     end
 
     def is_resting(minutes)

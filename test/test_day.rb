@@ -189,15 +189,15 @@ class TestDay < MiniTest::Test #:nodoc:
    def test_must_diff_long_distances_within_patterned_week
  
      d_day =working_day 
-     d_day.set_resting(Workpattern.clock(0,0),
-                       Workpattern.clock(8, 59))
-     d_day.set_resting(Workpattern.clock(12,0),
-                       Workpattern.clock(12,59))
-     d_day.set_resting(Workpattern.clock(18,0),
-                       Workpattern.clock(23,59))
+     d_day.set_resting(set_time(0,0),
+                       set_time(8, 59))
+     d_day.set_resting(set_time(12,0),
+                       set_time(12,59))
+     d_day.set_resting(set_time(18,0),
+                       set_time(23,59))
  
-     s_date = Workpattern.clock(17,0)
-     f_date = Workpattern.clock(10,0)
+     s_date = set_time(17,0)
+     f_date = set_time(10,0)
  
      d_minutes = d_day.working_minutes()
      start_minutes = d_day.working_minutes(s_date)
@@ -275,6 +275,6 @@ class TestDay < MiniTest::Test #:nodoc:
   end
 
   def set_time(hour,minute)
-    Time.gm(2000,12,31,hour, minute)
+    Time.gm(1963,6,10,hour, minute)
   end
 end

@@ -48,8 +48,8 @@ class TestWorkpattern < MiniTest::Test #:nodoc:
     span = 11
     wp = Workpattern.new(name, base, span)
 
-    start = clock(0, 0)
-    finish = clock(8, 59)
+    start = set_time(0, 0)
+    finish = set_time(8, 59)
     assert_equal 10_080, get_week(wp.weeks).week_total
     wp.workpattern(days: :all, from_time: start,
                    to_time: finish, work_type: 0)
@@ -60,23 +60,23 @@ class TestWorkpattern < MiniTest::Test #:nodoc:
     wp.workpattern(days: :mon, from_time: start,
                    to_time: finish, work_type: 1)
     assert_equal 7_380, get_week(wp.weeks).week_total
-    wp.workpattern(days: :all, from_time: clock(18, 0),
-                   to_time: clock(18, 19), work_type: 0)
+    wp.workpattern(days: :all, from_time: set_time(18, 0),
+                   to_time: set_time(18, 19), work_type: 0)
     assert_equal 7_240, get_week(wp.weeks).week_total
-    wp.workpattern(days: :all, from_time: clock(0, 0),
-                   to_time: clock(23, 59), work_type: 0)
+    wp.workpattern(days: :all, from_time: set_time(0, 0),
+                   to_time: set_time(23, 59), work_type: 0)
     assert_equal 0, get_week(wp.weeks).week_total
-    wp.workpattern(days: :all, from_time: clock(0, 0),
-                   to_time: clock(0, 0), work_type: 1)
+    wp.workpattern(days: :all, from_time: set_time(0, 0),
+                   to_time: set_time(0, 0), work_type: 1)
     assert_equal 7, get_week(wp.weeks).week_total
-    wp.workpattern(days: :all, from_time: clock(23, 59),
-                   to_time: clock(23, 59), work_type: 1)
+    wp.workpattern(days: :all, from_time: set_time(23, 59),
+                   to_time: set_time(23, 59), work_type: 1)
     assert_equal 14, get_week(wp.weeks).week_total
-    wp.workpattern(days: :all, from_time: clock(0, 0),
-                   to_time: clock(23, 59), work_type: 1)
+    wp.workpattern(days: :all, from_time: set_time(0, 0),
+                   to_time: set_time(23, 59), work_type: 1)
     assert_equal 10_080, get_week(wp.weeks).week_total
-    wp.workpattern(days: :weekend, from_time: clock(0, 0),
-                   to_time: clock(23, 59), work_type: 0)
+    wp.workpattern(days: :weekend, from_time: set_time(0, 0),
+                   to_time: set_time(23, 59), work_type: 0)
     assert_equal 7_200, get_week(wp.weeks).week_total
   end
 
@@ -303,7 +303,7 @@ class TestWorkpattern < MiniTest::Test #:nodoc:
     end
   end
 
-  def clock(hour, min)
-    Workpattern.clock(hour, min)
+  def set_time(hour, min)
+    Time.gm(1963,6,10,hour, min)
   end
 end
