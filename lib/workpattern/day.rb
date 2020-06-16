@@ -29,11 +29,7 @@ module Workpattern
     def working?(hour, minute)
       mask = (2**((hour * 60) + minute))
       result = mask & @pattern
-      if mask == result
-        return true
-      else
-        return false
-      end
+      mask == result
     end
    
     def resting?(hour, minute)
