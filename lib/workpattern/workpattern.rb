@@ -197,22 +197,19 @@ module Workpattern
       while duration != 0
 
         if a_day == PREVIOUS_DAY
-	  utc_start -= DAY
-	  a_day = SAME_DAY
-          utc_start = Time.gm(utc_start.year, utc_start.month, utc_start.day,LAST_TIME_IN_DAY.hour, LAST_TIME_IN_DAY.min)
-	  week = find_weekpattern(utc_start)
+	         utc_start -= DAY
+	         a_day = SAME_DAY
+           utc_start = Time.gm(utc_start.year, utc_start.month, utc_start.day,LAST_TIME_IN_DAY.hour, LAST_TIME_IN_DAY.min)
+	         week = find_weekpattern(utc_start)
 	  
-	  if week.working?(utc_start)
-	    duration += 1
-	  end
-	else
-	  week = find_weekpattern(utc_start)
-
-	end
-
+	         if week.working?(utc_start)
+	           duration += 1
+	         end
+	      else
+	        week = find_weekpattern(utc_start)
+        end
         utc_start, duration, a_day = week.calc(utc_start, duration, a_day)
       end
-
       to_local(utc_start)
     end
 
