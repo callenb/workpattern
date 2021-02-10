@@ -1,3 +1,19 @@
+## Workpattern v0.?.0 ( 10 Feb, 2021) ##
+
+I stopped keeping this Changelog file update back when v0.5.0 was realeased on 19 Oct 2016 and now it is 10Feb 2021 and I'm playing catch-up.
+I have created the following set of bullet point changes by going through my commit messages, the quality of which varies greatly.  
+A lot of the effort has been on making the code easier to read as it was a real mess.
+Here is a chronological take on what I have been doing.
+
+* removed test warnings by surrounding ambiguous negatives with parenthesis
+* I think a bug was fixed by changing #wee_total and #total to just an attr_writer
+* removed some duplicated code
+* replaced a number of literals with constants which I put in their own file
+* made a lot of the code easier to read, such as extracting to a method with a sensible name or renaming existing ones
+* Workpattern is now tested on Ruby 1.9.3, 2.1, 2.2, 2.3, 2.4, 2.5, 2.6, ruby-head, jruby-19mode & jruby-head
+* Created a Day class to remove the complexity from Week so Week deals with weeks and Day with a day
+* My Clock class was replaced by Time or Date objects in all tests.  Clock only used for internal stuff now.
+
 ## Workpattern v0.5.0 ( Oct 19, 2016) ##
 
 * Workpattern now handles Timezones.  It changes the date into UTC, does the calculation and then changes it back * Barrie Callender

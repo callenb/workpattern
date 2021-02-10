@@ -99,8 +99,6 @@ module Workpattern
 
       args[:start] = dmy_date(args[:start])
       args[:finish] = dmy_date(args[:finish])
-      args[:from_time] = hhmn_date(args[:from_time])
-      args[:to_time] = hhmn_date(args[:to_time])
 
       args
     end
@@ -142,12 +140,5 @@ module Workpattern
       Time.gm(date.year, date.month, date.day)
     end
 
-    # Extract the time into a <tt>Clock</tt> object
-    #
-    # @param [DateTime] date
-    # @return [Clock]
-    def hhmn_date(date)
-      Clock.new(date.hour, date.min)
-    end
   end
 end

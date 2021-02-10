@@ -29,11 +29,7 @@ module Workpattern
     def working?(hour, minute)
       mask = (2**((hour * 60) + minute))
       result = mask & @pattern
-      if mask == result
-        return true
-      else
-        return false
-      end
+      mask == result
     end
    
     def resting?(hour, minute)
@@ -43,10 +39,8 @@ module Workpattern
     def calc(a_date, a_duration)
       if a_duration == 0
         return a_date, a_duration, SAME_DAY
-      elsif a_duration > 0
-        return add(a_date, a_duration)
       else
-        return subtract(a_date, a_duration)
+        return a_duration > 0 ? add(a_date, a_duration) : subtract(a_date, a_duration)
       end
     end  
     
@@ -227,7 +221,7 @@ module Workpattern
     end  
 
     def minutes_to_time(minutes)
-       Clock.new(minutes / 60, minutes - (minutes / 60 * 60))
+      Time.gm(1963,6,10,minutes / 60, minutes - (minutes / 60 * 60))
     end
 
     def is_resting(minutes)

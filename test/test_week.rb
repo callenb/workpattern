@@ -10,14 +10,14 @@ class TestWeek < MiniTest::Test #:nodoc:
     @r_week = Workpattern::Week.new(start, finish, Workpattern::REST_TYPE)
 
     @p_week = Workpattern::Week.new(start, finish, Workpattern::WORK_TYPE)
-    @p_week.workpattern(:weekend, Workpattern.clock(0, 0),
-                        Workpattern.clock(23, 59), 0)
-    @p_week.workpattern(:weekday, Workpattern.clock(0, 0),
-                        Workpattern.clock(8, 59), 0)
-    @p_week.workpattern(:weekday, Workpattern.clock(12, 30),
-                        Workpattern.clock(13, 0), 0)
-    @p_week.workpattern(:weekday, Workpattern.clock(17, 0),
-                        Workpattern.clock(23, 59), 0)
+    @p_week.workpattern(:weekend, set_time(0, 0),
+                        set_time(23, 59), 0)
+    @p_week.workpattern(:weekday, set_time(0, 0),
+                        set_time(8, 59), 0)
+    @p_week.workpattern(:weekday, set_time(12, 30),
+                        set_time(13, 0), 0)
+    @p_week.workpattern(:weekday, set_time(17, 0),
+                        set_time(23, 59), 0)
   end
 
   def test_must_create_a_w_week
@@ -86,8 +86,8 @@ class TestWeek < MiniTest::Test #:nodoc:
     assert_equal Time.gm(finish.year, finish.month, finish.day),
                  new_week.finish
     assert_equal 3_156_480, new_week.total # 2192
-    week.workpattern(:weekend, Workpattern.clock(0, 0),
-                     Workpattern.clock(23, 59), 0)
+    week.workpattern(:weekend, set_time(0, 0),
+                     set_time(23, 59), 0)
     assert_equal 3_156_480, new_week.total # 2192
   end
 
@@ -99,17 +99,17 @@ class TestWeek < MiniTest::Test #:nodoc:
     assert_equal start, pattern_week.start
     assert_equal finish, pattern_week.finish
     assert_equal 10_080, pattern_week.week_total
-    pattern_week.workpattern(:weekend, Workpattern.clock(0, 0),
-                             Workpattern.clock(23, 59), 0)
+    pattern_week.workpattern(:weekend, set_time(0, 0),
+                             set_time(23, 59), 0)
     assert_equal 7_200, pattern_week.week_total
-    pattern_week.workpattern(:weekday, Workpattern.clock(0, 0),
-                             Workpattern.clock(8, 59), 0)
+    pattern_week.workpattern(:weekday, set_time(0, 0),
+                             set_time(8, 59), 0)
     assert_equal 4_500, pattern_week.week_total
-    pattern_week.workpattern(:weekday, Workpattern.clock(12, 30),
-                             Workpattern.clock(13, 0), 0)
+    pattern_week.workpattern(:weekday, set_time(12, 30),
+                             set_time(13, 0), 0)
     assert_equal 4_345, pattern_week.week_total
-    pattern_week.workpattern(:weekday, Workpattern.clock(17, 0),
-                             Workpattern.clock(23, 59), 0)
+    pattern_week.workpattern(:weekday, set_time(17, 0),
+                             set_time(23, 59), 0)
     assert_equal 2_245, pattern_week.week_total
   end
 
@@ -124,17 +124,17 @@ class TestWeek < MiniTest::Test #:nodoc:
     assert_equal 6_840, w_week.week_total
     w_week.workpattern(:mon, start, finish, 1)
     assert_equal 7_380, w_week.week_total
-    w_week.workpattern(:all, clock(18, 0), clock(18, 19), 0)
+    w_week.workpattern(:all, set_time(18, 0), set_time(18, 19), 0)
     assert_equal 7_240, w_week.week_total
-    w_week.workpattern(:all, clock(0, 0), clock(23, 59), 0)
+    w_week.workpattern(:all, set_time(0, 0), set_time(23, 59), 0)
     assert_equal 0, w_week.week_total
-    w_week.workpattern(:all, clock(0, 0), clock(0, 0), 1)
+    w_week.workpattern(:all, set_time(0, 0), set_time(0, 0), 1)
     assert_equal 7, w_week.week_total
-    w_week.workpattern(:all, clock(23, 59), clock(23, 59), 1)
+    w_week.workpattern(:all, set_time(23, 59), set_time(23, 59), 1)
     assert_equal 14, w_week.week_total
-    w_week.workpattern(:all, clock(0, 0), clock(23, 59), 1)
+    w_week.workpattern(:all, set_time(0, 0), set_time(23, 59), 1)
     assert_equal 10_080, w_week.week_total
-    w_week.workpattern(:weekend, clock(0, 0), clock(23, 59), 0)
+    w_week.workpattern(:weekend, set_time(0, 0), set_time(23, 59), 0)
     assert_equal 7_200, w_week.week_total
   end
 
@@ -422,12 +422,12 @@ class TestWeek < MiniTest::Test #:nodoc:
     start = Time.gm(2013, 9, 23, 0, 0)
     finish = Time.gm(2013, 10, 20, 23, 59)
     w_week = week(start, finish, 1)
-    w_week.workpattern :all, Workpattern.clock(0, 0),
-                       Workpattern.clock(8, 59), 0
-    w_week.workpattern :all, Workpattern.clock(12, 0),
-                       Workpattern.clock(12, 59), 0
-    w_week.workpattern :all, Workpattern.clock(18, 0),
-                       Workpattern.clock(23, 59), 0
+    w_week.workpattern :all, set_time(0, 0),
+                       set_time(8, 59), 0
+    w_week.workpattern :all, set_time(12, 0),
+                       set_time(12, 59), 0
+    w_week.workpattern :all, set_time(18, 0),
+                       set_time(23, 59), 0
     s_date = Time.gm(2013, 10, 3, 16, 0)
     f_date = Time.gm(2013, 10, 15, 12, 30)
     duration, start = w_week.diff(s_date, f_date)
@@ -465,12 +465,12 @@ class TestWeek < MiniTest::Test #:nodoc:
     start = Time.gm(2013, 9, 23, 0, 0)
     finish = Time.gm(2013, 9, 26, 23, 59)
     w_week = week(start, finish, 1)
-    w_week.workpattern :all, Workpattern.clock(0, 0),
-                       Workpattern.clock(8, 59), 0
-    w_week.workpattern :all, Workpattern.clock(12, 0),
-                       Workpattern.clock(12, 59), 0
-    w_week.workpattern :all, Workpattern.clock(18, 0),
-                       Workpattern.clock(23, 59), 0
+    w_week.workpattern :all, set_time(0, 0),
+                       set_time(8, 59), 0
+    w_week.workpattern :all, set_time(12, 0),
+                       set_time(12, 59), 0
+    w_week.workpattern :all, set_time(18, 0),
+                       set_time(23, 59), 0
 
     s_date = Time.gm(2013, 9, 26, 17, 0)
     f_date = Time.gm(2013, 9, 27, 10, 0)
@@ -484,12 +484,12 @@ class TestWeek < MiniTest::Test #:nodoc:
     start = Time.gm(2013, 9, 23, 0, 0)
     finish = Time.gm(2013, 10, 20, 23, 59)
     w_week = week(start, finish, 1)
-    w_week.workpattern :all, Workpattern.clock(0, 0),
-                       Workpattern.clock(8, 59), 0
-    w_week.workpattern :all, Workpattern.clock(12, 0),
-                       Workpattern.clock(12, 59), 0
-    w_week.workpattern :all, Workpattern.clock(18, 0),
-                       Workpattern.clock(23, 59), 0
+    w_week.workpattern :all, set_time(0, 0),
+                       set_time(8, 59), 0
+    w_week.workpattern :all, set_time(12, 0),
+                       set_time(12, 59), 0
+    w_week.workpattern :all, set_time(18, 0),
+                       set_time(23, 59), 0
 
     s_date = Time.gm(2013, 9, 26, 17, 0)
     f_date = Time.gm(2018, 9, 27, 10, 0)
@@ -503,12 +503,12 @@ class TestWeek < MiniTest::Test #:nodoc:
     start = Time.gm(2013, 9, 23, 0, 0)
     finish = Time.gm(2013, 10, 20, 23, 59)
     w_week = week(start, finish, 1)
-    w_week.workpattern :all, Workpattern.clock(0, 0),
-                       Workpattern.clock(8, 59), 0
-    w_week.workpattern :all, Workpattern.clock(12, 0),
-                       Workpattern.clock(12, 59), 0
-    w_week.workpattern :all, Workpattern.clock(18, 0),
-                       Workpattern.clock(23, 59), 0
+    w_week.workpattern :all, set_time(0, 0),
+                       set_time(8, 59), 0
+    w_week.workpattern :all, set_time(12, 0),
+                       set_time(12, 59), 0
+    w_week.workpattern :all, set_time(18, 0),
+                       set_time(23, 59), 0
 
     s_date = Time.gm(2013, 9, 26, 17, 0)
     f_date = Time.gm(2013, 10, 15, 10, 0)
@@ -524,7 +524,7 @@ class TestWeek < MiniTest::Test #:nodoc:
     Workpattern::Week.new(start, finish, type)
   end
 
-  def clock(hour, min)
-    Workpattern.clock(hour, min)
-  end
+  def set_time(hour,min)
+    Time.gm(1963,6,10,hour,min)
+  end  
 end

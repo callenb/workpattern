@@ -210,7 +210,6 @@ module Workpattern
 	      end
         utc_start, duration, a_day = week.calc(utc_start, duration, a_day)
       end
-
       to_local(utc_start)
     end
 
