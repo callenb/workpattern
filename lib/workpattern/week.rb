@@ -49,8 +49,8 @@ module Workpattern
       duplicate_week = Week.new(@start, @finish)
       FIRST_DAY_OF_WEEK.upto(LAST_DAY_OF_WEEK) do |i|
         duplicate_week.days[i] = @days[i].clone
-	duplicate_week.days[i].hours_per_day = @days[i].hours_per_day
-	duplicate_week.days[i].pattern = @days[i].pattern
+	      duplicate_week.days[i].hours_per_day = @days[i].hours_per_day
+	      duplicate_week.days[i].pattern = @days[i].pattern
       end
       duplicate_week
     end
@@ -233,28 +233,28 @@ module Workpattern
       run_date = start_of_next_day(start_date)
       while (run_date.wday != start.wday) && (jd(run_date) < jd(finish)) && (jd(run_date) != jd(finish_date))      
         minutes += @days[run_date.wday].working_minutes
-	run_date += DAY
+	      run_date += DAY
       end
 
       while ((jd(run_date) + (7 * DAY)) < jd(finish_date))  && ((jd(run_date) + (7 * DAY)) < jd(finish))
         minutes += week_total
-	run_date += (7 * DAY)
+	      run_date += (7 * DAY)
       end
 
       while (jd(run_date) < jd(finish_date)) && (jd(run_date) <= jd(finish))
         minutes += @days[run_date.wday].working_minutes
-	run_date += DAY
+	      run_date += DAY
       end
 
       if run_date != finish_date
         
         if (jd(run_date) == jd(finish_date)) && (jd(run_date) <= jd(finish))
           minutes += @days[run_date.wday].working_minutes(run_date, finish_date - MINUTE)
-	  run_date = finish_date
+	        run_date = finish_date
         elsif (jd(run_date) <= jd(finish)) 
           minutes += @days[run_date.wday].working_minutes
-	  run_date += DAY
-	end
+	        run_date += DAY
+	      end
       end
 
       [minutes, run_date]
