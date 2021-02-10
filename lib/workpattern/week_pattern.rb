@@ -52,7 +52,7 @@ module Workpattern
 
       while upd_start <= upd_finish
 
-	current_wp = work_pattern.find_weekpattern(upd_start)
+	      current_wp = work_pattern.find_weekpattern(upd_start)
 
         if current_wp.start == upd_start
           if current_wp.finish > upd_finish
