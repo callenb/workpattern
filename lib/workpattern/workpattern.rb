@@ -189,7 +189,6 @@ module Workpattern
     # <tt>start</tt>
     #
     def calc(start, duration)
-#puts "calc(#{start}, #{duration})"
       return start if duration == 0
       a_day = SAME_DAY
 
@@ -198,26 +197,18 @@ module Workpattern
       while duration != 0
 
         if a_day == PREVIOUS_DAY
-	  utc_start -= DAY
-	  a_day = SAME_DAY
+	        utc_start -= DAY
+	        a_day = SAME_DAY
           utc_start = Time.gm(utc_start.year, utc_start.month, utc_start.day,LAST_TIME_IN_DAY.hour, LAST_TIME_IN_DAY.min)
-	  week = find_weekpattern(utc_start)
+	        week = find_weekpattern(utc_start)
 	  
-#puts "WEEK A: #{week.start} - #{week.finish}"	
-	  if week.working?(utc_start)
-	    duration += 1
-	  end
-	else
-	  week = find_weekpattern(utc_start)
-
-#puts "WEEK B: #{week.start} - #{week.finish}"	
-	end
-
-#puts "before test: utc_start=#{utc_start}, duration=#{duration}, a_day=#{a_day}"
-
-#puts "week.calc(#{utc_start}, #{duration}, #{a_day}"
+	        if week.working?(utc_start)
+	          duration += 1
+	        end
+	      else
+	        week = find_weekpattern(utc_start)
+	      end
         utc_start, duration, a_day = week.calc(utc_start, duration, a_day)
-#puts "=#{utc_start}, #{duration}, #{a_day}"	
       end
 
       to_local(utc_start)
