@@ -13,6 +13,8 @@ Here is a chronological take on what I have been doing.
 * Workpattern is now tested on Ruby 1.9.3, 2.1, 2.2, 2.3, 2.4, 2.5, 2.6, ruby-head, jruby-19mode & jruby-head
 * Created a Day class to remove the complexity from Week so Week deals with weeks and Day with a day
 * My Clock class was replaced by Time or Date objects in all tests.  Clock only used for internal stuff now.
+* Switched to sorted_set rubygem after the SortedSet class was removed from Ruby in v3.x.
+* Workpattern now works with ruby 3.0.1dev
 
 ## Workpattern v0.5.0 ( Oct 19, 2016) ##
 
