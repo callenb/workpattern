@@ -9,7 +9,7 @@ Please use [Github Issues] to report bugs.  If you have a question about the lib
 
 ## Getting Started
 
-Workpattern is a library with no monkey-patching and is tested against Ruby `>= 1.9.2`.
+Workpattern is a library with no monkey-patching and was tested using [Travis](https://travis-ci.org) against the following Ruby versions `1.9.3`, `2.1`, `2.2`, `2.3`, `2.4`, `2.5`, `2.6`, `ruby-head (3.1.0dev)`, `jruby-19mode (9.2.9.0 (2.5.7)` and `jruby-head (9.3.0.0-SNAPSHOT (2.6.5)`.
 
 You can install it using:
 ```sh
@@ -97,7 +97,7 @@ Workpattern.clear
 
 (The MIT License)
 
-Copyright (c) 2012 - 2016
+Copyright (c) 2012 - 2021
 
 Permission is hereby granted, free of charge, to any person obtaining
 a copy of this software and associated documentation files (the
