@@ -9,7 +9,7 @@ GEM
   remote: http://rubygems.org/
   specs:
     concurrent-ruby (1.1.8)
-    minitest (5.4.3)
+    minitest (5.14.4)
     rake (13.0.3)
     rbtree (0.4.4)
     set (1.0.1)
@@ -20,7 +20,7 @@ GEM
       concurrent-ruby (~> 1.0)
 
 PLATFORMS
-  ruby
+  x86_64-linux
 
 DEPENDENCIES
   minitest (~> 5.0)
@@ -28,4 +28,4 @@ DEPENDENCIES
   workpattern!
 
 BUNDLED WITH
-   2.3.0.dev
+   2.2.9
