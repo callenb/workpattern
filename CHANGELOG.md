@@ -15,6 +15,7 @@ Here is a chronological take on what I have been doing.
 * My Clock class was replaced by Time or Date objects in all tests.  Clock only used for internal stuff now.
 * Switched to sorted_set rubygem after the SortedSet class was removed from Ruby in v3.x.
 * Workpattern now works with ruby 3.0.1dev
+* added Contributor Covenant Code of Conduct
 
 ## Workpattern v0.5.0 ( Oct 19, 2016) ##
 
