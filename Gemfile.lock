@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    workpattern (0.5.0)
+    workpattern (0.6.0)
       sorted_set
       tzinfo
 
