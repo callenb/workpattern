@@ -58,7 +58,7 @@ module Workpattern
         else
           return_date = Time.gm(a_date.year, a_date.month, a_date.day, @last_working_minute.hour, @last_working_minute.min) + 60
 	        return [ return_date, 0, SAME_DAY]
-	      end
+        end
       end	
     end
 
@@ -70,7 +70,7 @@ module Workpattern
       else
         begin
           elapsed_date += 60
-	      end while working_minutes(a_date, elapsed_date) != a_duration
+        end while working_minutes(a_date, elapsed_date) != a_duration
 	      return [elapsed_date += 60, 0, SAME_DAY]
       end
     end
@@ -95,7 +95,7 @@ module Workpattern
         a_date -= 60
         begin
           elapsed_date -= 60
-	      end while working_minutes(elapsed_date, a_date) != abs_duration
+        end while working_minutes(elapsed_date, a_date) != abs_duration
 	      return [elapsed_date, 0, SAME_DAY]
       end
     end
@@ -156,7 +156,7 @@ module Workpattern
       
         minutes = working_minutes(minutes_to_time(mark), minutes_to_time(top))
 
-	      if minutes > 1
+        if minutes > 1
 	        bottom = mark
 	        mark = mark + ((top - bottom) / 2)
 
@@ -164,18 +164,18 @@ module Workpattern
           top = mark
 	        mark = mark - (( top - bottom) / 2)
 
-	      elsif minutes == 1 && is_resting(mark)
+        elsif minutes == 1 && is_resting(mark)
           bottom = mark
 	        mark = mark + ((top - bottom) / 2)
 
-	      else
+        else
 	        not_done = false
         
-	      end  
+        end
 
         if mark == bottom #& last_mark != mark
 	        mark = mark + 1
-	      end  
+        end  
 
         if mark == 1 && top == 1 
           mark = 0
@@ -199,7 +199,7 @@ module Workpattern
       while not_done
       
         minutes = working_minutes(minutes_to_time(bottom), minutes_to_time(mark))
-	      if minutes > 1
+        if minutes > 1
           top = mark
 	        mark = mark - ((top - bottom) / 2)
         elsif minutes == 0
@@ -214,7 +214,7 @@ module Workpattern
         
         if mark == 1 && top == 1
           mark = 0
-	      end
+        end
       end
       
       minutes_to_time(mark)

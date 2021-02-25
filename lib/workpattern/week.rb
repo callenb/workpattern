@@ -80,7 +80,7 @@ module Workpattern
 
       if jd(start_date) == jd(finish_date)
         return diff_in_same_day(start_date, finish_date)
-      else jd(finish_date) <= jd(finish)
+      else
         return diff_in_same_weekpattern(start_date, finish_date)
       end
     end
@@ -254,7 +254,7 @@ module Workpattern
         elsif (jd(run_date) <= jd(finish)) 
           minutes += @days[run_date.wday].working_minutes
 	        run_date += DAY
-	      end
+        end
       end
 
       [minutes, run_date]

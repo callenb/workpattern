@@ -205,9 +205,9 @@ module Workpattern
 	        if week.working?(utc_start)
 	          duration += 1
 	        end
-	      else
+        else
 	        week = find_weekpattern(utc_start)
-	      end
+        end
         utc_start, duration, a_day = week.calc(utc_start, duration, a_day)
       end
       to_local(utc_start)

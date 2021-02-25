@@ -254,7 +254,7 @@ class TestDay < MiniTest::Test #:nodoc:
      
      assert_equal 1, r_time.hour, "should be 23 hours"
      assert_equal 2, r_time.min,  "should be 28 minutes"
-     assert_equal -38, r_duration, "should be 0 duration"
+     assert_equal (-38), r_duration, "should be 0 duration"
      assert_equal Workpattern::PREVIOUS_DAY, r_offset, "should be SAME_DAY"
 
      r_time, r_duration, r_offset = a_day.calc(a_date,-62)

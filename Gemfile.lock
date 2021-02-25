@@ -10,7 +10,7 @@ GEM
   specs:
     concurrent-ruby (1.1.8)
     minitest (5.4.3)
-    rake (0.9.6)
+    rake (13.0.3)
     rbtree (0.4.4)
     set (1.0.1)
     sorted_set (1.0.3)
@@ -23,8 +23,8 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  minitest (~> 5.4.3)
-  rake (~> 0.9.2)
+  minitest (~> 5.0)
+  rake (~> 13.0)
   workpattern!
 
 BUNDLED WITH
