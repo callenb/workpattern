@@ -1,6 +1,6 @@
 require File.dirname(__FILE__) + '/test_helper.rb'
 
-class TestWorkpattern < MiniTest::Test #:nodoc:
+class TestWorkpattern < WorkpatternTest #:nodoc:
   def setup
     Workpattern.clear
   end
