@@ -98,25 +98,25 @@ class TestWorkpattern < WorkpatternTest #:nodoc:
   end
 
 ## TODO: Speed this up
-#  def test_must_add_minutes_in_a_resting_workpattern
-#    name = 'mypattern'
-#    base = 1999
-#    span = 11
-#    wp = Workpattern.new(name, base, span)
-#    start = Time.gm(1999, 6, 11, 0, 0)
-#    finish = Time.gm(2003, 6, 8, 0, 0)
-#    wp.workpattern(days: :all, start:  start, finish: finish, work_type: 0)
-#    tests = [[2000, 1, 1, 0, 0, 3, 2003, 6, 9, 0, 3],
-#             [2000, 1, 1, 23, 59, 0, 2000, 1, 1, 23, 59],
-#             [2000, 1, 1, 23, 59, 1, 2003, 6, 9, 0, 1],
-#             [2000, 1, 1, 23, 59, 2, 2003, 6, 9, 0, 2],
-#             [2000, 1, 1, 9, 10, 33, 2003, 6, 9, 0, 33],
-#             [2000, 1, 1, 9, 10, 60, 2003, 6, 9, 1, 0],
-#             [2000, 1, 1, 9, 0, 931, 2003, 6, 9, 15, 31],
-#             [2000, 1, 1, 0, 0, 3, 2003, 6, 9, 0, 3]]
-#    clue = 'add minutes in a resting workpattern'
-#    calc_test(wp, tests, clue)
-#  end
+  def test_must_add_minutes_in_a_resting_workpattern
+    name = 'mypattern'
+    base = 1999
+    span = 11
+    wp = Workpattern.new(name, base, span)
+    start = Time.gm(1999, 6, 11, 0, 0)
+    finish = Time.gm(2003, 6, 8, 0, 0)
+    wp.workpattern(days: :all, start:  start, finish: finish, work_type: 0)
+    tests = [[2000, 1, 1, 0, 0, 3, 2003, 6, 9, 0, 3],
+             [2000, 1, 1, 23, 59, 0, 2000, 1, 1, 23, 59],
+             [2000, 1, 1, 23, 59, 1, 2003, 6, 9, 0, 1],
+             [2000, 1, 1, 23, 59, 2, 2003, 6, 9, 0, 2],
+             [2000, 1, 1, 9, 10, 33, 2003, 6, 9, 0, 33],
+             [2000, 1, 1, 9, 10, 60, 2003, 6, 9, 1, 0],
+             [2000, 1, 1, 9, 0, 931, 2003, 6, 9, 15, 31],
+             [2000, 1, 1, 0, 0, 3, 2003, 6, 9, 0, 3]]
+    clue = 'add minutes in a resting workpattern'
+    calc_test(wp, tests, clue)
+  end
 
   def test_must_add_minutes_in_a_patterned_workpattern
     assert true
