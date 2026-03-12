@@ -97,7 +97,6 @@ class TestWorkpattern < WorkpatternTest #:nodoc:
     calc_test(wp, tests, clue)
   end
 
-## TODO: Speed this up
   def test_must_add_minutes_in_a_resting_workpattern
     name = 'mypattern'
     base = 1999
@@ -139,7 +138,6 @@ class TestWorkpattern < WorkpatternTest #:nodoc:
     calc_test(wp, tests, clue)
   end
 
-## TODO: improve performance
   def test_must_subtract_minutes_in_a_resting_workpattern
     name = 'mypattern'
     base = 1999
