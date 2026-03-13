@@ -1,5 +1,7 @@
+# frozen_string_literal: true
+
 module Workpattern
-  
+
   class Day
     
     attr_accessor  :pattern, :hours_per_day, :first_working_minute, :last_working_minute

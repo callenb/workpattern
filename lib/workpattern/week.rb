@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Workpattern
   # The representation of a week might not be obvious so I am writing about it
   # here.  It will also help me if I ever need to come back to this in the

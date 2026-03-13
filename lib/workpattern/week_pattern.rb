@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Workpattern
   class WeekPattern
     def initialize(work_pattern)

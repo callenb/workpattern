@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Workpattern
 
   # default name of a new Workpattern
