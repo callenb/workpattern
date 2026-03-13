@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 module Workpattern
-  require 'set'
   require 'tzinfo'
 
   # Represents the working and resting periods across a given number of whole
@@ -203,7 +202,7 @@ module Workpattern
 	        a_day = SAME_DAY
           utc_start = Time.gm(utc_start.year, utc_start.month, utc_start.day,LAST_TIME_IN_DAY.hour, LAST_TIME_IN_DAY.min)
 	        week = find_weekpattern(utc_start)
-	  
+
 	        if week.working?(utc_start)
 	          duration += 1
 	        end
