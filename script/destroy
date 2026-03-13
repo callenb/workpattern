@@ -4,7 +4,6 @@ APP_ROOT = File.expand_path(File.join(File.dirname(__FILE__), '..'))
 begin
   require 'rubigen'
 rescue LoadError
-  require 'rubygems'
   require 'rubigen'
 end
 require 'rubigen/scripts/destroy'
