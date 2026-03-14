@@ -3,7 +3,7 @@
 module Workpattern
 
   class Day
-    
+
     attr_accessor  :pattern, :hours_per_day, :first_working_minute, :last_working_minute
 
     def initialize(hours_per_day = HOURS_IN_DAY, type = WORK_TYPE)
@@ -25,7 +25,7 @@ module Workpattern
 
     def working_minutes(from_time = FIRST_TIME_IN_DAY, to_time = LAST_TIME_IN_DAY)
       section = @pattern & working_mask(from_time, to_time)
-      section.to_s(2).count('1') 
+      section.to_s(2).count('1')
     end
 
     def working?(hour, minute)
@@ -33,71 +33,71 @@ module Workpattern
       result = mask & @pattern
       mask == result
     end
-   
+
     def resting?(hour, minute)
       !working?(hour,minute)
     end
 
-    def calc(a_date, a_duration)
+    def calc(from_date, a_duration)
       if a_duration == 0
-        return a_date, a_duration, SAME_DAY
+        return from_date, a_duration, SAME_DAY
       else
-        return a_duration > 0 ? add(a_date, a_duration) : subtract(a_date, a_duration)
+        return a_duration > 0 ? add(from_date, a_duration) : subtract(from_date, a_duration)
       end
-    end  
-    
-    private
-
-    def add(a_date, a_duration)
-      minutes_left = working_minutes(a_date)
-      if a_duration > minutes_left
-        return [a_date, a_duration - minutes_left, NEXT_DAY]
-      elsif a_duration < minutes_left
-        return add_minutes(a_date, a_duration)
-      else
-        if working?(LAST_TIME_IN_DAY.hour, LAST_TIME_IN_DAY.min)
-	        return [a_date, 0, NEXT_DAY]
-        else
-          return_date = Time.gm(a_date.year, a_date.month, a_date.day, @last_working_minute.hour, @last_working_minute.min) + 60
-	        return [ return_date, 0, SAME_DAY]
-        end
-      end	
     end
 
-    def add_minutes(a_date, a_duration)
-      elapsed_date = a_date + (a_duration * 60) - 60
+    private
 
-      if working_minutes(a_date, elapsed_date) == a_duration
+    def add(from_date, a_duration)
+      minutes_left = working_minutes(from_date)
+      if a_duration > minutes_left
+        return [from_date, a_duration - minutes_left, NEXT_DAY]
+      elsif a_duration < minutes_left
+        return add_minutes(from_date, a_duration)
+      else
+        if working?(LAST_TIME_IN_DAY.hour, LAST_TIME_IN_DAY.min)
+	        return [from_date, 0, NEXT_DAY]
+        else
+          return_date = Time.gm(from_date.year, from_date.month, from_date.day, @last_working_minute.hour, @last_working_minute.min) + 60
+	        return [ return_date, 0, SAME_DAY]
+        end
+      end
+    end
+
+    def add_minutes(from_date, a_duration)
+      elapsed_date = from_date + (a_duration * 60) - 60
+
+      if working_minutes(from_date, elapsed_date) == a_duration
         return [elapsed_date += 60, 0, SAME_DAY]
       else
         begin
           elapsed_date += 60
-        end while working_minutes(a_date, elapsed_date) != a_duration
+        end while working_minutes(from_date, elapsed_date) != a_duration
 	      return [elapsed_date += 60, 0, SAME_DAY]
       end
     end
 
-    def subtract(a_date, a_duration)
-      minutes_left = working_minutes(FIRST_TIME_IN_DAY,a_date - 60)
+    def subtract(from_date, a_duration)
+      minutes_left = working_minutes(FIRST_TIME_IN_DAY,from_date - 60)
       abs_duration = a_duration.abs
       if abs_duration > minutes_left
-        return [a_date, a_duration + minutes_left, PREVIOUS_DAY]
+        return [from_date, a_duration + minutes_left, PREVIOUS_DAY]
       elsif abs_duration < minutes_left
-        return subtract_minutes(a_date, abs_duration)
+        return subtract_minutes(from_date, abs_duration)
       else
-        return [Time.gm(a_date.year,a_date.month,a_date.day,@first_working_minute.hour,@first_working_minute.min), 0, SAME_DAY]
-      end	
+        return [Time.gm(from_date.year,from_date.month,from_date.day,@first_working_minute.hour,@first_working_minute.min), 0, SAME_DAY]
+      end
     end
 
-    def subtract_minutes(a_date, abs_duration)
-      elapsed_date = a_date - (abs_duration * 60)
-      if working_minutes(elapsed_date, a_date - 60) == abs_duration
+    def subtract_minutes(from_date, abs_duration)
+      elapsed_date = from_date - (abs_duration * 60)
+      if working_minutes(elapsed_date, from_date - 60) == abs_duration
         return [elapsed_date, 0, SAME_DAY]
       else
-        a_date -= 60
+        from_date -= 60
         begin
           elapsed_date -= 60
-        end while working_minutes(elapsed_date, a_date) != abs_duration
+        end while working_minutes(elapsed_date, from_date) != abs_duration
 	      return [elapsed_date, 0, SAME_DAY]
       end
     end
@@ -105,7 +105,7 @@ module Workpattern
     def working_day
       2**((60 * @hours_per_day) +1) - 1
     end
-    
+
     def initial_day(type = WORK_TYPE)
 
       pattern = 2**((60 * @hours_per_day) + 1)
@@ -113,14 +113,14 @@ module Workpattern
       if type == WORK_TYPE
         pattern = pattern - 1
       end
-      
+
       pattern
     end
 
     def working_mask(start_time, finish_time)
-    
-      start = minutes_in_time(start_time) 
-      finish = minutes_in_time(finish_time) 
+
+      start = minutes_in_time(start_time)
+      finish = minutes_in_time(finish_time)
 
       mask = initial_day
 
@@ -131,14 +131,14 @@ module Workpattern
     def resting_mask(start_time, finish_time)
 
       start = minutes_in_time(start_time)
-      finish_clock = Clock.new(finish_time.hour, finish_time.min + 1) 
+      finish_clock = Clock.new(finish_time.hour, finish_time.min + 1)
 
       mask = initial_day(REST_TYPE)
       if minutes_in_time(finish_time) != LAST_TIME_IN_DAY.minutes
         mask = mask | working_mask(finish_clock,LAST_TIME_IN_DAY)
-      end	
+      end
       mask | ((2**start) - 1)
-    end 
+    end
 
     def minutes_in_time(a_time)
       (a_time.hour * 60) + a_time.min
@@ -155,7 +155,7 @@ module Workpattern
 
       not_done = true
       while not_done
-      
+
         minutes = working_minutes(minutes_to_time(mark), minutes_to_time(top))
 
         if minutes > 1
@@ -172,14 +172,14 @@ module Workpattern
 
         else
 	        not_done = false
-        
+
         end
 
         if mark == bottom #& last_mark != mark
 	        mark = mark + 1
-        end  
+        end
 
-        if mark == 1 && top == 1 
+        if mark == 1 && top == 1
           mark = 0
         end
 
@@ -199,7 +199,7 @@ module Workpattern
 
       not_done = true
       while not_done
-      
+
         minutes = working_minutes(minutes_to_time(bottom), minutes_to_time(mark))
         if minutes > 1
           top = mark
@@ -212,15 +212,15 @@ module Workpattern
           mark = mark - ((top - bottom) / 2)
         else
           not_done = false
-        end  
-        
+        end
+
         if mark == 1 && top == 1
           mark = 0
         end
       end
-      
+
       minutes_to_time(mark)
-    end  
+    end
 
     def minutes_to_time(minutes)
       Time.gm(1963,6,10,minutes / 60, minutes - (minutes / 60 * 60))
@@ -229,17 +229,17 @@ module Workpattern
     def is_resting(minutes)
       a_time =(minutes_to_time(minutes))
       resting?(a_time.hour, a_time.min)
-    end  
+    end
 
     def set_first_and_last_minutes
       if working_minutes == 0
         @first_working_minute = nil
         @last_working_minute = nil
-      else	
+      else
 	      @first_working_minute = first_minute
 	      @last_working_minute = last_minute
-      end	
-    end  
+      end
+    end
 
 
   end
