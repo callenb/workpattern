@@ -57,13 +57,13 @@ module Workpattern
       duplicate_week
     end
 
-    def calc(from_date, minutes, a_day = SAME_DAY)
+    def calc(from_date, minutes, day_boundary = SAME_DAY)
       if minutes == 0
         return from_date, minutes
       elsif minutes > 0
         return add(from_date, minutes)
       else
-        subtract(from_date, minutes, a_day)
+        subtract(from_date, minutes, day_boundary)
       end
     end
 
@@ -184,10 +184,10 @@ module Workpattern
       next_day(date) - (HOUR * date.hour) - (MINUTE * date.min)
     end
 
-    def subtract_to_start_of_day(from_date, minutes, a_day)
+    def subtract_to_start_of_day(from_date, minutes, day_boundary)
 
 
-      from_date, minutes, a_day = handle_midnight(from_date, minutes, a_day)
+      from_date, minutes, day_boundary = handle_midnight(from_date, minutes, day_boundary)
 
       r_date, r_duration, r_day = @days[from_date.wday].calc(from_date, minutes)
 
@@ -195,9 +195,9 @@ module Workpattern
 
     end
 
-    def handle_midnight(midnight_date, minutes, a_day)
+    def handle_midnight(midnight_date, minutes, day_boundary)
 
-      if a_day == PREVIOUS_DAY
+      if day_boundary == PREVIOUS_DAY
         midnight_date -= DAY
         midnight_date = Time.gm(midnight_date.year, midnight_date.month, midnight_date.day,LAST_TIME_IN_DAY.hour, LAST_TIME_IN_DAY.min)
 
@@ -209,13 +209,13 @@ module Workpattern
       [midnight_date, minutes, SAME_DAY]
     end
 
-    def subtract(from_date, minutes, a_day)
-      from_date, minutes, a_day = handle_midnight(from_date, minutes, a_day)
-      from_date, minutes, a_day = subtract_to_start_of_day(from_date, minutes, a_day)
+    def subtract(from_date, minutes, day_boundary)
+      from_date, minutes, day_boundary = handle_midnight(from_date, minutes, day_boundary)
+      from_date, minutes, day_boundary = subtract_to_start_of_day(from_date, minutes, day_boundary)
 
       while (minutes != 0) && (from_date.wday != start.wday) && (jd(from_date) > jd(start))
-        from_date, minutes, a_day = handle_midnight(from_date, minutes, a_day)
-        from_date, minutes, a_day = subtract_to_start_of_day(from_date, minutes, a_day)
+        from_date, minutes, day_boundary = handle_midnight(from_date, minutes, day_boundary)
+        from_date, minutes, day_boundary = subtract_to_start_of_day(from_date, minutes, day_boundary)
       end
 
       while (minutes != 0) && (minutes >= week_total) && ((jd(from_date) - (6 * DAY)) >= jd(start))
@@ -224,10 +224,10 @@ module Workpattern
       end
 
       while (minutes != 0) && (jd(from_date) > jd(start))
-        from_date, minutes, a_day = subtract_to_start_of_day(from_date,minutes,a_day)
+        from_date, minutes, day_boundary = subtract_to_start_of_day(from_date,minutes,day_boundary)
       end
 
-      [from_date, minutes, a_day]
+      [from_date, minutes, day_boundary]
     end
 
     def diff_in_same_weekpattern(start_date, finish_date)
