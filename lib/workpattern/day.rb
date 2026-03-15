@@ -140,8 +140,8 @@ module Workpattern
       mask | ((2**start) - 1)
     end
 
-    def minutes_in_time(a_time)
-      (a_time.hour * 60) + a_time.min
+    def minutes_in_time(time)
+      (time.hour * 60) + time.min
     end
 
     def last_minute
