@@ -42,10 +42,8 @@ module Workpattern
     # @see #working
     # @see #resting
     #
-    def workpattern(opts = {}, persist = nil)
+    def workpattern(opts = {})
       args = all_workpattern_options(opts)
-
-      persist.store(name: @name, workpattern: args) if !persist.nil?
 
       args = standardise_args(args)
 
@@ -89,13 +87,13 @@ module Workpattern
     private
 
     def all_workpattern_options(opts)
-	    
+
       args = { start: from, finish: to, days: :all,
                from_time: FIRST_TIME_IN_DAY, to_time: LAST_TIME_IN_DAY,
                work_type: WORK_TYPE }
 
       args.merge! opts
-    end  
+    end
 
     def standardise_args(args)
 
@@ -106,7 +104,7 @@ module Workpattern
     end
 
     # Clones the supplied Week Pattern then changes the dates on it
-    # The newly cloned Week pattern dates are also changed and it is 
+    # The newly cloned Week pattern dates are also changed and it is
     # returned by this method
     #
     def fetch_updatable_week_pattern(keep_week, keep_start, keep_finish,
