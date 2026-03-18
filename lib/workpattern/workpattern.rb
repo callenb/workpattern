@@ -58,7 +58,7 @@ module Workpattern
     # 31st December.
     # @raise [NameError] if the given name already exists
     #
-    def initialize(name = DEFAULT_NAME, base = DEFAULT_BASE_YEAR, span = DEFAULT_SPAN)
+    def initialize(name = DEFAULT_WORKPATTERN_NAME, base = DEFAULT_BASE_YEAR, span = DEFAULT_SPAN)
       if workpatterns.key?(name)
         raise(NameError, "Workpattern '#{name}' already exists and can't be created again")
       end
