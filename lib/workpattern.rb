@@ -17,6 +17,7 @@ require 'workpattern/day'
 require 'workpattern/week'
 require 'workpattern/workpattern'
 require 'workpattern/week_pattern'
+require 'workpattern/workpattern_registry'
 
 #
 # workpattern.rb - date calculation library that takes into account patterns of
