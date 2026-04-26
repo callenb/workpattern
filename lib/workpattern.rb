@@ -75,6 +75,26 @@ module Workpattern
     Workpattern.clear
   end
 
+  # Convenience method to serialise a Workpattern to a plain hash.
+  #
+  # @param [Hash] hash produced by Workpattern#to_h
+  # @param [Boolean] overwrite replace an existing same-named workpattern
+  # @return [Workpattern]
+  # @raise [ArgumentError] if the hash is missing or has an unsupported version
+  # @raise [NameError] if a same-named workpattern already exists and overwrite is false
+  #
+  def self.from_h(hash, overwrite: false)
+    Workpattern.from_h(hash, overwrite: overwrite)
+  end
+
+  # Convenience method to access the registry of all known Workpattern objects.
+  #
+  # @return [Hash]
+  #
+  def self.workpatterns
+    Workpattern.workpatterns
+  end
+
   # Convenience method to create a Clock object.  This can be used for
   # specifying times if you don't want to create a <tt>DateTime</tt> object
   #

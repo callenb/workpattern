@@ -164,6 +164,53 @@ module Workpattern
       workpattern(args)
     end
 
+    def to_h
+      { version: 1,
+        name:    @name,
+        base:    @base,
+        span:    @span,
+        weeks:   @weeks.map(&:to_h) }
+    end
+
+    def self.from_h(hash, overwrite: false)
+      unless hash.key?(:version)
+        raise ArgumentError, "from_h: hash is missing a :version key " \
+                             "(if deserialising from JSON, use symbolize_names: true)"
+      end
+      unless hash[:version] == 1
+        raise ArgumentError, "from_h: unsupported version #{hash[:version].inspect} " \
+                             "(supported: 1)"
+      end
+
+      name = hash[:name]
+      if workpatterns.key?(name)
+        if overwrite
+          workpatterns.delete(name)
+        else
+          raise NameError, "Workpattern '#{name}' already exists and can't be created again"
+        end
+      end
+
+      wp = allocate
+      wp.instance_variable_set(:@name, name)
+      wp.instance_variable_set(:@base, hash[:base])
+      wp.instance_variable_set(:@span, hash[:span])
+
+      offset    = hash[:span] < 0 ? hash[:span].abs - 1 : 0
+      from_time = Time.gm(hash[:base].abs - offset)
+      to_time   = Time.gm(from_time.year + hash[:span].abs - 1, 12, 31, 23, 59)
+      wp.instance_variable_set(:@from, from_time)
+      wp.instance_variable_set(:@to,   to_time)
+
+      weeks = SortedSet.new
+      hash[:weeks].each { |wh| weeks << Week.from_h(wh) }
+      wp.instance_variable_set(:@weeks, weeks)
+      wp.instance_variable_set(:@week_pattern, WeekPattern.new(wp))
+
+      workpatterns[name] = wp
+      wp
+    end
+
     # Calculates the resulting date when the <tt>duration</tt> in minutes
     # is added to the <tt>start</tt> date.
     # The <tt>duration</tt> is always in whole minutes and subtracts from
