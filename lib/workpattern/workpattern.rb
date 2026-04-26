@@ -19,10 +19,6 @@ module Workpattern
       @@workpatterns
     end
 
-    def workpatterns
-      @@workpatterns
-    end
-
     # @!attribute [r] name
     #   Name given to the <tt>Workpattern</tt>
     # @!attribute [r] base
@@ -37,16 +33,6 @@ module Workpattern
     #   The <tt>Week</tt> objects that make up this workpattern
     #
     attr_reader :name, :base, :span, :from, :to, :weeks
-
-    # Class for handling persistence in user's own way
-    #
-    def self.persistence_class=(klass)
-      @@persist = klass
-    end
-
-    def self.persistence?
-      @@persist ||= nil
-    end
 
     # Holds local timezone info
     @@tz = nil
@@ -75,7 +61,7 @@ module Workpattern
     # 31st December.
     # @raise [NameError] if the given name already exists
     #
-    def initialize(name = DEFAULT_NAME, base = DEFAULT_BASE_YEAR, span = DEFAULT_SPAN)
+    def initialize(name = DEFAULT_WORKPATTERN_NAME, base = DEFAULT_BASE_YEAR, span = DEFAULT_SPAN)
       if workpatterns.key?(name)
         raise(NameError, "Workpattern '#{name}' already exists and can't be created again")
       end
@@ -96,6 +82,11 @@ module Workpattern
     def week_pattern
       @week_pattern
     end
+
+    private def workpatterns
+      @@workpatterns
+    end
+    public
 
     # Deletes all <tt>Workpattern</tt> objects
     #
@@ -151,11 +142,7 @@ module Workpattern
     # @see #resting
     #
     def workpattern(opts = {})
-      if self.class.persistence?
-        week_pattern.workpattern(opts, @@persistence)
-      else
-        week_pattern.workpattern(opts)
-      end
+      week_pattern.workpattern(opts)
     end
 
     # Convenience method that calls <tt>#workpattern</tt> with the
@@ -176,6 +163,63 @@ module Workpattern
     def working(args = {})
       args[:work_type] = WORK_TYPE
       workpattern(args)
+    end
+
+    def to_h
+      { version: 1,
+        name:    @name,
+        base:    @base,
+        span:    @span,
+        weeks:   @weeks.map(&:to_h) }
+    end
+
+    def self.from_h(hash, overwrite: false)
+      unless hash.key?(:version)
+        raise ArgumentError, "from_h: hash is missing a :version key " \
+                             "(if deserialising from JSON, use symbolize_names: true)"
+      end
+      unless hash[:version] == 1
+        raise ArgumentError, "from_h: unsupported version #{hash[:version].inspect} " \
+                             "(supported: 1)"
+      end
+      unless hash[:name].is_a?(String) && !hash[:name].empty?
+        raise ArgumentError, "from_h: :name must be a non-empty String"
+      end
+      unless hash[:base].is_a?(Integer)
+        raise ArgumentError, "from_h: :base must be an Integer"
+      end
+      unless hash[:span].is_a?(Integer) && hash[:span] != 0
+        raise ArgumentError, "from_h: :span must be a non-zero Integer"
+      end
+      unless hash[:weeks].is_a?(Array)
+        raise ArgumentError, "from_h: :weeks must be an Array"
+      end
+
+      name = hash[:name]
+      if workpatterns.key?(name) && !overwrite
+        raise NameError, "Workpattern '#{name}' already exists and can't be created again"
+      end
+
+      wp = allocate
+      wp.instance_variable_set(:@name, name)
+      wp.instance_variable_set(:@base, hash[:base])
+      wp.instance_variable_set(:@span, hash[:span])
+
+      offset    = hash[:span] < 0 ? hash[:span].abs - 1 : 0
+      from_time = Time.gm(hash[:base].abs - offset)
+      to_time   = Time.gm(from_time.year + hash[:span].abs - 1, 12, 31, 23, 59)
+      wp.instance_variable_set(:@from, from_time)
+      wp.instance_variable_set(:@to,   to_time)
+
+      weeks = SortedSet.new
+      hash[:weeks].each { |wh| weeks << Week.from_h(wh) }
+      raise ArgumentError, "from_h: :weeks must not be empty" if weeks.empty?
+      wp.instance_variable_set(:@weeks, weeks)
+      wp.instance_variable_set(:@week_pattern, WeekPattern.new(wp))
+
+      workpatterns.delete(name) if overwrite
+      workpatterns[name] = wp
+      wp
     end
 
     # Calculates the resulting date when the <tt>duration</tt> in minutes

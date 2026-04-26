@@ -92,3 +92,25 @@ Workpattern.delete "My Workpattern"
 # Delete all Workpatterns
 Workpattern.clear
 ```
+
+### Serialisation
+
+A `Workpattern` can be serialised to a plain Ruby hash and restored later.  The hash is JSON-safe — pattern bitmaps are stored as hex strings.
+
+``` ruby
+# Serialise
+h = mywp.to_h
+
+# Persist however you like (file, database, Redis, …)
+json = JSON.generate(h)
+
+# Restore — JSON.parse must use symbolize_names: true
+h2 = JSON.parse(json, symbolize_names: true)
+mywp2 = Workpattern.from_h(h2)
+```
+
+If a workpattern with the same name already exists, `from_h` raises `NameError`.  Pass `overwrite: true` to replace it:
+
+``` ruby
+Workpattern.from_h(h, overwrite: true)
+```

@@ -518,6 +518,58 @@ class TestWeek < WorkpatternTest #:nodoc:
     assert_equal Time.gm(2013, 10, 15, 10, 0), start
   end
 
+  def test_to_h_structure
+    start  = Time.gm(2020, 1, 1)
+    finish = Time.gm(2020, 12, 31)
+    w = week(start, finish, 1)
+    h = w.to_h
+    assert_equal 2020, h[:start][:year]
+    assert_equal 1,    h[:start][:month]
+    assert_equal 1,    h[:start][:day]
+    assert_equal 2020, h[:finish][:year]
+    assert_equal 12,   h[:finish][:month]
+    assert_equal 31,   h[:finish][:day]
+    assert_equal 7,    h[:days].length
+    h[:days].each do |dh|
+      assert dh.key?(:pattern)
+      assert dh.key?(:hours_per_day)
+    end
+  end
+
+  def test_from_h_round_trips_working_week
+    start  = Time.gm(2020, 1, 1)
+    finish = Time.gm(2020, 12, 31)
+    w = week(start, finish, 1)
+    w2 = Workpattern::Week.from_h(w.to_h)
+    (0..6).each do |day|
+      assert_equal w.days[day].pattern, w2.days[day].pattern
+      assert_equal w.days[day].working_minutes, w2.days[day].working_minutes
+    end
+  end
+
+  def test_from_h_round_trips_resting_weekends
+    start  = Time.gm(2020, 1, 1)
+    finish = Time.gm(2020, 12, 31)
+    w = week(start, finish, 1)
+    w.workpattern(:weekend, set_time(0, 0), set_time(23, 59), 0)
+    w2 = Workpattern::Week.from_h(w.to_h)
+    assert_equal 0, w2.days[0].working_minutes  # Sunday
+    assert_equal 0, w2.days[6].working_minutes  # Saturday
+    assert_equal w.days[1].working_minutes, w2.days[1].working_minutes  # Monday
+  end
+
+  def test_from_h_preserves_working_query
+    start  = Time.gm(2020, 6, 1)
+    finish = Time.gm(2020, 6, 30)
+    w = week(start, finish, 1)
+    w.workpattern(:all, set_time(0, 0), set_time(8, 59), 0)
+    w2 = Workpattern::Week.from_h(w.to_h)
+    probe = Time.gm(2020, 6, 1, 9, 0)  # Monday 09:00 — working
+    assert_equal w.working?(probe), w2.working?(probe)
+    probe2 = Time.gm(2020, 6, 1, 8, 0)  # Monday 08:00 — resting
+    assert_equal w.working?(probe2), w2.working?(probe2)
+  end
+
   private
 
   def week(start, finish, type)
@@ -526,5 +578,5 @@ class TestWeek < WorkpatternTest #:nodoc:
 
   def set_time(hour,min)
     Time.gm(1963,6,10,hour,min)
-  end  
+  end
 end

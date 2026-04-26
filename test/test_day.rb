@@ -265,6 +265,64 @@ class TestDay < WorkpatternTest #:nodoc:
      assert_equal Workpattern::SAME_DAY, r_offset, "should be SAME_DAY"
 
    end
+
+  def test_to_h_returns_pattern_and_hours_per_day
+    day = working_day
+    h = day.to_h
+    assert h.key?(:pattern)
+    assert h.key?(:hours_per_day)
+    assert_instance_of String, h[:pattern]
+    assert_equal 24, h[:hours_per_day]
+  end
+
+  def test_to_h_pattern_is_hex_string
+    day = working_day
+    assert_match(/\A[0-9a-f]+\z/, day.to_h[:pattern])
+  end
+
+  def test_from_h_round_trips_working_day
+    day = working_day
+    restored = Workpattern::Day.from_h(day.to_h)
+    assert_equal day.pattern, restored.pattern
+    assert_equal 1440, restored.working_minutes
+  end
+
+  def test_from_h_round_trips_resting_day
+    day = resting_day
+    restored = Workpattern::Day.from_h(day.to_h)
+    assert_equal day.pattern, restored.pattern
+    assert_equal 0, restored.working_minutes
+  end
+
+  def test_from_h_restores_cache_first_and_last_minute
+    day = working_day
+    day.set_resting(set_time(0, 0), set_time(8, 59))
+    restored = Workpattern::Day.from_h(day.to_h)
+    assert_equal day.first_working_minute.hour, restored.first_working_minute.hour
+    assert_equal day.first_working_minute.min, restored.first_working_minute.min
+    assert_equal day.last_working_minute.hour, restored.last_working_minute.hour
+    assert_equal day.last_working_minute.min, restored.last_working_minute.min
+    assert_equal day.working_minutes, restored.working_minutes
+  end
+
+  def test_from_h_round_trips_partial_day_working_minutes
+    day = working_day
+    day.set_resting(set_time(0, 0), set_time(8, 59))
+    day.set_resting(set_time(17, 0), set_time(23, 59))
+    restored = Workpattern::Day.from_h(day.to_h)
+    assert_equal day.working_minutes, restored.working_minutes
+    assert_equal 480, restored.working_minutes
+  end
+
+  def test_pattern_setter_updates_cache
+    day = working_day
+    assert_equal 1440, day.working_minutes
+    day.pattern = resting_day.pattern
+    assert_nil day.first_working_minute
+    assert_nil day.last_working_minute
+    assert_equal 0, day.working_minutes
+  end
+
   private
 
   def working_day

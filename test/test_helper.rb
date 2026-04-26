@@ -5,6 +5,6 @@ if RUBY_VERSION < "2"
     class WorkpatternTest < MiniTest::Unit::TestCase
     end
 else
-    class WorkpatternTest < MiniTest::Test
+    class WorkpatternTest < Minitest::Test
     end
 end

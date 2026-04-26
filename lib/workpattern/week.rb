@@ -9,16 +9,33 @@ module Workpattern
   # @private
   class Week
     attr_accessor :hours_per_day, :start, :finish, :days
-    attr_writer :week_total, :total
 
     def initialize(start, finish, type = WORK_TYPE, hours_per_day = HOURS_IN_DAY)
       @hours_per_day = hours_per_day
       @start = Time.gm(start.year, start.month, start.day)
       @finish = Time.gm(finish.year, finish.month, finish.day)
-      @days = Array.new(LAST_DAY_OF_WEEK)
+      @days = Array.new(LAST_DAY_OF_WEEK + 1)
       FIRST_DAY_OF_WEEK.upto(LAST_DAY_OF_WEEK) do |i|
         @days[i] = Day.new(hours_per_day, type)
       end
+    end
+
+    def to_h
+      { start:  { year: @start.year,  month: @start.month,  day: @start.day },
+        finish: { year: @finish.year, month: @finish.month, day: @finish.day },
+        days:   (FIRST_DAY_OF_WEEK..LAST_DAY_OF_WEEK).map { |i| @days[i].to_h } }
+    end
+
+    def self.from_h(h)
+      s = h[:start]
+      f = h[:finish]
+      week = allocate
+      week.hours_per_day = HOURS_IN_DAY
+      week.start  = Time.gm(s[:year], s[:month], s[:day])
+      week.finish = Time.gm(f[:year], f[:month], f[:day])
+      week.days   = Array.new(LAST_DAY_OF_WEEK + 1)
+      h[:days].each_with_index { |dh, i| week.days[i] = Day.from_h(dh) }
+      week
     end
 
     def <=>(other)
@@ -270,9 +287,6 @@ module Workpattern
       time + DAY
     end
 
-    def prev_day(time)
-      time - DAY
-    end
 
     def jd(time)
       Time.gm(time.year, time.month, time.day)
