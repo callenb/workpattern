@@ -75,7 +75,7 @@ module Workpattern
     Workpattern.clear
   end
 
-  # Convenience method to serialise a Workpattern to a plain hash.
+  # Convenience method to deserialise a Workpattern from a plain hash.
   #
   # @param [Hash] hash produced by Workpattern#to_h
   # @param [Boolean] overwrite replace an existing same-named workpattern

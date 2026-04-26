@@ -1,3 +1,11 @@
+## Workpattern v0.7.0 (unreleased) ##
+
+* Added `Workpattern#to_h` — serialises a workpattern to a plain Ruby hash (JSON-safe; pattern bitmaps are hex-encoded strings).
+* Added `Workpattern.from_h(hash, overwrite: false)` — reconstructs a workpattern from a hash produced by `to_h`. Requires symbol keys; when deserialising from JSON use `JSON.parse(json, symbolize_names: true)`.
+* Removed `Workpattern.persistence_class=` and `Workpattern.persistence?` — both were silently non-functional in all prior releases due to a `@@persist`/`@@persistence` naming bug; no working integration exists.
+* Fixed `DEFAULT_NAME` undefined constant in `Workpattern::Workpattern.initialize` (pre-existing; only triggered when calling the inner class constructor directly with no arguments).
+* Fixed `Array.new(LAST_DAY_OF_WEEK)` → `Array.new(LAST_DAY_OF_WEEK + 1)` in `Week.initialize` for consistency (pre-existing; Ruby auto-extends arrays so no runtime difference).
+
 ## Workpattern v0.6.0 ( 25 Feb, 2021) ##
 
 I stopped keeping this Changelog file update back when v0.5.0 was realeased on 19 Oct 2016 and now it is 10Feb 2021 and I'm playing catch-up.

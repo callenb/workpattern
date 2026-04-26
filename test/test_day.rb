@@ -269,8 +269,8 @@ class TestDay < WorkpatternTest #:nodoc:
   def test_to_h_returns_pattern_and_hours_per_day
     day = working_day
     h = day.to_h
-    assert_equal :pattern, h.keys[0]
-    assert_equal :hours_per_day, h.keys[1]
+    assert h.key?(:pattern)
+    assert h.key?(:hours_per_day)
     assert_instance_of String, h[:pattern]
     assert_equal 24, h[:hours_per_day]
   end
@@ -302,6 +302,16 @@ class TestDay < WorkpatternTest #:nodoc:
     assert_equal day.first_working_minute.min, restored.first_working_minute.min
     assert_equal day.last_working_minute.hour, restored.last_working_minute.hour
     assert_equal day.last_working_minute.min, restored.last_working_minute.min
+    assert_equal day.working_minutes, restored.working_minutes
+  end
+
+  def test_from_h_round_trips_partial_day_working_minutes
+    day = working_day
+    day.set_resting(set_time(0, 0), set_time(8, 59))
+    day.set_resting(set_time(17, 0), set_time(23, 59))
+    restored = Workpattern::Day.from_h(day.to_h)
+    assert_equal day.working_minutes, restored.working_minutes
+    assert_equal 480, restored.working_minutes
   end
 
   def test_pattern_setter_updates_cache

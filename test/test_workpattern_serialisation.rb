@@ -68,6 +68,8 @@ class TestWorkpatternSerialisation < WorkpatternTest
     wp2 = Workpattern.from_h(h, overwrite: true)
     assert_instance_of Workpattern::Workpattern, wp2
     assert_equal 'overwrite_me', wp2.name
+    saturday = Time.gm(2020, 6, 6, 12, 0)
+    assert_equal false, wp2.working?(saturday)
   end
 
   # 7. Round-trip: all-working workpattern
@@ -151,10 +153,33 @@ class TestWorkpatternSerialisation < WorkpatternTest
 
   # 12. from_h with string-keyed hash (JSON default) raises ArgumentError with symbolize_names hint
   def test_from_h_string_keys_gives_actionable_error
-    wp = Workpattern.new('strkeys', 2020, 1)
     # Simulate JSON.parse without symbolize_names: true
     string_keyed = { 'version' => 1, 'name' => 'strkeys', 'base' => 2020, 'span' => 1, 'weeks' => [] }
     err = assert_raises(ArgumentError) { Workpattern.from_h(string_keyed) }
     assert_match(/symbolize_names/, err.message)
+  end
+
+  # 13. overwrite: true with malformed hash leaves original intact
+  def test_from_h_overwrite_malformed_preserves_original
+    wp = Workpattern.new('atomic', 2020, 1)
+    wp.resting(days: :weekend)
+    bad_hash = wp.to_h.merge(weeks: [{ start: {year:2020,month:1,day:1}, finish: {year:2020,month:12,day:31}, days: nil }])
+    assert_raises(NoMethodError) { Workpattern.from_h(bad_hash, overwrite: true) }
+    assert_instance_of Workpattern::Workpattern, Workpattern.get('atomic')
+    saturday = Time.gm(2020, 6, 6, 12, 0)
+    assert_equal false, Workpattern.get('atomic').working?(saturday)
+  end
+
+  # 14. Round-trip: negative span
+  def test_round_trip_negative_span
+    wp = Workpattern.new('neg_span', 2020, -2)
+    h = wp.to_h
+    Workpattern.delete('neg_span')
+    wp2 = Workpattern.from_h(h)
+    assert_equal wp.from, wp2.from
+    assert_equal wp.to,   wp2.to
+    assert_equal wp.span, wp2.span
+    t1 = Time.gm(2019, 6, 1, 9, 0)
+    assert_equal wp.working?(t1), wp2.working?(t1)
   end
 end

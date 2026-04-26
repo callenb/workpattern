@@ -15,6 +15,12 @@ module Workpattern
     end
 
     def self.from_h(h)
+      unless h[:hours_per_day].is_a?(Integer) && h[:hours_per_day] > 0 && h[:hours_per_day] <= HOURS_IN_DAY
+        raise ArgumentError, "from_h: hours_per_day must be an Integer between 1 and #{HOURS_IN_DAY}"
+      end
+      unless h[:pattern].is_a?(String) && h[:pattern].length <= 400
+        raise ArgumentError, "from_h: pattern must be a hex String of at most 400 characters"
+      end
       day = allocate
       day.hours_per_day = h[:hours_per_day]
       day.pattern = h[:pattern].to_i(16)
