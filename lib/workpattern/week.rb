@@ -21,6 +21,23 @@ module Workpattern
       end
     end
 
+    def to_h
+      { start:  { year: @start.year,  month: @start.month,  day: @start.day },
+        finish: { year: @finish.year, month: @finish.month, day: @finish.day },
+        days:   (FIRST_DAY_OF_WEEK..LAST_DAY_OF_WEEK).map { |i| @days[i].to_h } }
+    end
+
+    def self.from_h(h)
+      s = h[:start]; f = h[:finish]
+      week = allocate
+      week.hours_per_day = HOURS_IN_DAY
+      week.start  = Time.gm(s[:year], s[:month], s[:day])
+      week.finish = Time.gm(f[:year], f[:month], f[:day])
+      week.days   = Array.new(LAST_DAY_OF_WEEK + 1)
+      h[:days].each_with_index { |dh, i| week.days[i] = Day.from_h(dh) }
+      week
+    end
+
     def <=>(other)
       return -1 if start < other.start
       return 0 if start == other.start
