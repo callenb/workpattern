@@ -2,7 +2,24 @@ module Workpattern
   
   class Day
     
-    attr_accessor  :pattern, :hours_per_day, :first_working_minute, :last_working_minute
+    attr_accessor :hours_per_day, :first_working_minute, :last_working_minute
+    attr_reader :pattern
+
+    def pattern=(value)
+      @pattern = value
+      set_first_and_last_minutes
+    end
+
+    def to_h
+      { pattern: @pattern.to_s(16), hours_per_day: @hours_per_day }
+    end
+
+    def self.from_h(h)
+      day = allocate
+      day.hours_per_day = h[:hours_per_day]
+      day.pattern = h[:pattern].to_i(16)
+      day
+    end
 
     def initialize(hours_per_day = HOURS_IN_DAY, type = WORK_TYPE)
       @hours_per_day = hours_per_day
