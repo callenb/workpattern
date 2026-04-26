@@ -38,16 +38,6 @@ module Workpattern
     #
     attr_reader :name, :base, :span, :from, :to, :weeks
 
-    # Class for handling persistence in user's own way
-    #
-    def self.persistence_class=(klass)
-      @@persist = klass
-    end
-
-    def self.persistence?
-      @@persist ||= nil
-    end
-
     # Holds local timezone info
     @@tz = nil
 
@@ -151,11 +141,7 @@ module Workpattern
     # @see #resting
     #
     def workpattern(opts = {})
-      if self.class.persistence?
-        week_pattern.workpattern(opts, @@persistence)
-      else
-        week_pattern.workpattern(opts)
-      end
+      week_pattern.workpattern(opts)
     end
 
     # Convenience method that calls <tt>#workpattern</tt> with the
