@@ -6,13 +6,6 @@
 # Note that changes in the inspected code, or installation of new
 # versions of RuboCop, may require this file to be generated again.
 
-# Offense count: 1
-# This cop supports safe autocorrection (--autocorrect).
-# Configuration parameters: TreatCommentsAsGroupSeparators, ConsiderPunctuation.
-Bundler/OrderedGems:
-  Exclude:
-    - 'Gemfile'
-
 # Offense count: 2
 # This cop supports safe autocorrection (--autocorrect).
 Gemspec/AddRuntimeDependency:
@@ -709,7 +702,6 @@ Style/StringConcatenation:
 # SupportedStyles: single_quotes, double_quotes
 Style/StringLiterals:
   Exclude:
-    - 'Gemfile'
     - 'Rakefile'
     - 'lib/workpattern.rb'
     - 'lib/workpattern/day.rb'
