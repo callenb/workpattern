@@ -8,9 +8,9 @@
 
 # Offense count: 2
 # This cop supports safe autocorrection (--autocorrect).
-Gemspec/AddRuntimeDependency:
-  Exclude:
-    - 'workpattern.gemspec'
+# Gemspec/AddRuntimeDependency:
+#  Exclude:
+#    - 'workpattern.gemspec'
 
 # Offense count: 1
 # This cop supports safe autocorrection (--autocorrect).

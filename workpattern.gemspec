@@ -29,8 +29,8 @@ Gem::Specification.new do |spec|
 
   # For more information and examples about making a new gem, checkout our
   # guide at: https://bundler.io/guides/creating_gem.html
-  spec.add_runtime_dependency 'tzinfo'
-  spec.add_runtime_dependency 'sorted_set'
+  spec.add_dependency 'tzinfo'
+  spec.add_dependency 'sorted_set'
 
   spec.test_files            = `git ls-files -- {test,spec,features}/*`.split("\n")
   spec.require_paths         = ["lib"]
