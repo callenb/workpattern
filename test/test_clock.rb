@@ -1,8 +1,7 @@
-require File.dirname(__FILE__) + '/test_helper.rb'
+require "#{File.dirname(__FILE__)}/test_helper.rb"
 
-class TestClock < WorkpatternTest #:nodoc:
-  def setup
-  end
+class TestClock < WorkpatternTest # :nodoc:
+  def setup; end
 
   def test_must_create_midnight_default
     clock = Workpattern::Clock.new
@@ -11,7 +10,8 @@ class TestClock < WorkpatternTest #:nodoc:
     assert_equal 0, clock.hour, 'default hour is zero'
     assert_equal 0, clock.min, 'default minute is zero'
     time = clock.time
-    assert time.is_a?(DateTime), 'must return a DateTime object'
+
+    assert_kind_of DateTime, time, 'must return a DateTime object'
     assert_equal 0, time.hour, 'hour in the day must be zero'
     assert_equal 0, time.min, 'minute in the day must be zero'
   end
@@ -23,7 +23,8 @@ class TestClock < WorkpatternTest #:nodoc:
     assert_equal 4, clock.hour, 'hour is 4'
     assert_equal 20, clock.min, 'minute is 20'
     time = clock.time
-    assert time.is_a?(DateTime), 'must return a DateTime object'
+
+    assert_kind_of DateTime, time, 'must return a DateTime object'
     assert_equal DateTime.new(1963, 6, 10, 4, 20), time
   end
 end

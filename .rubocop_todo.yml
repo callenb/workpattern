@@ -148,7 +148,7 @@ Layout/IndentationWidth:
 Layout/LeadingCommentSpace:
   Exclude:
     - 'lib/workpattern/day.rb'
-    - 'test/test_clock.rb'
+#   - 'test/test_clock.rb'
     - 'test/test_day.rb'
     - 'test/test_week.rb'
     - 'test/test_workpattern.rb'
@@ -341,7 +341,7 @@ Minitest/AssertIncludes:
 # This cop supports safe autocorrection (--autocorrect).
 Minitest/AssertKindOf:
   Exclude:
-    - 'test/test_clock.rb'
+#   - 'test/test_clock.rb'
 
 # Offense count: 2
 # This cop supports safe autocorrection (--autocorrect).
@@ -364,7 +364,7 @@ Minitest/AssertTruthy:
 # This cop supports safe autocorrection (--autocorrect).
 Minitest/EmptyLineBeforeAssertionMethods:
   Exclude:
-    - 'test/test_clock.rb'
+#   - 'test/test_clock.rb'
     - 'test/test_day.rb'
     - 'test/test_week.rb'
     - 'test/test_workpattern.rb'
@@ -476,7 +476,7 @@ Style/Documentation:
 # SupportedStyles: compact, expanded
 Style/EmptyMethod:
   Exclude:
-    - 'test/test_clock.rb'
+#   - 'test/test_clock.rb'
     - 'test/test_day.rb'
 
 # Offense count: 18
@@ -627,7 +627,7 @@ Style/SpecialGlobalVars:
 # Configuration parameters: Mode.
 Style/StringConcatenation:
   Exclude:
-    - 'test/test_clock.rb'
+#   - 'test/test_clock.rb'
     - 'test/test_day.rb'
     - 'test/test_helper.rb'
     - 'test/test_week.rb'
