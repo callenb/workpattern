@@ -1,274 +1,272 @@
-require File.dirname(__FILE__) + '/test_helper.rb'
+require "#{File.dirname(__FILE__)}/test_helper.rb"
 
-class TestDay < WorkpatternTest #:nodoc:
-  def setup
-  end
+class TestDay < WorkpatternTest # :nodoc:
+  def setup; end
 
   def test_creates_full_working_day
     myday = working_day
+
     assert_equal 1440, myday.working_minutes
   end
 
-
   def test_when_working_minute
-     myday = working_day
-     assert myday.working?(0,0)
-     assert myday.working?(9,0)
-  end  
-   
-  def test_when_not_working_minute
-     myday = resting_day
-     assert !myday.working?(0,0)
-     assert !myday.working?(9,0)
+    myday = working_day
+
+    assert myday.working?(0, 0)
+    assert myday.working?(9, 0)
   end
- 
-   def test_when_resting_minute
-     myday = resting_day
-     assert myday.resting?(0,0)
-     assert myday.resting?(9,0)
-   end
- 
-   def test_when_not_resting_minute
-     myday = working_day
-     assert !myday.resting?(0,0)
-     assert !myday.resting?(9,0)
-   end
- 
-   def test_total_minutes_working_day
-     myday = working_day
-     assert_equal 1440, myday.working_minutes
-   end
- 
-   def test_total_minutes_resting_day
-     myday = resting_day
-     assert_equal 0, myday.working_minutes
-   end
- 
-   def test_add_rest_in_morning
-     myday = working_day
-     from_time = set_time(0,0)
-     to_time = set_time(8,59)
-     myday.set_resting(from_time, to_time)
-     0.upto(8) do | hour |
-       0.upto(59) do | minute |
-         assert myday.resting?(hour, minute), "Failed on #{hour}:#{minute}"
-       end
-     end    
-     9.upto(23) do | hour |
-       0.upto(59) do | minute |
-         assert myday.working?(hour, minute), "Failed on #{hour}:#{minute}"
-       end
-     end
- 
-     assert_equal 900, myday.working_minutes
-   end
- 
-   def test_add_rest_in_midday
-     myday = working_day
- 
-     from_time = set_time(11,0)
-     to_time = set_time(12,59)
-     myday.set_resting(from_time, to_time)
-     0.upto(10) do | hour |
-       0.upto(59) do | minute |
-         assert myday.working?(hour, minute), "Failed on #{hour}:#{minute}"
-       end
-     end    
-     
-     11.upto(12) do | hour |
-       0.upto(59) do | minute |
-         assert myday.resting?(hour, minute), "Failed on #{hour}:#{minute}"
-       end
-     end    
-     13.upto(23) do | hour |
-       0.upto(59) do | minute |
-         assert myday.working?(hour, minute), "Failed on #{hour}:#{minute}"
-       end
-     end    
- 
-     assert_equal 1320, myday.working_minutes
-   end
- 
-   def test_add_rest_at_end_of_day
-     myday = working_day
-     from_time = set_time(21,0)
-     to_time = set_time(23,59)
-     myday.set_resting(from_time, to_time)
-     0.upto(20) do | hour |
-       0.upto(59) do | minute |
-         assert myday.working?(hour, minute), "Failed on #{hour}:#{minute}"
-       end
-     end    
-     
-     21.upto(23) do | hour |
-       0.upto(59) do | minute |
-         assert myday.resting?(hour, minute), "Failed on #{hour}:#{minute}"
-       end
-     end    
- 
-     assert_equal 1260, myday.working_minutes
-   end
- 
- 
-   def test_add_work_in_morning
-     myday = resting_day
-     from_time = set_time(0,0)
-     to_time = set_time(8,59)
-     myday.set_working(from_time, to_time)
-     0.upto(8) do | hour |
-       0.upto(59) do | minute |
-         assert myday.working?(hour, minute), "Failed on #{hour}:#{minute}"
-       end
-     end    
-     9.upto(23) do | hour |
-       0.upto(59) do | minute |
-         assert myday.resting?(hour, minute), "Failed on #{hour}:#{minute}"
-       end
-     end
- 
-     assert_equal 540, myday.working_minutes
-   end
- 
-   def test_add_work_in_midday
-     myday = resting_day
-     from_time = set_time(11,0)
-     to_time = set_time(12,59)
-     myday.set_working(from_time, to_time)
-     0.upto(10) do | hour |
-       0.upto(59) do | minute |
-         assert myday.resting?(hour, minute), "Failed on #{hour}:#{minute}"
-       end
-     end    
-     
-     11.upto(12) do | hour |
-       0.upto(59) do | minute |
-         assert myday.working?(hour, minute), "Failed on #{hour}:#{minute}"
-       end
-     end    
-     13.upto(23) do | hour |
-       0.upto(59) do | minute |
-         assert myday.resting?(hour, minute), "Failed on #{hour}:#{minute}"
-       end
-     end    
- 
-     assert_equal 120, myday.working_minutes
-   end
- 
-   def test_add_work_at_end_of_day
-     myday = resting_day
-     from_time = set_time(21,0)
-     to_time = set_time(23,59)
-     myday.set_working(from_time, to_time)
-     0.upto(20) do | hour |
-       0.upto(59) do | minute |
-         assert myday.resting?(hour, minute), "Failed on #{hour}:#{minute}"
-       end
-     end    
-     
-     21.upto(23) do | hour |
-       0.upto(59) do | minute |
-         assert myday.working?(hour, minute), "Failed on #{hour}:#{minute}"
-       end
-     end    
- 
-     assert_equal 180, myday.working_minutes
-   end
- 
-   def test_minutes_in_part_of_day
-     myday = working_day
-     myday.set_resting(set_time(0,13), set_time(1,19))
-     myday.set_resting(set_time(11,47), set_time(12,21))
-     myday.set_resting(set_time(22,43), set_time(23,11))
- 
-     assert_equal 114, myday.working_minutes(set_time(0,0), set_time(3,0))
-     assert_equal 146, myday.working_minutes(set_time(11,0), set_time(14,0))
-     assert_equal 151, myday.working_minutes(set_time(21,0), set_time(23,59))
-     assert_equal 1309, myday.working_minutes(set_time(0,0), set_time(23,59))
-   end
- 
-   def test_must_diff_long_distances_within_patterned_week
- 
-     d_day =working_day 
-     d_day.set_resting(set_time(0,0),
-                       set_time(8, 59))
-     d_day.set_resting(set_time(12,0),
-                       set_time(12,59))
-     d_day.set_resting(set_time(18,0),
-                       set_time(23,59))
- 
-     s_date = set_time(17,0)
-     f_date = set_time(10,0)
- 
-     d_minutes = d_day.working_minutes()
-     start_minutes = d_day.working_minutes(s_date)
-     finish_minutes = d_day.working_minutes(Workpattern::FIRST_TIME_IN_DAY,f_date)
- 
-     assert_equal 61, finish_minutes, "finish_minutes"
-     assert_equal 60, start_minutes,"start_minutes"
-     assert_equal 480, d_minutes, "d_minutes"
-   end
 
-   def test_add_durations_to_working_day
+  def test_when_not_working_minute
+    myday = resting_day
 
-     a_day = working_day
-     a_date = Time.gm(1963,6,10,22,58)
+    assert refute(myday.working?(0, 0))
+    assert refute(myday.working?(9, 0))
+  end
 
-     r_time, r_duration, r_offset = a_day.calc(a_date,30)
-     
-     assert_equal 23, r_time.hour, "should be 23 hours"
-     assert_equal 28, r_time.min,  "should be 28 minutes"
-     assert_equal 0, r_duration, "should be 0 duration"
-     assert_equal Workpattern::SAME_DAY, r_offset, "should be SAME_DAY"
+  def test_when_resting_minute
+    myday = resting_day
 
-     
-     r_time, r_duration, r_offset = a_day.calc(a_date,100)
-     
-     assert_equal 22, r_time.hour, "should be 23 hours"
-     assert_equal 58, r_time.min,  "should be 28 minutes"
-     assert_equal 38, r_duration, "should be 0 duration"
-     assert_equal Workpattern::NEXT_DAY, r_offset, "should be SAME_DAY"
+    assert myday.resting?(0, 0)
+    assert myday.resting?(9, 0)
+  end
 
-     r_time, r_duration, r_offset = a_day.calc(a_date,62)
-     
-     assert_equal 22, r_time.hour, "should be 23 hours"
-     assert_equal 58, r_time.min,  "should be 28 minutes"
-     assert_equal 0, r_duration, "should be 0 duration"
-     assert_equal Workpattern::NEXT_DAY, r_offset, "should be SAME_DAY"
+  def test_when_not_resting_minute
+    myday = working_day
 
-   end
- 
-   def test_subtract_durations_from_working_day
+    assert refute(myday.resting?(0, 0))
+    assert refute(myday.resting?(9, 0))
+  end
 
-     a_day = working_day
-     a_date = Time.gm(1963,6,10,1,2)
+  def test_total_minutes_working_day
+    myday = working_day
 
-     r_time, r_duration, r_offset = a_day.calc(a_date,-30)
-     
-     assert_equal 0, r_time.hour, "should be 0 hours"
-     assert_equal 32, r_time.min,  "should be 28 minutes"
-     assert_equal 0, r_duration, "should be 0 duration"
-     assert_equal Workpattern::SAME_DAY, r_offset, "should be SAME_DAY"
+    assert_equal 1440, myday.working_minutes
+  end
 
-     
-     r_time, r_duration, r_offset = a_day.calc(a_date,-100)
-     
-     assert_equal 1, r_time.hour, "should be 23 hours"
-     assert_equal 2, r_time.min,  "should be 28 minutes"
-     assert_equal (-38), r_duration, "should be 0 duration"
-     assert_equal Workpattern::PREVIOUS_DAY, r_offset, "should be SAME_DAY"
+  def test_total_minutes_resting_day
+    myday = resting_day
 
-     r_time, r_duration, r_offset = a_day.calc(a_date,-62)
-     
-     assert_equal 0, r_time.hour, "should be 1 hours"
-     assert_equal 0, r_time.min,  "should be 2 minutes"
-     assert_equal 0, r_duration, "should be 0 duration"
-     assert_equal Workpattern::SAME_DAY, r_offset, "should be SAME_DAY"
+    assert_equal 0, myday.working_minutes
+  end
 
-   end
+  def test_add_rest_in_morning
+    myday = working_day
+    from_time = set_time(0, 0)
+    to_time = set_time(8, 59)
+    myday.set_resting(from_time, to_time)
+    0.upto(8) do |hour|
+      0.upto(59) do |minute|
+        assert myday.resting?(hour, minute), "Failed on #{hour}:#{minute}"
+      end
+    end
+    9.upto(23) do |hour|
+      0.upto(59) do |minute|
+        assert myday.working?(hour, minute), "Failed on #{hour}:#{minute}"
+      end
+    end
+
+    assert_equal 900, myday.working_minutes
+  end
+
+  def test_add_rest_in_midday
+    myday = working_day
+
+    from_time = set_time(11, 0)
+    to_time = set_time(12, 59)
+    myday.set_resting(from_time, to_time)
+    0.upto(10) do |hour|
+      0.upto(59) do |minute|
+        assert myday.working?(hour, minute), "Failed on #{hour}:#{minute}"
+      end
+    end
+
+    11.upto(12) do |hour|
+      0.upto(59) do |minute|
+        assert myday.resting?(hour, minute), "Failed on #{hour}:#{minute}"
+      end
+    end
+    13.upto(23) do |hour|
+      0.upto(59) do |minute|
+        assert myday.working?(hour, minute), "Failed on #{hour}:#{minute}"
+      end
+    end
+
+    assert_equal 1320, myday.working_minutes
+  end
+
+  def test_add_rest_at_end_of_day
+    myday = working_day
+    from_time = set_time(21, 0)
+    to_time = set_time(23, 59)
+    myday.set_resting(from_time, to_time)
+    0.upto(20) do |hour|
+      0.upto(59) do |minute|
+        assert myday.working?(hour, minute), "Failed on #{hour}:#{minute}"
+      end
+    end
+
+    21.upto(23) do |hour|
+      0.upto(59) do |minute|
+        assert myday.resting?(hour, minute), "Failed on #{hour}:#{minute}"
+      end
+    end
+
+    assert_equal 1260, myday.working_minutes
+  end
+
+  def test_add_work_in_morning
+    myday = resting_day
+    from_time = set_time(0, 0)
+    to_time = set_time(8, 59)
+    myday.set_working(from_time, to_time)
+    0.upto(8) do |hour|
+      0.upto(59) do |minute|
+        assert myday.working?(hour, minute), "Failed on #{hour}:#{minute}"
+      end
+    end
+    9.upto(23) do |hour|
+      0.upto(59) do |minute|
+        assert myday.resting?(hour, minute), "Failed on #{hour}:#{minute}"
+      end
+    end
+
+    assert_equal 540, myday.working_minutes
+  end
+
+  def test_add_work_in_midday
+    myday = resting_day
+    from_time = set_time(11, 0)
+    to_time = set_time(12, 59)
+    myday.set_working(from_time, to_time)
+    0.upto(10) do |hour|
+      0.upto(59) do |minute|
+        assert myday.resting?(hour, minute), "Failed on #{hour}:#{minute}"
+      end
+    end
+
+    11.upto(12) do |hour|
+      0.upto(59) do |minute|
+        assert myday.working?(hour, minute), "Failed on #{hour}:#{minute}"
+      end
+    end
+    13.upto(23) do |hour|
+      0.upto(59) do |minute|
+        assert myday.resting?(hour, minute), "Failed on #{hour}:#{minute}"
+      end
+    end
+
+    assert_equal 120, myday.working_minutes
+  end
+
+  def test_add_work_at_end_of_day
+    myday = resting_day
+    from_time = set_time(21, 0)
+    to_time = set_time(23, 59)
+    myday.set_working(from_time, to_time)
+    0.upto(20) do |hour|
+      0.upto(59) do |minute|
+        assert myday.resting?(hour, minute), "Failed on #{hour}:#{minute}"
+      end
+    end
+
+    21.upto(23) do |hour|
+      0.upto(59) do |minute|
+        assert myday.working?(hour, minute), "Failed on #{hour}:#{minute}"
+      end
+    end
+
+    assert_equal 180, myday.working_minutes
+  end
+
+  def test_minutes_in_part_of_day
+    myday = working_day
+    myday.set_resting(set_time(0, 13), set_time(1, 19))
+    myday.set_resting(set_time(11, 47), set_time(12, 21))
+    myday.set_resting(set_time(22, 43), set_time(23, 11))
+
+    assert_equal 114, myday.working_minutes(set_time(0, 0), set_time(3, 0))
+    assert_equal 146, myday.working_minutes(set_time(11, 0), set_time(14, 0))
+    assert_equal 151, myday.working_minutes(set_time(21, 0), set_time(23, 59))
+    assert_equal 1309, myday.working_minutes(set_time(0, 0), set_time(23, 59))
+  end
+
+  def test_must_diff_long_distances_within_patterned_week
+    d_day = working_day
+    d_day.set_resting(set_time(0, 0),
+                      set_time(8, 59))
+    d_day.set_resting(set_time(12, 0),
+                      set_time(12, 59))
+    d_day.set_resting(set_time(18, 0),
+                      set_time(23, 59))
+
+    s_date = set_time(17, 0)
+    f_date = set_time(10, 0)
+
+    d_minutes = d_day.working_minutes
+    start_minutes = d_day.working_minutes(s_date)
+    finish_minutes = d_day.working_minutes(Workpattern::FIRST_TIME_IN_DAY, f_date)
+
+    assert_equal 61, finish_minutes, 'finish_minutes'
+    assert_equal 60, start_minutes, 'start_minutes'
+    assert_equal 480, d_minutes, 'd_minutes'
+  end
+
+  def test_add_durations_to_working_day
+    a_day = working_day
+    a_date = Time.gm(1963, 6, 10, 22, 58)
+
+    r_time, r_duration, r_offset = a_day.calc(a_date, 30)
+
+    assert_equal 23, r_time.hour, 'should be 23 hours'
+    assert_equal 28, r_time.min,  'should be 28 minutes'
+    assert_equal 0, r_duration, 'should be 0 duration'
+    assert_equal Workpattern::SAME_DAY, r_offset, 'should be SAME_DAY'
+
+    r_time, r_duration, r_offset = a_day.calc(a_date, 100)
+
+    assert_equal 22, r_time.hour, 'should be 23 hours'
+    assert_equal 58, r_time.min,  'should be 28 minutes'
+    assert_equal 38, r_duration, 'should be 0 duration'
+    assert_equal Workpattern::NEXT_DAY, r_offset, 'should be SAME_DAY'
+
+    r_time, r_duration, r_offset = a_day.calc(a_date, 62)
+
+    assert_equal 22, r_time.hour, 'should be 23 hours'
+    assert_equal 58, r_time.min,  'should be 28 minutes'
+    assert_equal 0, r_duration, 'should be 0 duration'
+    assert_equal Workpattern::NEXT_DAY, r_offset, 'should be SAME_DAY'
+  end
+
+  def test_subtract_durations_from_working_day
+    a_day = working_day
+    a_date = Time.gm(1963, 6, 10, 1, 2)
+
+    r_time, r_duration, r_offset = a_day.calc(a_date, -30)
+
+    assert_equal 0, r_time.hour, 'should be 0 hours'
+    assert_equal 32, r_time.min, 'should be 28 minutes'
+    assert_equal 0, r_duration, 'should be 0 duration'
+    assert_equal Workpattern::SAME_DAY, r_offset, 'should be SAME_DAY'
+
+    r_time, r_duration, r_offset = a_day.calc(a_date, -100)
+
+    assert_equal 1, r_time.hour, 'should be 23 hours'
+    assert_equal 2, r_time.min,  'should be 28 minutes'
+    assert_equal(-38, r_duration, 'should be 0 duration')
+    assert_equal Workpattern::PREVIOUS_DAY, r_offset, 'should be SAME_DAY'
+
+    r_time, r_duration, r_offset = a_day.calc(a_date, -62)
+
+    assert_equal 0, r_time.hour, 'should be 1 hours'
+    assert_equal 0, r_time.min,  'should be 2 minutes'
+    assert_equal 0, r_duration, 'should be 0 duration'
+    assert_equal Workpattern::SAME_DAY, r_offset, 'should be SAME_DAY'
+  end
 
   def test_to_h_returns_pattern_and_hours_per_day
     day = working_day
     h = day.to_h
+
     assert h.key?(:pattern)
     assert h.key?(:hours_per_day)
     assert_instance_of String, h[:pattern]
@@ -277,12 +275,14 @@ class TestDay < WorkpatternTest #:nodoc:
 
   def test_to_h_pattern_is_hex_string
     day = working_day
+
     assert_match(/\A[0-9a-f]+\z/, day.to_h[:pattern])
   end
 
   def test_from_h_round_trips_working_day
     day = working_day
     restored = Workpattern::Day.from_h(day.to_h)
+
     assert_equal day.pattern, restored.pattern
     assert_equal 1440, restored.working_minutes
   end
@@ -290,6 +290,7 @@ class TestDay < WorkpatternTest #:nodoc:
   def test_from_h_round_trips_resting_day
     day = resting_day
     restored = Workpattern::Day.from_h(day.to_h)
+
     assert_equal day.pattern, restored.pattern
     assert_equal 0, restored.working_minutes
   end
@@ -298,6 +299,7 @@ class TestDay < WorkpatternTest #:nodoc:
     day = working_day
     day.set_resting(set_time(0, 0), set_time(8, 59))
     restored = Workpattern::Day.from_h(day.to_h)
+
     assert_equal day.first_working_minute.hour, restored.first_working_minute.hour
     assert_equal day.first_working_minute.min, restored.first_working_minute.min
     assert_equal day.last_working_minute.hour, restored.last_working_minute.hour
@@ -310,14 +312,17 @@ class TestDay < WorkpatternTest #:nodoc:
     day.set_resting(set_time(0, 0), set_time(8, 59))
     day.set_resting(set_time(17, 0), set_time(23, 59))
     restored = Workpattern::Day.from_h(day.to_h)
+
     assert_equal day.working_minutes, restored.working_minutes
     assert_equal 480, restored.working_minutes
   end
 
   def test_pattern_setter_updates_cache
     day = working_day
+
     assert_equal 1440, day.working_minutes
     day.pattern = resting_day.pattern
+
     assert_nil day.first_working_minute
     assert_nil day.last_working_minute
     assert_equal 0, day.working_minutes
@@ -326,13 +331,14 @@ class TestDay < WorkpatternTest #:nodoc:
   private
 
   def working_day
-    Workpattern::Day.new()
+    Workpattern::Day.new
   end
+
   def resting_day
     Workpattern::Day.new(Workpattern::HOURS_IN_DAY, Workpattern::REST_TYPE)
   end
 
-  def set_time(hour,minute)
-    Time.gm(1963,6,10,hour, minute)
+  def set_time(hour, minute)
+    Time.gm(1963, 6, 10, hour, minute)
   end
 end
