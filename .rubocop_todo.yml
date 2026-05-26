@@ -6,41 +6,6 @@
 # Note that changes in the inspected code, or installation of new
 # versions of RuboCop, may require this file to be generated again.
 
-# Offense count: 2
-# This cop supports safe autocorrection (--autocorrect).
-# Gemspec/AddRuntimeDependency:
-#  Exclude:
-#    - 'workpattern.gemspec'
-
-# Offense count: 1
-# This cop supports safe autocorrection (--autocorrect).
-Gemspec/DeprecatedAttributeAssignment:
-  Exclude:
-    - 'workpattern.gemspec'
-
-# Offense count: 1
-Gemspec/DuplicatedAssignment:
-  Exclude:
-    - 'workpattern.gemspec'
-
-# Offense count: 1
-# This cop supports safe autocorrection (--autocorrect).
-# Configuration parameters: TreatCommentsAsGroupSeparators, ConsiderPunctuation.
-Gemspec/OrderedDependencies:
-  Exclude:
-    - 'workpattern.gemspec'
-
-# Offense count: 1
-# This cop supports safe autocorrection (--autocorrect).
-Gemspec/RequireMFA:
-  Exclude:
-    - 'workpattern.gemspec'
-
-# Offense count: 1
-Gemspec/RequiredRubyVersion:
-  Exclude:
-    - 'workpattern.gemspec'
-
 # Offense count: 9
 # This cop supports safe autocorrection (--autocorrect).
 # Configuration parameters: EnforcedStyle, IndentationWidth.
@@ -63,12 +28,6 @@ Layout/EmptyLineAfterGuardClause:
     - 'lib/workpattern/day.rb'
     - 'lib/workpattern/week.rb'
     - 'lib/workpattern/workpattern.rb'
-
-# Offense count: 1
-# This cop supports safe autocorrection (--autocorrect).
-Layout/EmptyLineAfterMagicComment:
-  Exclude:
-    - 'workpattern.gemspec'
 
 # Offense count: 6
 # This cop supports safe autocorrection (--autocorrect).
@@ -95,14 +54,6 @@ Layout/EmptyLines:
 Layout/EmptyLinesAroundAccessModifier:
   Exclude:
     - 'lib/workpattern/workpattern.rb'
-
-# Offense count: 1
-# This cop supports safe autocorrection (--autocorrect).
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: empty_lines, no_empty_lines
-Layout/EmptyLinesAroundBlockBody:
-  Exclude:
-    - 'workpattern.gemspec'
 
 # Offense count: 3
 # This cop supports safe autocorrection (--autocorrect).
@@ -528,18 +479,6 @@ Style/EmptyMethod:
     - 'test/test_clock.rb'
     - 'test/test_day.rb'
 
-# Offense count: 1
-# This cop supports safe autocorrection (--autocorrect).
-Style/Encoding:
-  Exclude:
-    - 'workpattern.gemspec'
-
-# Offense count: 1
-# This cop supports safe autocorrection (--autocorrect).
-Style/ExpandPathArguments:
-  Exclude:
-    - 'workpattern.gemspec'
-
 # Offense count: 18
 # This cop supports unsafe autocorrection (--autocorrect-all).
 # Configuration parameters: EnforcedStyle.
@@ -681,7 +620,7 @@ Style/SelfAssignment:
 # SupportedStyles: use_perl_names, use_english_names, use_builtin_english_names
 Style/SpecialGlobalVars:
   Exclude:
-    - 'workpattern.gemspec'
+    -
 
 # Offense count: 7
 # This cop supports unsafe autocorrection (--autocorrect-all).
@@ -708,7 +647,7 @@ Style/StringLiterals:
     - 'lib/workpattern/workpattern.rb'
     - 'test/test_day.rb'
     - 'test/test_workpattern.rb'
-    - 'workpattern.gemspec'
+    -
 
 # Offense count: 2
 # This cop supports safe autocorrection (--autocorrect).
