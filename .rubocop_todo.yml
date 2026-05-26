@@ -629,7 +629,7 @@ Style/StringConcatenation:
   Exclude:
 #   - 'test/test_clock.rb'
 #   - 'test/test_day.rb'
-    - 'test/test_helper.rb'
+#   - 'test/test_helper.rb'
     - 'test/test_week.rb'
     - 'test/test_workpattern.rb'
     - 'test/test_workpattern_module.rb'
