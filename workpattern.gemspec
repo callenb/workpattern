@@ -1,11 +1,7 @@
 # -*- encoding: utf-8 -*-
 $:.push File.expand_path("../lib", __FILE__)
 
-if RUBY_VERSION >= "2.4"
-  require_relative "lib/workpattern/version"
-else
-  require "workpattern/version"
-end
+require "workpattern/version"
 
 Gem::Specification.new do |spec|
   spec.name          = "workpattern"
@@ -16,22 +12,16 @@ Gem::Specification.new do |spec|
   spec.summary       = "Calculates dates and durations whilst taking into account working and non-working periods down to a minute"
   spec.description   = "Calculates dates and durations whilst taking into account working and non-working times down to a minute.  Business working time with holidays are a breeze."
   spec.homepage      = "http://workpattern.org"
-  spec.license       = "MIT"  
-  spec.required_ruby_version = Gem::Requirement.new(">= 1.9.3")
-  if RUBY_VERSION >= "2.4"
-    spec.metadata["homepage_url"] = spec.homepage
-    spec.metadata["source_code_uri"] = "https://github.com/callenb/workpattern"
-    spec.metadata["changelog_uri"] = "https://workpattern.org/2021/02/25/changelog.html"
-  end
+  spec.license       = "MIT"
+  spec.required_ruby_version = Gem::Requirement.new(">= 3.0.0")
+  spec.metadata["homepage_url"] = spec.homepage
+  spec.metadata["source_code_uri"] = "https://github.com/callenb/workpattern"
+  spec.metadata["changelog_uri"] = "https://workpattern.org/2021/02/25/changelog.html"
   # Specify which files should be added to the gem when it is released.
   # The `git ls-files -z` loads the files in the RubyGem that have been added into git.
-  if RUBY_VERSION >= "2.4"
-    spec.files = Dir.chdir(File.expand_path(__dir__)) do
-      `git ls-files -z`.split("\x0").reject { |f| f.match(%r{\A(?:test|spec|features)/}) }
-    end
-  else
-    spec.files = `git ls-files`.split("\n")
-  end  
+  spec.files = Dir.chdir(File.expand_path(__dir__)) do
+    `git ls-files -z`.split("\x0").reject { |f| f.match(%r{\A(?:test|spec|features)/}) }
+  end
   spec.require_paths = ["lib"]
 
   # Uncomment to register a new dependency of your gem
@@ -40,9 +30,9 @@ Gem::Specification.new do |spec|
   # For more information and examples about making a new gem, checkout our
   # guide at: https://bundler.io/guides/creating_gem.html
   spec.add_runtime_dependency 'tzinfo'
-  spec.add_runtime_dependency 'sorted_set' if RUBY_VERSION >= "2.4"
-  
+  spec.add_runtime_dependency 'sorted_set'
+
   spec.test_files            = `git ls-files -- {test,spec,features}/*`.split("\n")
   spec.require_paths         = ["lib"]
-  
+
 end
