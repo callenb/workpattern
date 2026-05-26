@@ -1,6 +1,6 @@
-require File.dirname(__FILE__) + '/test_helper.rb'
+require "#{File.dirname(__FILE__)}/test_helper.rb"
 
-class TestWeek < WorkpatternTest #:nodoc:
+class TestWeek < WorkpatternTest # :nodoc:
   def setup
     start = Time.gm(2000, 1, 3)
     finish = Time.gm(2000, 1, 9)
@@ -24,6 +24,7 @@ class TestWeek < WorkpatternTest #:nodoc:
     start = Time.gm(2000, 1, 1, 11, 3)
     finish = Time.gm(2005, 12, 31, 16, 41)
     w_week = week(start, finish, Workpattern::WORK_TYPE)
+
     assert_equal Time.gm(start.year, start.month, start.day),
                  w_week.start
     assert_equal Time.gm(finish.year, finish.month, finish.day),
@@ -35,6 +36,7 @@ class TestWeek < WorkpatternTest #:nodoc:
     start = Time.gm(2000, 1, 2, 11, 3) # Sunday
     finish = Time.gm(2000, 1, 4, 16, 41) # Tuesday
     w_week = week(start, finish, 1)
+
     assert_equal Time.gm(start.year, start.month,
                          start.day), w_week.start
     assert_equal Time.gm(finish.year, finish.month, finish.day),
@@ -46,6 +48,7 @@ class TestWeek < WorkpatternTest #:nodoc:
     start = Time.gm(2000, 1, 7, 11, 3) # Friday
     finish = Time.gm(2000, 1, 9, 16, 41) # Sunday
     w_week = week(start, finish, 1)
+
     assert_equal Time.gm(start.year, start.month, start.day),
                  w_week.start
     assert_equal Time.gm(finish.year, finish.month, finish.day),
@@ -57,6 +60,7 @@ class TestWeek < WorkpatternTest #:nodoc:
     start = Time.gm(2000, 1, 6, 11, 3) # Thursday
     finish = Time.gm(2000, 1, 8, 16, 41) # Sunday
     w_week = week(start, finish, 1)
+
     assert_equal Time.gm(start.year, start.month, start.day),
                  w_week.start
     assert_equal Time.gm(finish.year, finish.month, finish.day),
@@ -68,6 +72,7 @@ class TestWeek < WorkpatternTest #:nodoc:
     start = Time.gm(2000, 1, 1, 11, 3)
     finish = Time.gm(2005, 12, 31, 16, 41)
     resting_week = week(start, finish, 0)
+
     assert_equal Time.gm(start.year, start.month, start.day),
                  resting_week.start
     assert_equal Time.gm(finish.year, finish.month, finish.day),
@@ -81,6 +86,7 @@ class TestWeek < WorkpatternTest #:nodoc:
     finish = Time.gm(2005, 12, 31, 16, 41)
     week = week(start, finish, 1)
     new_week = week.duplicate
+
     assert_equal Time.gm(start.year, start.month, start.day),
                  new_week.start
     assert_equal Time.gm(finish.year, finish.month, finish.day),
@@ -88,6 +94,7 @@ class TestWeek < WorkpatternTest #:nodoc:
     assert_equal 3_156_480, new_week.total # 2192
     week.workpattern(:weekend, set_time(0, 0),
                      set_time(23, 59), 0)
+
     assert_equal 3_156_480, new_week.total # 2192
   end
 
@@ -96,20 +103,25 @@ class TestWeek < WorkpatternTest #:nodoc:
     finish = Time.gm(2000, 1, 9)
 
     pattern_week = Workpattern::Week.new(start, finish, 1)
+
     assert_equal start, pattern_week.start
     assert_equal finish, pattern_week.finish
     assert_equal 10_080, pattern_week.week_total
     pattern_week.workpattern(:weekend, set_time(0, 0),
                              set_time(23, 59), 0)
+
     assert_equal 7_200, pattern_week.week_total
     pattern_week.workpattern(:weekday, set_time(0, 0),
                              set_time(8, 59), 0)
+
     assert_equal 4_500, pattern_week.week_total
     pattern_week.workpattern(:weekday, set_time(12, 30),
                              set_time(13, 0), 0)
+
     assert_equal 4_345, pattern_week.week_total
     pattern_week.workpattern(:weekday, set_time(17, 0),
                              set_time(23, 59), 0)
+
     assert_equal 2_245, pattern_week.week_total
   end
 
@@ -117,29 +129,40 @@ class TestWeek < WorkpatternTest #:nodoc:
     start = Time.gm(2000, 1, 1, 0, 0)
     finish = Time.gm(2005, 12, 31, 8, 59)
     w_week = week(start, finish, 1)
+
     assert_equal 10_080, w_week.week_total
     w_week.workpattern(:all, start, finish, 0)
+
     assert_equal 6_300, w_week.week_total
     w_week.workpattern(:sun, start, finish, 1)
+
     assert_equal 6_840, w_week.week_total
     w_week.workpattern(:mon, start, finish, 1)
+
     assert_equal 7_380, w_week.week_total
     w_week.workpattern(:all, set_time(18, 0), set_time(18, 19), 0)
+
     assert_equal 7_240, w_week.week_total
     w_week.workpattern(:all, set_time(0, 0), set_time(23, 59), 0)
+
     assert_equal 0, w_week.week_total
     w_week.workpattern(:all, set_time(0, 0), set_time(0, 0), 1)
+
     assert_equal 7, w_week.week_total
     w_week.workpattern(:all, set_time(23, 59), set_time(23, 59), 1)
+
     assert_equal 14, w_week.week_total
     w_week.workpattern(:all, set_time(0, 0), set_time(23, 59), 1)
+
     assert_equal 10_080, w_week.week_total
     w_week.workpattern(:weekend, set_time(0, 0), set_time(23, 59), 0)
+
     assert_equal 7_200, w_week.week_total
   end
 
   def test_must_add_minutes_in_a_w_week_result_in_same_day
-    r_date, r_duration, m_flag = @w_week.calc(Time.gm(2000, 1, 3, 7, 31),29)
+    r_date, r_duration, m_flag = @w_week.calc(Time.gm(2000, 1, 3, 7, 31), 29)
+
     assert_equal Time.gm(2000, 1, 3, 8, 0), r_date
     refute m_flag
     assert_equal 0, r_duration
@@ -147,6 +170,7 @@ class TestWeek < WorkpatternTest #:nodoc:
 
   def test_must_add_minutes_in_a_w_week_result_in_next_day
     r_date, r_dur, m_flag = @w_week.calc(Time.gm(2000, 1, 3, 7, 31), 990)
+
     assert_equal Time.gm(2000, 1, 4, 0, 1), r_date
     refute m_flag
     assert_equal 0, r_dur
@@ -154,6 +178,7 @@ class TestWeek < WorkpatternTest #:nodoc:
 
   def test_must_add_minutes_in_a_w_week_result_in_later_day
     r_date, r_dur, m_flag = @w_week.calc(Time.gm(2000, 1, 3, 7, 31), 2430)
+
     assert_equal Time.gm(2000, 1, 5, 0, 1), r_date
     refute m_flag
     assert_equal 0, r_dur
@@ -161,6 +186,7 @@ class TestWeek < WorkpatternTest #:nodoc:
 
   def test_must_add_minutes_in_a_w_week_result_in_start_next_day
     r_date, r_dur, m_flag = @w_week.calc(Time.gm(2000, 1, 3, 7, 31), 989)
+
     assert_equal Time.gm(2000, 1, 4, 0, 0), r_date
     refute m_flag
     assert_equal 0, r_dur
@@ -168,6 +194,7 @@ class TestWeek < WorkpatternTest #:nodoc:
 
   def test_must_add_0_minutes_in_a_w_week
     r_date, r_dur, m_flag = @w_week.calc(Time.gm(2000, 1, 3, 7, 31), 0)
+
     assert_equal Time.gm(2000, 1, 3, 7, 31), r_date
     refute m_flag
     assert_equal 0, r_dur
@@ -175,6 +202,7 @@ class TestWeek < WorkpatternTest #:nodoc:
 
   def test_must_add_too_many_minutes_in_a_w_week
     r_date, r_dur, m_flag = @w_week.calc(Time.gm(2000, 1, 3, 7, 31), 9630)
+
     assert_equal Time.gm(2000, 1, 10, 0, 0), r_date
     refute m_flag
     assert_equal 1, r_dur
@@ -182,6 +210,7 @@ class TestWeek < WorkpatternTest #:nodoc:
 
   def test_must_add_minutes_in_a_resting_week
     r_date, r_dur, m_flag = @r_week.calc(Time.gm(2000, 1, 3, 7, 31), 29)
+
     assert_equal Time.gm(2000, 1, 10, 0, 0), r_date
     refute m_flag
     assert_equal 29, r_dur
@@ -189,6 +218,7 @@ class TestWeek < WorkpatternTest #:nodoc:
 
   def test_must_add_minutes_from_start_of_resting_week
     r_date, r_dur, m_flag = @r_week.calc(Time.gm(2000, 1, 3, 0, 0), 990)
+
     assert_equal Time.gm(2000, 1, 10, 0, 0), r_date
     refute m_flag
     assert_equal 990, r_dur
@@ -196,6 +226,7 @@ class TestWeek < WorkpatternTest #:nodoc:
 
   def test_must_add_minutes_to_last_minute_of_a_resting_week
     r_date, r_dur, m_flag = @r_week.calc(Time.gm(2000, 1, 9, 23, 59), 2430)
+
     assert_equal Time.gm(2000, 1, 10, 0, 0), r_date
     refute m_flag
     assert_equal 2_430, r_dur
@@ -203,6 +234,7 @@ class TestWeek < WorkpatternTest #:nodoc:
 
   def test_must_add_zero_minutes_in_a_resting_week
     r_date, r_dur, m_flag = @r_week.calc(Time.gm(2000, 1, 3, 7, 31), 0)
+
     assert_equal Time.gm(2000, 1, 3, 7, 31), r_date
     refute m_flag
     assert_equal 0, r_dur
@@ -210,6 +242,7 @@ class TestWeek < WorkpatternTest #:nodoc:
 
   def test_must_add_minutes_from_working_in_a_pattern_week_result_in_same_day
     r_date, r_dur, m_flag = @p_week.calc(Time.gm(2000, 1, 3, 10, 11), 110)
+
     assert_equal Time.gm(2000, 1, 3, 12, 1), r_date
     refute m_flag
     assert_equal 0, r_dur
@@ -217,6 +250,7 @@ class TestWeek < WorkpatternTest #:nodoc:
 
   def test_must_add_minutes_from_resting_in_a_pattern_week_result_in_same_day
     r_date, r_dur, m_flag = @p_week.calc(Time.gm(2000, 1, 3, 12, 45), 126)
+
     assert_equal Time.gm(2000, 1, 3, 15, 7), r_date
     refute m_flag
     assert_equal 0, r_dur
@@ -224,6 +258,7 @@ class TestWeek < WorkpatternTest #:nodoc:
 
   def test_must_add_minutes_from_working_in_a_pattern_week_result_in_next_day
     r_date, r_dur, m_flag = @p_week.calc(Time.gm(2000, 1, 3, 10, 11), 379)
+
     assert_equal Time.gm(2000, 1, 4, 9, 1), r_date
     refute m_flag
     assert_equal 0, r_dur
@@ -231,6 +266,7 @@ class TestWeek < WorkpatternTest #:nodoc:
 
   def test_must_add_minutes_from_resting_in_a_pattern_week_result_in_next_day
     r_date, r_dur, m_flag = @p_week.calc(Time.gm(2000, 1, 3, 12, 45), 240)
+
     assert_equal Time.gm(2000, 1, 4, 9, 1), r_date
     refute m_flag
     assert_equal 0, r_dur
@@ -238,6 +274,7 @@ class TestWeek < WorkpatternTest #:nodoc:
 
   def test_must_add_minutes_from_working_in_a_pattern_week_result_in_later_day
     r_date, r_dur, m_flag = @p_week.calc(Time.gm(2000, 1, 3, 10, 11), 828)
+
     assert_equal Time.gm(2000, 1, 5, 9, 1), r_date
     refute m_flag
     assert_equal 0, r_dur
@@ -245,6 +282,7 @@ class TestWeek < WorkpatternTest #:nodoc:
 
   def test_must_add_minutes_from_resting_in_a_w_week_result_in_later_day
     r_date, r_dur, m_flag = @p_week.calc(Time.gm(2000, 1, 3, 12, 45), 689)
+
     assert_equal Time.gm(2000, 1, 5, 9, 1), r_date
     refute m_flag
     assert_equal 0, r_dur
@@ -252,6 +290,7 @@ class TestWeek < WorkpatternTest #:nodoc:
 
   def test_must_add_0_minutes_from_working_in_a_resting_week
     r_date, r_dur, m_flag = @p_week.calc(Time.gm(2000, 1, 3, 10, 11), 0)
+
     assert_equal Time.gm(2000, 1, 3, 10, 11), r_date
     refute m_flag
     assert_equal 0, r_dur
@@ -259,6 +298,7 @@ class TestWeek < WorkpatternTest #:nodoc:
 
   def test_must_add_0_minutes_from_resting_in_a_resting_week
     r_date, r_dur, m_flag = @p_week.calc(Time.gm(2000, 1, 3, 12, 45), 0)
+
     assert_equal Time.gm(2000, 1, 3, 12, 45), r_date
     refute m_flag
     assert_equal 0, r_dur
@@ -266,6 +306,7 @@ class TestWeek < WorkpatternTest #:nodoc:
 
   def test_must_add_too_many_minutes_in_a_pattern__week
     r_date, r_dur, m_flag = @p_week.calc(Time.gm(2000, 1, 3, 10, 11), 2175)
+
     assert_equal Time.gm(2000, 1, 10, 0, 0), r_date
     refute m_flag
     assert_equal 1, r_dur
@@ -273,6 +314,7 @@ class TestWeek < WorkpatternTest #:nodoc:
 
   def test_must_subtract_minutes_in_a_w_week_result_in_same_day
     r_date, r_dur, r_day = @w_week.calc(Time.gm(2000, 1, 8, 7, 31), -29)
+
     assert_equal Time.gm(2000, 1, 8, 7, 2), r_date
     assert_equal Workpattern::SAME_DAY, r_day
     assert_equal 0, r_dur
@@ -280,6 +322,7 @@ class TestWeek < WorkpatternTest #:nodoc:
 
   def test_must_subtract_minutes_in_a_w_week_result_in_previous_day
     r_date, r_dur, r_day = @w_week.calc(Time.gm(2000, 1, 8, 7, 31), -452)
+
     assert_equal Time.gm(2000, 1, 7, 23, 59), r_date
     assert_equal Workpattern::SAME_DAY, r_day
     assert_equal 0, r_dur
@@ -287,6 +330,7 @@ class TestWeek < WorkpatternTest #:nodoc:
 
   def test_must_subtract_minutes_in_a_w_week_result_in_earlier_day
     r_date, r_dur, r_day = @w_week.calc(Time.gm(2000, 1, 8, 7, 31), -1892)
+
     assert_equal Time.gm(2000, 1, 6, 23, 59), r_date
     assert_equal Workpattern::SAME_DAY, r_day
     assert_equal 0, r_dur
@@ -294,6 +338,7 @@ class TestWeek < WorkpatternTest #:nodoc:
 
   def test_must_subtract_minutes_in_a_w_week_result_at_start_of_day
     r_date, r_dur, r_day = @w_week.calc(Time.gm(2000, 1, 8, 7, 31), -451)
+
     assert_equal Time.gm(2000, 1, 8, 0, 0), r_date
     assert_equal Workpattern::SAME_DAY, r_day
     assert_equal 0, r_dur
@@ -301,6 +346,7 @@ class TestWeek < WorkpatternTest #:nodoc:
 
   def test_must_subtract_minutes_in_a_w_week_result_at_start_of_previous_day
     r_date, r_dur, r_day = @w_week.calc(Time.gm(2000, 1, 8, 7, 31), -1891)
+
     assert_equal Time.gm(2000, 1, 7, 0, 0), r_date
     assert_equal Workpattern::SAME_DAY, r_day
     assert_equal 0, r_dur
@@ -308,13 +354,15 @@ class TestWeek < WorkpatternTest #:nodoc:
 
   def test_must_subtract_too_many_minutes_from_a_w_week
     r_date, r_dur, r_day = @w_week.calc(Time.gm(2000, 1, 8, 7, 31), -7652)
+
     assert_equal Time.gm(2000, 1, 3, 23, 59), r_date
     assert_equal Workpattern::PREVIOUS_DAY, r_day
-    assert_equal (-1), r_dur
+    assert_equal(-1, r_dur)
   end
 
   def test_must_subtract_1_minute_from_start_of_next_day_after_w_week
-    r_date, r_dur, r_day = @w_week.calc(Time.gm(2000, 1, 10, 0, 0), -1,Workpattern::PREVIOUS_DAY)
+    r_date, r_dur, r_day = @w_week.calc(Time.gm(2000, 1, 10, 0, 0), -1, Workpattern::PREVIOUS_DAY)
+
     assert_equal Time.gm(2000, 1, 9, 23, 59), r_date
     assert_equal Workpattern::SAME_DAY, r_day
     assert_equal 0, r_dur
@@ -322,6 +370,7 @@ class TestWeek < WorkpatternTest #:nodoc:
 
   def test_must_subtract_2_minutes_from_start_of_next_day_after_w_week
     r_date, r_dur, r_day = @w_week.calc(Time.gm(2000, 1, 10, 0, 0), -2, Workpattern::PREVIOUS_DAY)
+
     assert_equal Time.gm(2000, 1, 9, 23, 58), r_date
     assert_equal Workpattern::SAME_DAY, r_day
     assert_equal 0, r_dur
@@ -329,34 +378,39 @@ class TestWeek < WorkpatternTest #:nodoc:
 
   def test_must_subtract_minutes_from_last_day_in_a_resting_week
     r_date, r_dur, r_day = @r_week.calc(Time.gm(2000, 1, 10, 7, 31), -29)
+
     assert_equal Time.gm(2000, 1, 3, 23, 59), r_date
     assert_equal Workpattern::PREVIOUS_DAY, r_day
-    assert_equal (-29), r_dur
+    assert_equal(-29, r_dur)
   end
 
   def test_must_subtract_minutes_from_middle_day_in_a_resting_week
     r_date, r_dur, r_day = @r_week.calc(Time.gm(2000, 1, 8, 7, 31), -452)
+
     assert_equal Time.gm(2000, 1, 3, 23, 59), r_date
     assert_equal Workpattern::PREVIOUS_DAY, r_day
-    assert_equal (-452), r_dur
+    assert_equal(-452, r_dur)
   end
 
   def test_must_subtract_minutes_from_start_of_resting_week
     r_date, r_dur, r_day = @r_week.calc(Time.gm(2000, 1, 3, 0, 0), -1892)
+
     assert_equal Time.gm(2000, 1, 3, 0, 0), r_date
     assert_equal Workpattern::PREVIOUS_DAY, r_day
-    assert_equal (-1_892), r_dur
+    assert_equal(-1_892, r_dur)
   end
 
   def test_must_subtract_minutes_from_start_of_next_day_after_resting_week
     r_date, r_dur, r_day = @r_week.calc(Time.gm(2000, 1, 9, 0, 0), -1, true)
+
     assert_equal Time.gm(2000, 1, 3, 23, 59), r_date
     assert_equal Workpattern::PREVIOUS_DAY, r_day
-    assert_equal (-1), r_dur
+    assert_equal(-1, r_dur)
   end
 
   def test_must_subtract_minutes_from_resting_day_in_a_pattern_week
     r_date, r_dur, r_day = @p_week.calc(Time.gm(2000, 1, 8, 13, 29), -29)
+
     assert_equal Time.gm(2000, 1, 7, 16, 31), r_date
     assert_equal Workpattern::SAME_DAY, r_day
     assert_equal 0, r_dur
@@ -364,6 +418,7 @@ class TestWeek < WorkpatternTest #:nodoc:
 
   def test_must_subtract_minutes_from_working_day_in_a_pattern_week
     r_date, r_dur, r_day = @p_week.calc(Time.gm(2000, 1, 7, 13, 29), -29)
+
     assert_equal Time.gm(2000, 1, 7, 12, 29), r_date
     assert_equal Workpattern::SAME_DAY, r_day
     assert_equal 0, r_dur
@@ -371,6 +426,7 @@ class TestWeek < WorkpatternTest #:nodoc:
 
   def test_must_subtract_minutes_in_a_pattern_week_result_in_previous_day
     r_date, r_dur, r_day = @p_week.calc(Time.gm(2000, 1, 7, 9, 1), -2)
+
     assert_equal Time.gm(2000, 1, 6, 16, 59), r_date
     assert_equal Workpattern::SAME_DAY, r_day
     assert_equal 0, r_dur
@@ -378,6 +434,7 @@ class TestWeek < WorkpatternTest #:nodoc:
 
   def test_must_subtract_minutes_in_a_pattern_week_result_in_earlier_day
     r_date, r_dur, r_day = @p_week.calc(Time.gm(2000, 1, 7, 13, 29), -240)
+
     assert_equal Time.gm(2000, 1, 6, 16, 58), r_date
     assert_equal Workpattern::SAME_DAY, r_day
     assert_equal 0, r_dur
@@ -385,6 +442,7 @@ class TestWeek < WorkpatternTest #:nodoc:
 
   def test_must_subtract_minutes_in_a_pattern_week_result_at_start_of_day
     r_date, r_dur, r_day = @p_week.calc(Time.gm(2000, 1, 7, 13, 29), -238)
+
     assert_equal Time.gm(2000, 1, 7, 9, 0), r_date
     assert_equal Workpattern::SAME_DAY, r_day
     assert_equal 0, r_dur
@@ -392,6 +450,7 @@ class TestWeek < WorkpatternTest #:nodoc:
 
   def test_must_subtract_minutes_in_a_pattern_week_result_at_start_of_prev_day
     r_date, r_dur, r_day = @p_week.calc(Time.gm(2000, 1, 7, 13, 29), -687)
+
     assert_equal Time.gm(2000, 1, 6, 9, 0), r_date
     assert_equal Workpattern::SAME_DAY, r_day
     assert_equal 0, r_dur
@@ -399,13 +458,15 @@ class TestWeek < WorkpatternTest #:nodoc:
 
   def test_must_subtract_too_many_minutes_from_a_pattern_week
     r_date, r_dur, r_day = @p_week.calc(Time.gm(2000, 1, 7, 9, 0), -1797)
+
     assert_equal Time.gm(2000, 1, 3, 23, 59), r_date
     assert_equal Workpattern::PREVIOUS_DAY, r_day
-    assert_equal (-1), r_dur
+    assert_equal(-1, r_dur)
   end
 
   def test_must_subtract_1_minute_from_start_of_next_day_after_pattern_week
     r_date, r_dur, r_day = @p_week.calc(Time.gm(2000, 1, 9, 0, 0), -1, true)
+
     assert_equal Time.gm(2000, 1, 7, 16, 59), r_date
     assert_equal Workpattern::SAME_DAY, r_day
     assert_equal 0, r_dur
@@ -413,6 +474,7 @@ class TestWeek < WorkpatternTest #:nodoc:
 
   def test_must_subtract_2_minutes_from_start_of_next_day_after_pattern_week
     r_date, r_dur, r_day = @p_week.calc(Time.gm(2000, 1, 9, 0, 0), -2, true)
+
     assert_equal Time.gm(2000, 1, 7, 16, 58), r_date
     assert_equal Workpattern::SAME_DAY, r_day
     assert_equal 0, r_dur
@@ -440,6 +502,7 @@ class TestWeek < WorkpatternTest #:nodoc:
     late_date = Time.gm(2000, 1, 6, 9, 32)
     early_date = Time.gm(2000, 1, 6, 8, 20)
     result_dur, r_date = @w_week.diff(early_date, late_date)
+
     assert_equal 72, result_dur
     assert_equal late_date, r_date
   end
@@ -448,6 +511,7 @@ class TestWeek < WorkpatternTest #:nodoc:
     late_date = Time.gm(2000, 1, 6, 9, 32)
     early_date = Time.gm(2000, 1, 6, 8, 20)
     result_dur, r_date = @r_week.diff(early_date, late_date)
+
     assert_equal 0, result_dur
     assert_equal late_date, r_date
   end
@@ -456,6 +520,7 @@ class TestWeek < WorkpatternTest #:nodoc:
     late_date = Time.gm(2000, 1, 6, 13, 1)
     early_date = Time.gm(2000, 1, 6, 12, 29)
     result_dur, r_date = @p_week.diff(early_date, late_date)
+
     assert_equal 1, result_dur
     assert_equal late_date, r_date
   end
@@ -523,6 +588,7 @@ class TestWeek < WorkpatternTest #:nodoc:
     finish = Time.gm(2020, 12, 31)
     w = week(start, finish, 1)
     h = w.to_h
+
     assert_equal 2020, h[:start][:year]
     assert_equal 1,    h[:start][:month]
     assert_equal 1,    h[:start][:day]
@@ -553,9 +619,10 @@ class TestWeek < WorkpatternTest #:nodoc:
     w = week(start, finish, 1)
     w.workpattern(:weekend, set_time(0, 0), set_time(23, 59), 0)
     w2 = Workpattern::Week.from_h(w.to_h)
+
     assert_equal 0, w2.days[0].working_minutes  # Sunday
     assert_equal 0, w2.days[6].working_minutes  # Saturday
-    assert_equal w.days[1].working_minutes, w2.days[1].working_minutes  # Monday
+    assert_equal w.days[1].working_minutes, w2.days[1].working_minutes # Monday
   end
 
   def test_from_h_preserves_working_query
@@ -564,9 +631,11 @@ class TestWeek < WorkpatternTest #:nodoc:
     w = week(start, finish, 1)
     w.workpattern(:all, set_time(0, 0), set_time(8, 59), 0)
     w2 = Workpattern::Week.from_h(w.to_h)
-    probe = Time.gm(2020, 6, 1, 9, 0)  # Monday 09:00 — working
+    probe = Time.gm(2020, 6, 1, 9, 0) # Monday 09:00 — working
+
     assert_equal w.working?(probe), w2.working?(probe)
-    probe2 = Time.gm(2020, 6, 1, 8, 0)  # Monday 08:00 — resting
+    probe2 = Time.gm(2020, 6, 1, 8, 0) # Monday 08:00 — resting
+
     assert_equal w.working?(probe2), w2.working?(probe2)
   end
 
@@ -576,7 +645,7 @@ class TestWeek < WorkpatternTest #:nodoc:
     Workpattern::Week.new(start, finish, type)
   end
 
-  def set_time(hour,min)
-    Time.gm(1963,6,10,hour,min)
+  def set_time(hour, min)
+    Time.gm(1963, 6, 10, hour, min)
   end
 end

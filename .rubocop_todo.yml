@@ -91,7 +91,7 @@ Layout/ExtraSpacing:
   Exclude:
     - 'lib/workpattern/week.rb'
 #   - 'test/test_day.rb'
-    - 'test/test_week.rb'
+#   - 'test/test_week.rb'
     - 'test/test_workpattern.rb'
 
 # Offense count: 8
@@ -150,7 +150,7 @@ Layout/LeadingCommentSpace:
     - 'lib/workpattern/day.rb'
 #   - 'test/test_clock.rb'
 #   - 'test/test_day.rb'
-    - 'test/test_week.rb'
+#   - 'test/test_week.rb'
     - 'test/test_workpattern.rb'
     - 'test/test_workpattern_module.rb'
 
@@ -182,7 +182,7 @@ Layout/SpaceAfterComma:
     - 'lib/workpattern/week.rb'
     - 'lib/workpattern/workpattern.rb'
 #   - 'test/test_day.rb'
-    - 'test/test_week.rb'
+#   - 'test/test_week.rb'
     - 'test/test_workpattern.rb'
     - 'test/test_workpattern_serialisation.rb'
 
@@ -366,7 +366,7 @@ Minitest/EmptyLineBeforeAssertionMethods:
   Exclude:
 #   - 'test/test_clock.rb'
 #   - 'test/test_day.rb'
-    - 'test/test_week.rb'
+#   - 'test/test_week.rb'
     - 'test/test_workpattern.rb'
     - 'test/test_workpattern_module.rb'
     - 'test/test_workpattern_serialisation.rb'
@@ -592,7 +592,7 @@ Style/RedundantParentheses:
   Exclude:
     - 'lib/workpattern/day.rb'
 #   - 'test/test_day.rb'
-    - 'test/test_week.rb'
+#   - 'test/test_week.rb'
 
 # Offense count: 17
 # This cop supports safe autocorrection (--autocorrect).
@@ -630,7 +630,7 @@ Style/StringConcatenation:
 #   - 'test/test_clock.rb'
 #   - 'test/test_day.rb'
 #   - 'test/test_helper.rb'
-    - 'test/test_week.rb'
+#   - 'test/test_week.rb'
     - 'test/test_workpattern.rb'
     - 'test/test_workpattern_module.rb'
     - 'test/test_workpattern_serialisation.rb'
