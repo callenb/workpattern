@@ -19,7 +19,7 @@ Layout/ArgumentAlignment:
 # Configuration parameters: AllowForAlignment, IndentationWidth.
 Layout/CommentIndentation:
   Exclude:
-    - 'test/test_workpattern.rb'
+#   - 'test/test_workpattern.rb'
 
 # Offense count: 6
 # This cop supports safe autocorrection (--autocorrect).
@@ -92,7 +92,7 @@ Layout/ExtraSpacing:
     - 'lib/workpattern/week.rb'
 #   - 'test/test_day.rb'
 #   - 'test/test_week.rb'
-    - 'test/test_workpattern.rb'
+#   - 'test/test_workpattern.rb'
 
 # Offense count: 8
 # This cop supports safe autocorrection (--autocorrect).
@@ -117,7 +117,7 @@ Layout/IndentationConsistency:
     - 'lib/workpattern/week_pattern.rb'
     - 'lib/workpattern/workpattern.rb'
 #   - 'test/test_day.rb'
-    - 'test/test_workpattern.rb'
+#   - 'test/test_workpattern.rb'
 
 # Offense count: 31
 # This cop supports safe autocorrection (--autocorrect).
@@ -140,7 +140,7 @@ Layout/IndentationWidth:
     - 'lib/workpattern/week_pattern.rb'
     - 'lib/workpattern/workpattern.rb'
 #   - 'test/test_day.rb'
-    - 'test/test_workpattern.rb'
+#   - 'test/test_workpattern.rb'
 
 # Offense count: 6
 # This cop supports safe autocorrection (--autocorrect).
@@ -151,14 +151,14 @@ Layout/LeadingCommentSpace:
 #   - 'test/test_clock.rb'
 #   - 'test/test_day.rb'
 #   - 'test/test_week.rb'
-    - 'test/test_workpattern.rb'
+#   - 'test/test_workpattern.rb'
     - 'test/test_workpattern_module.rb'
 
 # Offense count: 1
 # This cop supports safe autocorrection (--autocorrect).
 Layout/MultilineBlockLayout:
   Exclude:
-    - 'test/test_workpattern.rb'
+#   - 'test/test_workpattern.rb'
 
 # Offense count: 1
 # This cop supports safe autocorrection (--autocorrect).
@@ -183,7 +183,7 @@ Layout/SpaceAfterComma:
     - 'lib/workpattern/workpattern.rb'
 #   - 'test/test_day.rb'
 #   - 'test/test_week.rb'
-    - 'test/test_workpattern.rb'
+#   - 'test/test_workpattern.rb'
     - 'test/test_workpattern_serialisation.rb'
 
 # Offense count: 56
@@ -260,7 +260,7 @@ Lint/AmbiguousOperatorPrecedence:
     - 'lib/workpattern/constants.rb'
     - 'lib/workpattern/day.rb'
     - 'lib/workpattern/week.rb'
-    - 'test/test_workpattern.rb'
+#   - 'test/test_workpattern.rb'
 
 # Offense count: 2
 # Configuration parameters: IgnoreLiteralBranches, IgnoreConstantBranches, IgnoreDuplicateElseBranch.
@@ -279,7 +279,7 @@ Lint/Loop:
 # AllowedPatterns: (?-mix:(exactly|at_least|at_most)\(\d+\)\.times)
 Lint/UnreachableLoop:
   Exclude:
-    - 'test/test_workpattern.rb'
+#   - 'test/test_workpattern.rb'
 
 # Offense count: 1
 # This cop supports safe autocorrection (--autocorrect).
@@ -367,7 +367,7 @@ Minitest/EmptyLineBeforeAssertionMethods:
 #   - 'test/test_clock.rb'
 #   - 'test/test_day.rb'
 #   - 'test/test_week.rb'
-    - 'test/test_workpattern.rb'
+#   - 'test/test_workpattern.rb'
     - 'test/test_workpattern_module.rb'
     - 'test/test_workpattern_serialisation.rb'
 
@@ -376,14 +376,14 @@ Minitest/EmptyLineBeforeAssertionMethods:
 Minitest/RefuteFalse:
   Exclude:
 #   - 'test/test_day.rb'
-    - 'test/test_workpattern.rb'
+#   - 'test/test_workpattern.rb'
     - 'test/test_workpattern_module.rb'
     - 'test/test_workpattern_serialisation.rb'
 
 # Offense count: 4
 Minitest/UselessAssertion:
   Exclude:
-    - 'test/test_workpattern.rb'
+#   - 'test/test_workpattern.rb'
 
 # Offense count: 4
 # Configuration parameters: MinNameLength, AllowNamesEndingInNumbers, AllowedNames, ForbiddenNames.
@@ -392,7 +392,7 @@ Naming/MethodParameterName:
   Exclude:
     - 'lib/workpattern/day.rb'
     - 'lib/workpattern/week.rb'
-    - 'test/test_workpattern.rb'
+#   - 'test/test_workpattern.rb'
 
 # Offense count: 2
 # Configuration parameters: Mode, AllowedMethods, AllowedPatterns, AllowBangMethods, WaywardPredicates.
@@ -631,7 +631,7 @@ Style/StringConcatenation:
 #   - 'test/test_day.rb'
 #   - 'test/test_helper.rb'
 #   - 'test/test_week.rb'
-    - 'test/test_workpattern.rb'
+#   - 'test/test_workpattern.rb'
     - 'test/test_workpattern_module.rb'
     - 'test/test_workpattern_serialisation.rb'
 
@@ -646,7 +646,7 @@ Style/StringLiterals:
     - 'lib/workpattern/day.rb'
     - 'lib/workpattern/workpattern.rb'
 #   - 'test/test_day.rb'
-    - 'test/test_workpattern.rb'
+#   - 'test/test_workpattern.rb'
     -
 
 # Offense count: 2
