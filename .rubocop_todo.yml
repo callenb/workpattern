@@ -80,7 +80,7 @@ Layout/EmptyLinesAroundMethodBody:
 # SupportedStyles: empty_lines, empty_lines_except_namespace, empty_lines_special, no_empty_lines
 Layout/EmptyLinesAroundModuleBody:
   Exclude:
-    - 'lib/workpattern.rb'
+#   - 'lib/workpattern.rb'
     - 'lib/workpattern/constants.rb'
     - 'lib/workpattern/day.rb'
 
@@ -457,7 +457,7 @@ Style/ComparableBetween:
 # This cop supports safe autocorrection (--autocorrect).
 Style/Dir:
   Exclude:
-    - 'lib/workpattern.rb'
+#   - 'lib/workpattern.rb'
 
 # Offense count: 4
 # Configuration parameters: AllowedConstants.
@@ -642,7 +642,7 @@ Style/StringConcatenation:
 Style/StringLiterals:
   Exclude:
     - 'Rakefile'
-    - 'lib/workpattern.rb'
+#   - 'lib/workpattern.rb'
     - 'lib/workpattern/day.rb'
     - 'lib/workpattern/workpattern.rb'
 #   - 'test/test_day.rb'

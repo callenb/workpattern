@@ -4,10 +4,10 @@
 # email: barrie@callenb.org
 #++
 $LOAD_PATH.unshift(File.dirname(__FILE__)) unless
-  $LOAD_PATH.include?(File.dirname(__FILE__)) || $LOAD_PATH.include?(File.expand_path(File.dirname(__FILE__)))
+  $LOAD_PATH.include?(File.dirname(__FILE__)) || $LOAD_PATH.include?(__dir__)
 
 require 'rubygems'
-require 'sorted_set' if RUBY_VERSION >= "2.4"
+require 'sorted_set' if RUBY_VERSION >= '2.4'
 require 'date'
 require 'workpattern/clock'
 require 'workpattern/constants'
@@ -26,7 +26,6 @@ require 'workpattern/week_pattern'
 # Documentation: Barrie Callender <barrie@callenb.org>
 #
 module Workpattern
-
   # Covenience method to obtain a new <tt>Workpattern</tt>
   #
   # A negative <tt>span</tt> counts back from the <tt>base</tt> year
@@ -106,5 +105,4 @@ module Workpattern
   def self.clock(hour, min)
     Clock.new(hour, min)
   end
-
 end
