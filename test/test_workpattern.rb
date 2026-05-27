@@ -53,43 +53,43 @@ class TestWorkpattern < WorkpatternTest # :nodoc:
     start = set_time(0, 0)
     finish = set_time(8, 59)
 
-    assert_equal 10_080, get_week(wp.weeks).week_total
+    assert_equal 10_080, wp.weeks.first.week_total
     wp.workpattern(days: :all, from_time: start,
                    to_time: finish, work_type: 0)
 
-    assert_equal 6_300, get_week(wp.weeks).week_total
+    assert_equal 6_300, wp.weeks.first.week_total
     wp.workpattern(days: :sun, from_time: start,
                    to_time: finish, work_type: 1)
 
-    assert_equal 6_840, get_week(wp.weeks).week_total
+    assert_equal 6_840, wp.weeks.first.week_total
     wp.workpattern(days: :mon, from_time: start,
                    to_time: finish, work_type: 1)
 
-    assert_equal 7_380, get_week(wp.weeks).week_total
+    assert_equal 7_380, wp.weeks.first.week_total
     wp.workpattern(days: :all, from_time: set_time(18, 0),
                    to_time: set_time(18, 19), work_type: 0)
 
-    assert_equal 7_240, get_week(wp.weeks).week_total
+    assert_equal 7_240, wp.weeks.first.week_total
     wp.workpattern(days: :all, from_time: set_time(0, 0),
                    to_time: set_time(23, 59), work_type: 0)
 
-    assert_equal 0, get_week(wp.weeks).week_total
+    assert_equal 0, wp.weeks.first.week_total
     wp.workpattern(days: :all, from_time: set_time(0, 0),
                    to_time: set_time(0, 0), work_type: 1)
 
-    assert_equal 7, get_week(wp.weeks).week_total
+    assert_equal 7, wp.weeks.first.week_total
     wp.workpattern(days: :all, from_time: set_time(23, 59),
                    to_time: set_time(23, 59), work_type: 1)
 
-    assert_equal 14, get_week(wp.weeks).week_total
+    assert_equal 14, wp.weeks.first.week_total
     wp.workpattern(days: :all, from_time: set_time(0, 0),
                    to_time: set_time(23, 59), work_type: 1)
 
-    assert_equal 10_080, get_week(wp.weeks).week_total
+    assert_equal 10_080, wp.weeks.first.week_total
     wp.workpattern(days: :weekend, from_time: set_time(0, 0),
                    to_time: set_time(23, 59), work_type: 0)
 
-    assert_equal 7_200, get_week(wp.weeks).week_total
+    assert_equal 7_200, wp.weeks.first.week_total
   end
 
   def test_must_add_minutes_in_a_working_workpattern
@@ -284,10 +284,6 @@ class TestWorkpattern < WorkpatternTest # :nodoc:
   end
 
   private
-
-  def get_week(weeks)
-    weeks.each { |obj| return obj }
-  end
 
   def calc_test(workpattern, tests, clue)
     tests.each do |y, m, d, h, n, add, yr, mr, dr, hr, nr|
