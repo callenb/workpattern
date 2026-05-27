@@ -81,7 +81,7 @@ Layout/EmptyLinesAroundMethodBody:
 Layout/EmptyLinesAroundModuleBody:
   Exclude:
 #   - 'lib/workpattern.rb'
-    - 'lib/workpattern/constants.rb'
+#   - 'lib/workpattern/constants.rb'
     - 'lib/workpattern/day.rb'
 
 # Offense count: 9
@@ -201,7 +201,7 @@ Layout/SpaceAroundBlockParameters:
 # SupportedStylesForRationalLiterals: space, no_space
 Layout/SpaceAroundOperators:
   Exclude:
-    - 'lib/workpattern/constants.rb'
+#   - 'lib/workpattern/constants.rb'
     - 'lib/workpattern/day.rb'
     - 'lib/workpattern/week.rb'
 #   - 'test/test_day.rb'
@@ -246,7 +246,7 @@ Layout/TrailingEmptyLines:
 # Configuration parameters: AllowInHeredoc.
 Layout/TrailingWhitespace:
   Exclude:
-    - 'lib/workpattern/constants.rb'
+#   - 'lib/workpattern/constants.rb'
     - 'lib/workpattern/day.rb'
     - 'lib/workpattern/week.rb'
     - 'lib/workpattern/week_pattern.rb'
@@ -257,7 +257,7 @@ Layout/TrailingWhitespace:
 # This cop supports safe autocorrection (--autocorrect).
 Lint/AmbiguousOperatorPrecedence:
   Exclude:
-    - 'lib/workpattern/constants.rb'
+#   - 'lib/workpattern/constants.rb'
     - 'lib/workpattern/day.rb'
     - 'lib/workpattern/week.rb'
 #   - 'test/test_workpattern.rb'
@@ -465,7 +465,7 @@ Style/Documentation:
   Exclude:
     - 'spec/**/*'
     - 'test/**/*'
-    - 'lib/workpattern/constants.rb'
+#   - 'lib/workpattern/constants.rb'
     - 'lib/workpattern/day.rb'
     - 'lib/workpattern/week_pattern.rb'
     - 'lib/workpattern/workpattern.rb'
