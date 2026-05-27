@@ -239,7 +239,7 @@ Layout/SpaceInsideParens:
 # SupportedStyles: final_newline, final_blank_line
 Layout/TrailingEmptyLines:
   Exclude:
-    - 'Rakefile'
+#   - 'Rakefile'
 
 # Offense count: 106
 # This cop supports safe autocorrection (--autocorrect).
@@ -426,7 +426,7 @@ Naming/VariableNumber:
 # This cop supports safe autocorrection (--autocorrect).
 Rake/Desc:
   Exclude:
-    - 'Rakefile'
+#   - 'Rakefile'
 
 # Offense count: 1
 # This cop supports unsafe autocorrection (--autocorrect-all).
@@ -509,7 +509,7 @@ Style/HashEachMethods:
 # SupportedShorthandSyntax: always, never, either, consistent, either_consistent
 Style/HashSyntax:
   Exclude:
-    - 'Rakefile'
+#   - 'Rakefile'
 
 # Offense count: 4
 # This cop supports unsafe autocorrection (--autocorrect-all).
@@ -641,7 +641,7 @@ Style/StringConcatenation:
 # SupportedStyles: single_quotes, double_quotes
 Style/StringLiterals:
   Exclude:
-    - 'Rakefile'
+#   - 'Rakefile'
 #   - 'lib/workpattern.rb'
     - 'lib/workpattern/day.rb'
     - 'lib/workpattern/workpattern.rb'

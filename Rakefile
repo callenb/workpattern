@@ -1,15 +1,16 @@
-require "bundler/gem_tasks"
-require "rake/testtask"
+require 'bundler/gem_tasks'
+require 'rake/testtask'
 
-task :default => [:test]
+task default: [:test]
 
-desc "Run basic tests"
+desc 'Run basic tests'
 Rake::TestTask.new do |test|
-  test.libs << "test"
-  test.test_files = Dir["test/test_*.rb"]
+  test.libs << 'test'
+  test.test_files = Dir['test/test_*.rb']
   test.verbose = true
 end
 
+desc 'Open the Ruby console with Workpattern loaded'
 task :console do
   require 'irb'
   require 'irb/completion'
@@ -17,4 +18,3 @@ task :console do
   ARGV.clear
   IRB.start
 end
-
