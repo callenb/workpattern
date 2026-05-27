@@ -1,4 +1,4 @@
-require File.dirname(__FILE__) + '/test_helper.rb'
+require "#{File.dirname(__FILE__)}/test_helper.rb"
 
 class TestWorkpatternSerialisation < WorkpatternTest
   def setup
@@ -6,14 +6,16 @@ class TestWorkpatternSerialisation < WorkpatternTest
   end
 
   # 1. to_h basic structure
-  def test_to_h_includes_version_1
+  def test_to_h_includes_version1
     wp = Workpattern.new('basic', 2020, 1)
+
     assert_equal 1, wp.to_h[:version]
   end
 
   def test_to_h_includes_name_base_span
     wp = Workpattern.new('myname', 2021, 3)
     h = wp.to_h
+
     assert_equal 'myname', h[:name]
     assert_equal 2021,     h[:base]
     assert_equal 3,        h[:span]
@@ -22,9 +24,11 @@ class TestWorkpatternSerialisation < WorkpatternTest
   def test_to_h_includes_weeks_array_with_start_finish_days
     wp = Workpattern.new('struct', 2020, 1)
     h = wp.to_h
+
     assert_instance_of Array, h[:weeks]
     refute_empty h[:weeks]
     wh = h[:weeks].first
+
     assert wh.key?(:start)
     assert wh.key?(:finish)
     assert wh.key?(:days)
@@ -35,6 +39,7 @@ class TestWorkpatternSerialisation < WorkpatternTest
   def test_to_h_is_idempotent
     wp = Workpattern.new('idem', 2020, 2)
     wp.resting(days: :weekend)
+
     assert_equal wp.to_h, wp.to_h
   end
 
@@ -66,10 +71,12 @@ class TestWorkpatternSerialisation < WorkpatternTest
     wp.resting(days: :weekend)
     h = wp.to_h
     wp2 = Workpattern.from_h(h, overwrite: true)
+
     assert_instance_of Workpattern::Workpattern, wp2
     assert_equal 'overwrite_me', wp2.name
     saturday = Time.gm(2020, 6, 6, 12, 0)
-    assert_equal false, wp2.working?(saturday)
+
+    assert refute(wp2.working?(saturday))
   end
 
   # 7. Round-trip: all-working workpattern
@@ -80,6 +87,7 @@ class TestWorkpatternSerialisation < WorkpatternTest
     wp2 = Workpattern.from_h(h)
     t1 = Time.gm(2020, 6, 1, 9, 0)
     t2 = Time.gm(2020, 6, 1, 17, 0)
+
     assert_equal wp.diff(t1, t2), wp2.diff(t1, t2)
     assert_equal wp.working?(t1), wp2.working?(t1)
     assert_equal wp.calc(t1, 480), wp2.calc(t1, 480)
@@ -94,8 +102,9 @@ class TestWorkpatternSerialisation < WorkpatternTest
     wp2 = Workpattern.from_h(h)
     saturday = Time.gm(2020, 6, 6, 12, 0)  # a Saturday
     monday   = Time.gm(2020, 6, 8, 12, 0)  # a Monday
-    assert_equal false, wp2.working?(saturday)
-    assert_equal true,  wp2.working?(monday)
+
+    assert refute(wp2.working?(saturday))
+    assert(wp2.working?(monday))
     assert_equal wp.diff(saturday, monday), wp2.diff(saturday, monday)
   end
 
@@ -105,10 +114,10 @@ class TestWorkpatternSerialisation < WorkpatternTest
     wp.resting(days: :weekend)
     wp.resting(days: :weekday,
                from_time: Workpattern.clock(0, 0),
-               to_time:   Workpattern.clock(8, 59))
+               to_time: Workpattern.clock(8, 59))
     wp.resting(days: :weekday,
                from_time: Workpattern.clock(17, 0),
-               to_time:   Workpattern.clock(23, 59))
+               to_time: Workpattern.clock(23, 59))
     h = wp.to_h
     Workpattern.delete('biz_hours')
     wp2 = Workpattern.from_h(h)
@@ -116,12 +125,14 @@ class TestWorkpatternSerialisation < WorkpatternTest
     # weekday morning — resting at 08:00, working at 09:00
     monday_morning = Time.gm(2020, 6, 8, 8, 0)
     monday_nine    = Time.gm(2020, 6, 8, 9, 0)
+
     assert_equal wp.working?(monday_morning), wp2.working?(monday_morning)
     assert_equal wp.working?(monday_nine),    wp2.working?(monday_nine)
 
     # diff across a full business day
     t1 = Time.gm(2020, 6, 8, 9, 0)
     t2 = Time.gm(2020, 6, 8, 17, 0)
+
     assert_equal wp.diff(t1, t2), wp2.diff(t1, t2)
 
     # calc: add 480 minutes from monday 09:00
@@ -130,6 +141,7 @@ class TestWorkpatternSerialisation < WorkpatternTest
     # diff spanning a weekend
     t3 = Time.gm(2020, 6, 5, 9, 0)   # Friday
     t4 = Time.gm(2020, 6, 8, 17, 0)  # Monday
+
     assert_equal wp.diff(t3, t4), wp2.diff(t3, t4)
   end
 
@@ -139,6 +151,7 @@ class TestWorkpatternSerialisation < WorkpatternTest
     h = wp.to_h
     Workpattern.delete('registered')
     Workpattern.from_h(h)
+
     assert_instance_of Workpattern::Workpattern, Workpattern.get('registered')
   end
 
@@ -148,6 +161,7 @@ class TestWorkpatternSerialisation < WorkpatternTest
     h = wp.to_h
     Workpattern.from_h(h, overwrite: true)
     names = Workpattern.workpatterns.keys.select { |k| k == 'unique' }
+
     assert_equal 1, names.length
   end
 
@@ -163,11 +177,12 @@ class TestWorkpatternSerialisation < WorkpatternTest
   def test_from_h_overwrite_malformed_preserves_original
     wp = Workpattern.new('atomic', 2020, 1)
     wp.resting(days: :weekend)
-    bad_hash = wp.to_h.merge(weeks: [{ start: {year:2020,month:1,day:1}, finish: {year:2020,month:12,day:31}, days: nil }])
+    bad_hash = wp.to_h.merge(weeks: [{ start: { year: 2020, month: 1, day: 1 }, finish: { year: 2020, month: 12, day: 31 }, days: nil }])
     assert_raises(NoMethodError) { Workpattern.from_h(bad_hash, overwrite: true) }
     assert_instance_of Workpattern::Workpattern, Workpattern.get('atomic')
     saturday = Time.gm(2020, 6, 6, 12, 0)
-    assert_equal false, Workpattern.get('atomic').working?(saturday)
+
+    assert refute(Workpattern.get('atomic').working?(saturday))
   end
 
   # 14. Round-trip: negative span
@@ -176,10 +191,12 @@ class TestWorkpatternSerialisation < WorkpatternTest
     h = wp.to_h
     Workpattern.delete('neg_span')
     wp2 = Workpattern.from_h(h)
+
     assert_equal wp.from, wp2.from
     assert_equal wp.to,   wp2.to
     assert_equal wp.span, wp2.span
     t1 = Time.gm(2019, 6, 1, 9, 0)
+
     assert_equal wp.working?(t1), wp2.working?(t1)
   end
 end

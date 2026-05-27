@@ -104,7 +104,7 @@ Layout/HashAlignment:
   Exclude:
     - 'lib/workpattern/week.rb'
     - 'lib/workpattern/workpattern.rb'
-    - 'test/test_workpattern_serialisation.rb'
+#   - 'test/test_workpattern_serialisation.rb'
 
 # Offense count: 31
 # This cop supports safe autocorrection (--autocorrect).
@@ -172,7 +172,7 @@ Layout/ParameterAlignment:
 # This cop supports safe autocorrection (--autocorrect).
 Layout/SpaceAfterColon:
   Exclude:
-    - 'test/test_workpattern_serialisation.rb'
+#   - 'test/test_workpattern_serialisation.rb'
 
 # Offense count: 92
 # This cop supports safe autocorrection (--autocorrect).
@@ -184,7 +184,7 @@ Layout/SpaceAfterComma:
 #   - 'test/test_day.rb'
 #   - 'test/test_week.rb'
 #   - 'test/test_workpattern.rb'
-    - 'test/test_workpattern_serialisation.rb'
+#   - 'test/test_workpattern_serialisation.rb'
 
 # Offense count: 56
 # This cop supports safe autocorrection (--autocorrect).
@@ -222,7 +222,7 @@ Layout/SpaceInsideArrayLiteralBrackets:
 # SupportedStylesForEmptyBraces: space, no_space
 Layout/SpaceInsideHashLiteralBraces:
   Exclude:
-    - 'test/test_workpattern_serialisation.rb'
+#   - 'test/test_workpattern_serialisation.rb'
 
 # Offense count: 3
 # This cop supports safe autocorrection (--autocorrect).
@@ -358,7 +358,7 @@ Minitest/AssertRaisesCompoundBody:
 # This cop supports unsafe autocorrection (--autocorrect-all).
 Minitest/AssertTruthy:
   Exclude:
-    - 'test/test_workpattern_serialisation.rb'
+#   - 'test/test_workpattern_serialisation.rb'
 
 # Offense count: 124
 # This cop supports safe autocorrection (--autocorrect).
@@ -369,7 +369,7 @@ Minitest/EmptyLineBeforeAssertionMethods:
 #   - 'test/test_week.rb'
 #   - 'test/test_workpattern.rb'
 #   - 'test/test_workpattern_module.rb'
-    - 'test/test_workpattern_serialisation.rb'
+#   - 'test/test_workpattern_serialisation.rb'
 
 # Offense count: 9
 # This cop supports unsafe autocorrection (--autocorrect-all).
@@ -378,7 +378,7 @@ Minitest/RefuteFalse:
 #   - 'test/test_day.rb'
 #   - 'test/test_workpattern.rb'
 #   - 'test/test_workpattern_module.rb'
-    - 'test/test_workpattern_serialisation.rb'
+#   - 'test/test_workpattern_serialisation.rb'
 
 # Offense count: 4
 Minitest/UselessAssertion:
@@ -420,7 +420,7 @@ Naming/PredicatePrefix:
 # AllowedIdentifiers: TLS1_1, TLS1_2, capture3, iso8601, rfc1123_date, rfc822, rfc2822, rfc3339, x86_64
 Naming/VariableNumber:
   Exclude:
-    - 'test/test_workpattern_serialisation.rb'
+#   - 'test/test_workpattern_serialisation.rb'
 
 # Offense count: 1
 # This cop supports safe autocorrection (--autocorrect).
@@ -633,7 +633,7 @@ Style/StringConcatenation:
 #   - 'test/test_week.rb'
 #   - 'test/test_workpattern.rb'
 #   - 'test/test_workpattern_module.rb'
-    - 'test/test_workpattern_serialisation.rb'
+#   - 'test/test_workpattern_serialisation.rb'
 
 # Offense count: 68
 # This cop supports safe autocorrection (--autocorrect).
