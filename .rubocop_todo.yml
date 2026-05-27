@@ -152,7 +152,7 @@ Layout/LeadingCommentSpace:
 #   - 'test/test_day.rb'
 #   - 'test/test_week.rb'
 #   - 'test/test_workpattern.rb'
-    - 'test/test_workpattern_module.rb'
+#   - 'test/test_workpattern_module.rb'
 
 # Offense count: 1
 # This cop supports safe autocorrection (--autocorrect).
@@ -329,13 +329,13 @@ Metrics/PerceivedComplexity:
 # This cop supports safe autocorrection (--autocorrect).
 Minitest/AssertEmpty:
   Exclude:
-    - 'test/test_workpattern_module.rb'
+#   - 'test/test_workpattern_module.rb'
 
 # Offense count: 1
 # This cop supports safe autocorrection (--autocorrect).
 Minitest/AssertIncludes:
   Exclude:
-    - 'test/test_workpattern_module.rb'
+#   - 'test/test_workpattern_module.rb'
 
 # Offense count: 2
 # This cop supports safe autocorrection (--autocorrect).
@@ -347,12 +347,12 @@ Minitest/AssertKindOf:
 # This cop supports safe autocorrection (--autocorrect).
 Minitest/AssertPredicate:
   Exclude:
-    - 'test/test_workpattern_module.rb'
+#   - 'test/test_workpattern_module.rb'
 
 # Offense count: 1
 Minitest/AssertRaisesCompoundBody:
   Exclude:
-    - 'test/test_workpattern_module.rb'
+#   - 'test/test_workpattern_module.rb'
 
 # Offense count: 1
 # This cop supports unsafe autocorrection (--autocorrect-all).
@@ -368,7 +368,7 @@ Minitest/EmptyLineBeforeAssertionMethods:
 #   - 'test/test_day.rb'
 #   - 'test/test_week.rb'
 #   - 'test/test_workpattern.rb'
-    - 'test/test_workpattern_module.rb'
+#   - 'test/test_workpattern_module.rb'
     - 'test/test_workpattern_serialisation.rb'
 
 # Offense count: 9
@@ -377,7 +377,7 @@ Minitest/RefuteFalse:
   Exclude:
 #   - 'test/test_day.rb'
 #   - 'test/test_workpattern.rb'
-    - 'test/test_workpattern_module.rb'
+#   - 'test/test_workpattern_module.rb'
     - 'test/test_workpattern_serialisation.rb'
 
 # Offense count: 4
@@ -445,7 +445,7 @@ Style/ClassVars:
 # This cop supports unsafe autocorrection (--autocorrect-all).
 Style/CombinableLoops:
   Exclude:
-    - 'test/test_workpattern_module.rb'
+#   - 'test/test_workpattern_module.rb'
 
 # Offense count: 1
 # This cop supports unsafe autocorrection (--autocorrect-all).
@@ -500,7 +500,7 @@ Style/GuardClause:
 # AllowedReceivers: Thread.current
 Style/HashEachMethods:
   Exclude:
-    - 'test/test_workpattern_module.rb'
+#   - 'test/test_workpattern_module.rb'
 
 # Offense count: 1
 # This cop supports safe autocorrection (--autocorrect).
@@ -584,7 +584,7 @@ Style/ParenthesesAroundCondition:
 # Configuration parameters: PreferredDelimiters.
 Style/PercentLiteralDelimiters:
   Exclude:
-    - 'test/test_workpattern_module.rb'
+#   - 'test/test_workpattern_module.rb'
 
 # Offense count: 8
 # This cop supports safe autocorrection (--autocorrect).
@@ -632,7 +632,7 @@ Style/StringConcatenation:
 #   - 'test/test_helper.rb'
 #   - 'test/test_week.rb'
 #   - 'test/test_workpattern.rb'
-    - 'test/test_workpattern_module.rb'
+#   - 'test/test_workpattern_module.rb'
     - 'test/test_workpattern_serialisation.rb'
 
 # Offense count: 68
