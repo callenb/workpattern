@@ -25,7 +25,7 @@ Layout/CommentIndentation:
 # This cop supports safe autocorrection (--autocorrect).
 Layout/EmptyLineAfterGuardClause:
   Exclude:
-    - 'lib/workpattern/day.rb'
+#   - 'lib/workpattern/day.rb'
     - 'lib/workpattern/week.rb'
     - 'lib/workpattern/workpattern.rb'
 
@@ -43,7 +43,7 @@ Layout/EmptyLineBetweenDefs:
 # This cop supports safe autocorrection (--autocorrect).
 Layout/EmptyLines:
   Exclude:
-    - 'lib/workpattern/day.rb'
+#   - 'lib/workpattern/day.rb'
     - 'lib/workpattern/week.rb'
 #   - 'test/test_day.rb'
 
@@ -61,7 +61,7 @@ Layout/EmptyLinesAroundAccessModifier:
 # SupportedStyles: empty_lines, empty_lines_except_namespace, empty_lines_special, no_empty_lines, beginning_only, ending_only
 Layout/EmptyLinesAroundClassBody:
   Exclude:
-    - 'lib/workpattern/day.rb'
+#   - 'lib/workpattern/day.rb'
     - 'lib/workpattern/week_pattern.rb'
     - 'lib/workpattern/workpattern.rb'
 
@@ -69,7 +69,7 @@ Layout/EmptyLinesAroundClassBody:
 # This cop supports safe autocorrection (--autocorrect).
 Layout/EmptyLinesAroundMethodBody:
   Exclude:
-    - 'lib/workpattern/day.rb'
+#   - 'lib/workpattern/day.rb'
     - 'lib/workpattern/week.rb'
     - 'lib/workpattern/week_pattern.rb'
 #   - 'test/test_day.rb'
@@ -82,7 +82,7 @@ Layout/EmptyLinesAroundModuleBody:
   Exclude:
 #   - 'lib/workpattern.rb'
 #   - 'lib/workpattern/constants.rb'
-    - 'lib/workpattern/day.rb'
+#   - 'lib/workpattern/day.rb'
 
 # Offense count: 9
 # This cop supports safe autocorrection (--autocorrect).
@@ -112,7 +112,7 @@ Layout/HashAlignment:
 # SupportedStyles: normal, indented_internal_methods
 Layout/IndentationConsistency:
   Exclude:
-    - 'lib/workpattern/day.rb'
+#   - 'lib/workpattern/day.rb'
     - 'lib/workpattern/week.rb'
     - 'lib/workpattern/week_pattern.rb'
     - 'lib/workpattern/workpattern.rb'
@@ -125,7 +125,7 @@ Layout/IndentationConsistency:
 # SupportedStyles: spaces, tabs
 Layout/IndentationStyle:
   Exclude:
-    - 'lib/workpattern/day.rb'
+#   - 'lib/workpattern/day.rb'
     - 'lib/workpattern/week.rb'
     - 'lib/workpattern/week_pattern.rb'
     - 'lib/workpattern/workpattern.rb'
@@ -136,7 +136,7 @@ Layout/IndentationStyle:
 # SupportedStylesAlignWith: start_of_line, relative_to_receiver
 Layout/IndentationWidth:
   Exclude:
-    - 'lib/workpattern/day.rb'
+#   - 'lib/workpattern/day.rb'
     - 'lib/workpattern/week_pattern.rb'
     - 'lib/workpattern/workpattern.rb'
 #   - 'test/test_day.rb'
@@ -147,7 +147,7 @@ Layout/IndentationWidth:
 # Configuration parameters: AllowDoxygenCommentStyle, AllowGemfileRubyComment, AllowRBSInlineAnnotation, AllowSteepAnnotation.
 Layout/LeadingCommentSpace:
   Exclude:
-    - 'lib/workpattern/day.rb'
+#   - 'lib/workpattern/day.rb'
 #   - 'test/test_clock.rb'
 #   - 'test/test_day.rb'
 #   - 'test/test_week.rb'
@@ -178,7 +178,7 @@ Layout/SpaceAfterColon:
 # This cop supports safe autocorrection (--autocorrect).
 Layout/SpaceAfterComma:
   Exclude:
-    - 'lib/workpattern/day.rb'
+#   - 'lib/workpattern/day.rb'
     - 'lib/workpattern/week.rb'
     - 'lib/workpattern/workpattern.rb'
 #   - 'test/test_day.rb'
@@ -202,7 +202,7 @@ Layout/SpaceAroundBlockParameters:
 Layout/SpaceAroundOperators:
   Exclude:
 #   - 'lib/workpattern/constants.rb'
-    - 'lib/workpattern/day.rb'
+#   - 'lib/workpattern/day.rb'
     - 'lib/workpattern/week.rb'
 #   - 'test/test_day.rb'
 
@@ -213,7 +213,7 @@ Layout/SpaceAroundOperators:
 # SupportedStylesForEmptyBrackets: space, no_space
 Layout/SpaceInsideArrayLiteralBrackets:
   Exclude:
-    - 'lib/workpattern/day.rb'
+#   - 'lib/workpattern/day.rb'
 
 # Offense count: 4
 # This cop supports safe autocorrection (--autocorrect).
@@ -230,7 +230,7 @@ Layout/SpaceInsideHashLiteralBraces:
 # SupportedStyles: space, compact, no_space
 Layout/SpaceInsideParens:
   Exclude:
-    - 'lib/workpattern/day.rb'
+#   - 'lib/workpattern/day.rb'
     - 'lib/workpattern/week.rb'
 
 # Offense count: 1
@@ -247,7 +247,7 @@ Layout/TrailingEmptyLines:
 Layout/TrailingWhitespace:
   Exclude:
 #   - 'lib/workpattern/constants.rb'
-    - 'lib/workpattern/day.rb'
+#   - 'lib/workpattern/day.rb'
     - 'lib/workpattern/week.rb'
     - 'lib/workpattern/week_pattern.rb'
     - 'lib/workpattern/workpattern.rb'
@@ -258,7 +258,7 @@ Layout/TrailingWhitespace:
 Lint/AmbiguousOperatorPrecedence:
   Exclude:
 #   - 'lib/workpattern/constants.rb'
-    - 'lib/workpattern/day.rb'
+#   - 'lib/workpattern/day.rb'
     - 'lib/workpattern/week.rb'
 #   - 'test/test_workpattern.rb'
 
@@ -266,13 +266,13 @@ Lint/AmbiguousOperatorPrecedence:
 # Configuration parameters: IgnoreLiteralBranches, IgnoreConstantBranches, IgnoreDuplicateElseBranch.
 Lint/DuplicateBranch:
   Exclude:
-    - 'lib/workpattern/day.rb'
+#   - 'lib/workpattern/day.rb'
 
 # Offense count: 2
 # This cop supports unsafe autocorrection (--autocorrect-all).
 Lint/Loop:
   Exclude:
-    - 'lib/workpattern/day.rb'
+#   - 'lib/workpattern/day.rb'
 
 # Offense count: 1
 # Configuration parameters: AllowedPatterns.
@@ -292,7 +292,7 @@ Lint/UselessAccessModifier:
 # This cop supports safe autocorrection (--autocorrect).
 Lint/UselessAssignment:
   Exclude:
-    - 'lib/workpattern/day.rb'
+#   - 'lib/workpattern/day.rb'
     - 'lib/workpattern/week.rb'
 
 # Offense count: 43
@@ -390,7 +390,7 @@ Minitest/UselessAssertion:
 # AllowedNames: as, at, by, cc, db, id, if, in, io, ip, of, on, os, pp, to
 Naming/MethodParameterName:
   Exclude:
-    - 'lib/workpattern/day.rb'
+#   - 'lib/workpattern/day.rb'
     - 'lib/workpattern/week.rb'
 #   - 'test/test_workpattern.rb'
 
@@ -400,7 +400,7 @@ Naming/MethodParameterName:
 # WaywardPredicates: infinite?, nonzero?
 Naming/PredicateMethod:
   Exclude:
-    - 'lib/workpattern/day.rb'
+#   - 'lib/workpattern/day.rb'
     - 'lib/workpattern/workpattern.rb'
 
 # Offense count: 1
@@ -412,7 +412,7 @@ Naming/PredicateMethod:
 Naming/PredicatePrefix:
   Exclude:
     - 'spec/**/*'
-    - 'lib/workpattern/day.rb'
+#   - 'lib/workpattern/day.rb'
 
 # Offense count: 1
 # Configuration parameters: EnforcedStyle, CheckMethodNames, CheckSymbols, AllowedIdentifiers, AllowedPatterns.
@@ -466,7 +466,7 @@ Style/Documentation:
     - 'spec/**/*'
     - 'test/**/*'
 #   - 'lib/workpattern/constants.rb'
-    - 'lib/workpattern/day.rb'
+#   - 'lib/workpattern/day.rb'
     - 'lib/workpattern/week_pattern.rb'
     - 'lib/workpattern/workpattern.rb'
 
@@ -491,7 +491,7 @@ Style/FrozenStringLiteralComment:
 # Configuration parameters: MinBodyLength, AllowConsecutiveConditionals.
 Style/GuardClause:
   Exclude:
-    - 'lib/workpattern/day.rb'
+#   - 'lib/workpattern/day.rb'
     - 'lib/workpattern/week.rb'
 
 # Offense count: 1
@@ -515,20 +515,20 @@ Style/HashSyntax:
 # This cop supports unsafe autocorrection (--autocorrect-all).
 Style/IdenticalConditionalBranches:
   Exclude:
-    - 'lib/workpattern/day.rb'
+#   - 'lib/workpattern/day.rb'
 
 # Offense count: 1
 # This cop supports safe autocorrection (--autocorrect).
 # Configuration parameters: AllowIfModifier.
 Style/IfInsideElse:
   Exclude:
-    - 'lib/workpattern/day.rb'
+#   - 'lib/workpattern/day.rb'
 
 # Offense count: 17
 # This cop supports safe autocorrection (--autocorrect).
 Style/IfUnlessModifier:
   Exclude:
-    - 'lib/workpattern/day.rb'
+#   - 'lib/workpattern/day.rb'
     - 'lib/workpattern/week.rb'
     - 'lib/workpattern/workpattern.rb'
 
@@ -568,7 +568,7 @@ Style/NumericLiterals:
 Style/NumericPredicate:
   Exclude:
     - 'spec/**/*'
-    - 'lib/workpattern/day.rb'
+#   - 'lib/workpattern/day.rb'
     - 'lib/workpattern/week.rb'
     - 'lib/workpattern/workpattern.rb'
 
@@ -590,7 +590,7 @@ Style/PercentLiteralDelimiters:
 # This cop supports safe autocorrection (--autocorrect).
 Style/RedundantParentheses:
   Exclude:
-    - 'lib/workpattern/day.rb'
+#   - 'lib/workpattern/day.rb'
 #   - 'test/test_day.rb'
 #   - 'test/test_week.rb'
 
@@ -599,7 +599,7 @@ Style/RedundantParentheses:
 # Configuration parameters: AllowMultipleReturnValues.
 Style/RedundantReturn:
   Exclude:
-    - 'lib/workpattern/day.rb'
+#   - 'lib/workpattern/day.rb'
     - 'lib/workpattern/week.rb'
 
 # Offense count: 6
@@ -612,7 +612,7 @@ Style/RedundantSelf:
 # This cop supports safe autocorrection (--autocorrect).
 Style/SelfAssignment:
   Exclude:
-    - 'lib/workpattern/day.rb'
+#   - 'lib/workpattern/day.rb'
 
 # Offense count: 1
 # This cop supports unsafe autocorrection (--autocorrect-all).
@@ -643,7 +643,7 @@ Style/StringLiterals:
   Exclude:
 #   - 'Rakefile'
 #   - 'lib/workpattern.rb'
-    - 'lib/workpattern/day.rb'
+#   - 'lib/workpattern/day.rb'
     - 'lib/workpattern/workpattern.rb'
 #   - 'test/test_day.rb'
 #   - 'test/test_workpattern.rb'
