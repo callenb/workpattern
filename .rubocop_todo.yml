@@ -12,7 +12,7 @@
 # SupportedStyles: with_first_argument, with_fixed_indentation
 Layout/ArgumentAlignment:
   Exclude:
-    - 'lib/workpattern/week_pattern.rb'
+#   - 'lib/workpattern/week_pattern.rb'
 
 # Offense count: 2
 # This cop supports safe autocorrection (--autocorrect).
@@ -35,7 +35,7 @@ Layout/EmptyLineAfterGuardClause:
 Layout/EmptyLineBetweenDefs:
   Exclude:
 #   - 'lib/workpattern/week.rb'
-    - 'lib/workpattern/week_pattern.rb'
+#   - 'lib/workpattern/week_pattern.rb'
     - 'lib/workpattern/workpattern.rb'
 #   - 'test/test_day.rb'
 
@@ -62,7 +62,7 @@ Layout/EmptyLinesAroundAccessModifier:
 Layout/EmptyLinesAroundClassBody:
   Exclude:
 #   - 'lib/workpattern/day.rb'
-    - 'lib/workpattern/week_pattern.rb'
+#   - 'lib/workpattern/week_pattern.rb'
     - 'lib/workpattern/workpattern.rb'
 
 # Offense count: 12
@@ -71,7 +71,7 @@ Layout/EmptyLinesAroundMethodBody:
   Exclude:
 #   - 'lib/workpattern/day.rb'
 #   - 'lib/workpattern/week.rb'
-    - 'lib/workpattern/week_pattern.rb'
+#   - 'lib/workpattern/week_pattern.rb'
 #   - 'test/test_day.rb'
 
 # Offense count: 4
@@ -114,7 +114,7 @@ Layout/IndentationConsistency:
   Exclude:
 #   - 'lib/workpattern/day.rb'
 #   - 'lib/workpattern/week.rb'
-    - 'lib/workpattern/week_pattern.rb'
+#   - 'lib/workpattern/week_pattern.rb'
     - 'lib/workpattern/workpattern.rb'
 #   - 'test/test_day.rb'
 #   - 'test/test_workpattern.rb'
@@ -127,7 +127,7 @@ Layout/IndentationStyle:
   Exclude:
 #   - 'lib/workpattern/day.rb'
 #   - 'lib/workpattern/week.rb'
-    - 'lib/workpattern/week_pattern.rb'
+#   - 'lib/workpattern/week_pattern.rb'
     - 'lib/workpattern/workpattern.rb'
 
 # Offense count: 25
@@ -137,7 +137,7 @@ Layout/IndentationStyle:
 Layout/IndentationWidth:
   Exclude:
 #   - 'lib/workpattern/day.rb'
-    - 'lib/workpattern/week_pattern.rb'
+#   - 'lib/workpattern/week_pattern.rb'
     - 'lib/workpattern/workpattern.rb'
 #   - 'test/test_day.rb'
 #   - 'test/test_workpattern.rb'
@@ -166,7 +166,7 @@ Layout/MultilineBlockLayout:
 # SupportedStyles: with_first_parameter, with_fixed_indentation
 Layout/ParameterAlignment:
   Exclude:
-    - 'lib/workpattern/week_pattern.rb'
+#   - 'lib/workpattern/week_pattern.rb'
 
 # Offense count: 6
 # This cop supports safe autocorrection (--autocorrect).
@@ -249,7 +249,7 @@ Layout/TrailingWhitespace:
 #   - 'lib/workpattern/constants.rb'
 #   - 'lib/workpattern/day.rb'
 #   - 'lib/workpattern/week.rb'
-    - 'lib/workpattern/week_pattern.rb'
+#   - 'lib/workpattern/week_pattern.rb'
     - 'lib/workpattern/workpattern.rb'
 #   - 'test/test_day.rb'
 
@@ -467,7 +467,7 @@ Style/Documentation:
     - 'test/**/*'
 #   - 'lib/workpattern/constants.rb'
 #   - 'lib/workpattern/day.rb'
-    - 'lib/workpattern/week_pattern.rb'
+#   - 'lib/workpattern/week_pattern.rb'
     - 'lib/workpattern/workpattern.rb'
 
 # Offense count: 2
@@ -655,7 +655,7 @@ Style/StringLiterals:
 # AllowedMethods: to_ary, to_a, to_c, to_enum, to_h, to_hash, to_i, to_int, to_io, to_open, to_path, to_proc, to_r, to_regexp, to_str, to_s, to_sym
 Style/TrivialAccessors:
   Exclude:
-    - 'lib/workpattern/week_pattern.rb'
+#   - 'lib/workpattern/week_pattern.rb'
     - 'lib/workpattern/workpattern.rb'
 
 # Offense count: 3

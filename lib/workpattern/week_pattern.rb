@@ -1,12 +1,20 @@
 module Workpattern
+  # For most weeks most of the time the same pattern of work and rest takes
+  # place such as the classic office working from 09:00 to 17:00 from
+  # Monday to Friday with an hour lunch break and Saturday and Sunday off.
+  #
+  # This is why we hold a pattern of work for a week with a start date and
+  # finish date which could cover many months. each day holds an instance
+  # of the day class and so this WeekPattern can add the total minutes in
+  # each of the 7 days and know how many days in a week, which in turn
+  # makes adding long durations faily easy.
+  #
   class WeekPattern
     def initialize(work_pattern)
       @work_pattern = work_pattern
     end
 
-    def work_pattern
-      @work_pattern
-    end
+    attr_reader :work_pattern
 
     def weeks
       work_pattern.weeks
@@ -19,6 +27,7 @@ module Workpattern
     def to
       work_pattern.to
     end
+
     # Applys a working or resting pattern to the <tt>Workpattern</tt> object.
     #
     # The #resting and #working methods are convenience methods that call
@@ -50,15 +59,15 @@ module Workpattern
 
       while upd_start <= upd_finish
 
-	      current_wp = work_pattern.find_weekpattern(upd_start)
+        current_wp = work_pattern.find_weekpattern(upd_start)
 
         if current_wp.start == upd_start
           if current_wp.finish > upd_finish
             clone_wp = fetch_updatable_week_pattern(current_wp,
-                                                   upd_finish + DAY,
-                                                   current_wp.finish,
-                                                   upd_start,
-                                                   upd_finish)
+                                                    upd_finish + DAY,
+                                                    current_wp.finish,
+                                                    upd_start,
+                                                    upd_finish)
             update_and_store_week_pattern(clone_wp, args)
             upd_start = upd_finish + DAY
           else # (current_wp.finish == upd_finish)
@@ -68,12 +77,12 @@ module Workpattern
           end
         else
           clone_wp = fetch_updatable_week_pattern(current_wp, current_wp.start,
-                                                 upd_start - DAY, upd_start)
+                                                  upd_start - DAY, upd_start)
           if clone_wp.finish > upd_finish
             after_wp = fetch_updatable_week_pattern(clone_wp,
-                                                   upd_start,
-                                                   upd_finish,
-                                                   upd_finish + DAY)
+                                                    upd_start,
+                                                    upd_finish,
+                                                    upd_finish + DAY)
             weeks << after_wp
           end
           update_and_store_week_pattern(clone_wp, args)
@@ -85,16 +94,14 @@ module Workpattern
     private
 
     def all_workpattern_options(opts)
-	    
       args = { start: from, finish: to, days: :all,
                from_time: FIRST_TIME_IN_DAY, to_time: LAST_TIME_IN_DAY,
                work_type: WORK_TYPE }
 
       args.merge! opts
-    end  
+    end
 
     def standardise_args(args)
-
       args[:start] = dmy_date(args[:start])
       args[:finish] = dmy_date(args[:finish])
 
@@ -102,11 +109,11 @@ module Workpattern
     end
 
     # Clones the supplied Week Pattern then changes the dates on it
-    # The newly cloned Week pattern dates are also changed and it is 
+    # The newly cloned Week pattern dates are also changed and it is
     # returned by this method
     #
     def fetch_updatable_week_pattern(keep_week, keep_start, keep_finish,
-                                    change_start, change_finish = nil)
+                                     change_start, change_finish = nil)
       change_week = keep_week.duplicate
       adjust_date_range(keep_week, keep_start, keep_finish)
       if change_finish.nil?
@@ -119,7 +126,7 @@ module Workpattern
 
     def update_and_store_week_pattern(week_pattern, args)
       week_pattern.workpattern(args[:days], args[:from_time],
-                         args[:to_time], args[:work_type])
+                               args[:to_time], args[:work_type])
       weeks << week_pattern
     end
 
@@ -137,6 +144,5 @@ module Workpattern
     def dmy_date(date)
       Time.gm(date.year, date.month, date.day)
     end
-
   end
 end
