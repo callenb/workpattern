@@ -21,26 +21,27 @@ module Workpattern
     end
 
     def to_h
-      { start:  { year: @start.year,  month: @start.month,  day: @start.day },
+      { start: { year: @start.year, month: @start.month, day: @start.day },
         finish: { year: @finish.year, month: @finish.month, day: @finish.day },
-        days:   (FIRST_DAY_OF_WEEK..LAST_DAY_OF_WEEK).map { |i| @days[i].to_h } }
+        days: (FIRST_DAY_OF_WEEK..LAST_DAY_OF_WEEK).map { |i| @days[i].to_h } }
     end
 
-    def self.from_h(h)
-      s = h[:start]
-      f = h[:finish]
+    def self.from_h(hweek)
+      s = hweek[:start]
+      f = hweek[:finish]
       week = allocate
       week.hours_per_day = HOURS_IN_DAY
       week.start  = Time.gm(s[:year], s[:month], s[:day])
       week.finish = Time.gm(f[:year], f[:month], f[:day])
       week.days   = Array.new(LAST_DAY_OF_WEEK + 1)
-      h[:days].each_with_index { |dh, i| week.days[i] = Day.from_h(dh) }
+      hweek[:days].each_with_index { |dh, i| week.days[i] = Day.from_h(dh) }
       week
     end
 
     def <=>(other)
       return -1 if start < other.start
       return 0 if start == other.start
+
       1
     end
 
@@ -66,20 +67,20 @@ module Workpattern
       duplicate_week = Week.new(@start, @finish)
       FIRST_DAY_OF_WEEK.upto(LAST_DAY_OF_WEEK) do |i|
         duplicate_week.days[i] = @days[i].clone
-	      duplicate_week.days[i].hours_per_day = @days[i].hours_per_day
-	      duplicate_week.days[i].pattern = @days[i].pattern
+        duplicate_week.days[i].hours_per_day = @days[i].hours_per_day
+        duplicate_week.days[i].pattern = @days[i].pattern
       end
       duplicate_week
     end
 
-    def calc(a_date, a_duration, a_day = SAME_DAY) 
-      if a_duration == 0
-        return a_date, a_duration
-      elsif a_duration > 0	
-        return add(a_date, a_duration)
-      else	
+    def calc(a_date, a_duration, a_day = SAME_DAY)
+      if a_duration.zero?
+        [a_date, a_duration]
+      elsif a_duration.positive?
+        add(a_date, a_duration)
+      else
         subtract(a_date, a_duration, a_day)
-      end	
+      end
     end
 
     def working?(time)
@@ -91,21 +92,17 @@ module Workpattern
     end
 
     def diff(start_date, finish_date)
-      if start_date > finish_date
-        start_date, finish_date = finish_date, start_date
-      end
+      start_date, finish_date = finish_date, start_date if start_date > finish_date
 
-      if jd(start_date) == jd(finish_date)
-        return diff_in_same_day(start_date, finish_date)
-      else
-        return diff_in_same_weekpattern(start_date, finish_date)
-      end
+      return diff_in_same_day(start_date, finish_date) if jd(start_date) == jd(finish_date)
+
+      diff_in_same_weekpattern(start_date, finish_date)
     end
-    
+
     private
 
     def elapsed_days
-      (finish - start).to_i / DAY + 1
+      ((finish - start).to_i / DAY) + 1
     end
 
     def full_week_working_minutes
@@ -150,7 +147,6 @@ module Workpattern
     end
 
     def add(a_date, a_duration)
-
       r_date, r_duration = add_to_end_of_day(a_date, a_duration)
 
       r_date, r_duration = add_to_finish_day r_date, r_duration
@@ -160,38 +156,30 @@ module Workpattern
     end
 
     def add_to_end_of_day(a_date, a_duration)
-      r_date, r_duration, r_day = @days[a_date.wday].calc(a_date,a_duration)
+      r_date, r_duration, r_day = @days[a_date.wday].calc(a_date, a_duration)
 
-      if r_day == NEXT_DAY
-        r_date = start_of_next_day(r_date)
-
-      end
+      r_date = start_of_next_day(r_date) if r_day == NEXT_DAY
 
       [r_date, r_duration]
     end
 
     def add_to_finish_day(a_date, a_duration)
-      while ( a_duration != 0) && (a_date.wday != next_day(self.finish).wday) && (jd(a_date) <= jd(self.finish))
-        a_date, a_duration = add_to_end_of_day(a_date,a_duration)
-      end
+      a_date, a_duration = add_to_end_of_day(a_date, a_duration) while (a_duration != 0) && (a_date.wday != next_day(finish).wday) && (jd(a_date) <= jd(finish))
 
       [a_date, a_duration]
     end
 
     def add_full_weeks(a_date, a_duration)
-
-      while (a_duration != 0) && (a_duration >= self.week_total) && ((jd(a_date) + (6*86400)) <= jd(self.finish))
-        a_duration -= self.week_total
-        a_date += (7*86400)
+      while (a_duration != 0) && (a_duration >= week_total) && ((jd(a_date) + (6 * 86400)) <= jd(finish))
+        a_duration -= week_total
+        a_date += (7 * 86400)
       end
 
       [a_date, a_duration]
     end
 
     def add_remaining_days(a_date, a_duration)
-      while (a_duration != 0) && (jd(a_date) <= jd(self.finish))
-        a_date, a_duration = add_to_end_of_day(a_date,a_duration)
-      end
+      a_date, a_duration = add_to_end_of_day(a_date, a_duration) while (a_duration != 0) && (jd(a_date) <= jd(finish))
       [a_date, a_duration]
     end
 
@@ -200,25 +188,19 @@ module Workpattern
     end
 
     def subtract_to_start_of_day(a_date, a_duration, a_day)
-      
-      
-      a_date, a_duration, a_day = handle_midnight(a_date, a_duration, a_day)
+      a_date, a_duration, = handle_midnight(a_date, a_duration, a_day)
 
       r_date, r_duration, r_day = @days[a_date.wday].calc(a_date, a_duration)
 
       [r_date, r_duration, r_day]
-
     end
 
     def handle_midnight(a_date, a_duration, a_day)
-      
       if a_day == PREVIOUS_DAY
         a_date -= DAY
-        a_date = Time.gm(a_date.year, a_date.month, a_date.day,LAST_TIME_IN_DAY.hour, LAST_TIME_IN_DAY.min)
+        a_date = Time.gm(a_date.year, a_date.month, a_date.day, LAST_TIME_IN_DAY.hour, LAST_TIME_IN_DAY.min)
 
-        if @days[a_date.wday].working?(a_date.hour, a_date.min)
-          a_duration += 1
-        end	
+        a_duration += 1 if @days[a_date.wday].working?(a_date.hour, a_date.min)
       end
 
       [a_date, a_duration, SAME_DAY]
@@ -227,8 +209,8 @@ module Workpattern
     def subtract(a_date, a_duration, a_day)
       a_date, a_duration, a_day = handle_midnight(a_date, a_duration, a_day)
       a_date, a_duration, a_day = subtract_to_start_of_day(a_date, a_duration, a_day)
-      
-      while (a_duration != 0) && (a_date.wday != start.wday) && (jd(a_date) > jd(start))  
+
+      while (a_duration != 0) && (a_date.wday != start.wday) && (jd(a_date) > jd(start))
         a_date, a_duration, a_day = handle_midnight(a_date, a_duration, a_day)
         a_date, a_duration, a_day = subtract_to_start_of_day(a_date, a_duration, a_day)
       end
@@ -238,9 +220,7 @@ module Workpattern
         a_date -= 7
       end
 
-      while (a_duration != 0) && (jd(a_date) > jd(start))
-        a_date, a_duration, a_day = subtract_to_start_of_day(a_date,a_duration,a_day)
-      end
+      a_date, a_duration, a_day = subtract_to_start_of_day(a_date, a_duration, a_day) while (a_duration != 0) && (jd(a_date) > jd(start))
 
       [a_date, a_duration, a_day]
     end
@@ -248,34 +228,33 @@ module Workpattern
     def diff_in_same_weekpattern(start_date, finish_date)
       minutes = @days[start_date.wday].working_minutes(start_date, LAST_TIME_IN_DAY)
       run_date = start_of_next_day(start_date)
-      while (run_date.wday != start.wday) && (jd(run_date) < jd(finish)) && (jd(run_date) != jd(finish_date))      
+      while (run_date.wday != start.wday) && (jd(run_date) < jd(finish)) && (jd(run_date) != jd(finish_date))
         minutes += @days[run_date.wday].working_minutes
-	      run_date += DAY
+        run_date += DAY
       end
 
-      while ((jd(run_date) + (7 * DAY)) < jd(finish_date))  && ((jd(run_date) + (7 * DAY)) < jd(finish))
+      while ((jd(run_date) + (7 * DAY)) < jd(finish_date)) && ((jd(run_date) + (7 * DAY)) < jd(finish))
         minutes += week_total
-	      run_date += (7 * DAY)
+        run_date += (7 * DAY)
       end
 
       while (jd(run_date) < jd(finish_date)) && (jd(run_date) <= jd(finish))
         minutes += @days[run_date.wday].working_minutes
-	      run_date += DAY
+        run_date += DAY
       end
 
       if run_date != finish_date
-        
+
         if (jd(run_date) == jd(finish_date)) && (jd(run_date) <= jd(finish))
           minutes += @days[run_date.wday].working_minutes(run_date, finish_date - MINUTE)
-	        run_date = finish_date
-        elsif (jd(run_date) <= jd(finish)) 
+          run_date = finish_date
+        elsif jd(run_date) <= jd(finish)
           minutes += @days[run_date.wday].working_minutes
-	        run_date += DAY
+          run_date += DAY
         end
       end
 
       [minutes, run_date]
-
     end
 
     def diff_in_same_day(start_date, finish_date)
@@ -286,7 +265,6 @@ module Workpattern
     def next_day(time)
       time + DAY
     end
-
 
     def jd(time)
       Time.gm(time.year, time.month, time.day)

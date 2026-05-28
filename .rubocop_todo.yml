@@ -26,7 +26,7 @@ Layout/CommentIndentation:
 Layout/EmptyLineAfterGuardClause:
   Exclude:
 #   - 'lib/workpattern/day.rb'
-    - 'lib/workpattern/week.rb'
+#   - 'lib/workpattern/week.rb'
     - 'lib/workpattern/workpattern.rb'
 
 # Offense count: 6
@@ -34,7 +34,7 @@ Layout/EmptyLineAfterGuardClause:
 # Configuration parameters: EmptyLineBetweenMethodDefs, EmptyLineBetweenClassDefs, EmptyLineBetweenModuleDefs, DefLikeMacros, AllowAdjacentOneLineDefs, NumberOfEmptyLines.
 Layout/EmptyLineBetweenDefs:
   Exclude:
-    - 'lib/workpattern/week.rb'
+#   - 'lib/workpattern/week.rb'
     - 'lib/workpattern/week_pattern.rb'
     - 'lib/workpattern/workpattern.rb'
 #   - 'test/test_day.rb'
@@ -44,7 +44,7 @@ Layout/EmptyLineBetweenDefs:
 Layout/EmptyLines:
   Exclude:
 #   - 'lib/workpattern/day.rb'
-    - 'lib/workpattern/week.rb'
+#   - 'lib/workpattern/week.rb'
 #   - 'test/test_day.rb'
 
 # Offense count: 1
@@ -70,7 +70,7 @@ Layout/EmptyLinesAroundClassBody:
 Layout/EmptyLinesAroundMethodBody:
   Exclude:
 #   - 'lib/workpattern/day.rb'
-    - 'lib/workpattern/week.rb'
+#   - 'lib/workpattern/week.rb'
     - 'lib/workpattern/week_pattern.rb'
 #   - 'test/test_day.rb'
 
@@ -89,7 +89,7 @@ Layout/EmptyLinesAroundModuleBody:
 # Configuration parameters: AllowForAlignment, AllowBeforeTrailingComments, ForceEqualSignAlignment.
 Layout/ExtraSpacing:
   Exclude:
-    - 'lib/workpattern/week.rb'
+#   - 'lib/workpattern/week.rb'
 #   - 'test/test_day.rb'
 #   - 'test/test_week.rb'
 #   - 'test/test_workpattern.rb'
@@ -102,7 +102,7 @@ Layout/ExtraSpacing:
 # SupportedLastArgumentHashStyles: always_inspect, always_ignore, ignore_implicit, ignore_explicit
 Layout/HashAlignment:
   Exclude:
-    - 'lib/workpattern/week.rb'
+#   - 'lib/workpattern/week.rb'
     - 'lib/workpattern/workpattern.rb'
 #   - 'test/test_workpattern_serialisation.rb'
 
@@ -113,7 +113,7 @@ Layout/HashAlignment:
 Layout/IndentationConsistency:
   Exclude:
 #   - 'lib/workpattern/day.rb'
-    - 'lib/workpattern/week.rb'
+#   - 'lib/workpattern/week.rb'
     - 'lib/workpattern/week_pattern.rb'
     - 'lib/workpattern/workpattern.rb'
 #   - 'test/test_day.rb'
@@ -126,7 +126,7 @@ Layout/IndentationConsistency:
 Layout/IndentationStyle:
   Exclude:
 #   - 'lib/workpattern/day.rb'
-    - 'lib/workpattern/week.rb'
+#   - 'lib/workpattern/week.rb'
     - 'lib/workpattern/week_pattern.rb'
     - 'lib/workpattern/workpattern.rb'
 
@@ -179,7 +179,7 @@ Layout/SpaceAfterColon:
 Layout/SpaceAfterComma:
   Exclude:
 #   - 'lib/workpattern/day.rb'
-    - 'lib/workpattern/week.rb'
+#   - 'lib/workpattern/week.rb'
     - 'lib/workpattern/workpattern.rb'
 #   - 'test/test_day.rb'
 #   - 'test/test_week.rb'
@@ -203,7 +203,7 @@ Layout/SpaceAroundOperators:
   Exclude:
 #   - 'lib/workpattern/constants.rb'
 #   - 'lib/workpattern/day.rb'
-    - 'lib/workpattern/week.rb'
+#   - 'lib/workpattern/week.rb'
 #   - 'test/test_day.rb'
 
 # Offense count: 1
@@ -231,7 +231,7 @@ Layout/SpaceInsideHashLiteralBraces:
 Layout/SpaceInsideParens:
   Exclude:
 #   - 'lib/workpattern/day.rb'
-    - 'lib/workpattern/week.rb'
+#   - 'lib/workpattern/week.rb'
 
 # Offense count: 1
 # This cop supports safe autocorrection (--autocorrect).
@@ -248,7 +248,7 @@ Layout/TrailingWhitespace:
   Exclude:
 #   - 'lib/workpattern/constants.rb'
 #   - 'lib/workpattern/day.rb'
-    - 'lib/workpattern/week.rb'
+#   - 'lib/workpattern/week.rb'
     - 'lib/workpattern/week_pattern.rb'
     - 'lib/workpattern/workpattern.rb'
 #   - 'test/test_day.rb'
@@ -259,7 +259,7 @@ Lint/AmbiguousOperatorPrecedence:
   Exclude:
 #   - 'lib/workpattern/constants.rb'
 #   - 'lib/workpattern/day.rb'
-    - 'lib/workpattern/week.rb'
+#   - 'lib/workpattern/week.rb'
 #   - 'test/test_workpattern.rb'
 
 # Offense count: 2
@@ -293,7 +293,7 @@ Lint/UselessAccessModifier:
 Lint/UselessAssignment:
   Exclude:
 #   - 'lib/workpattern/day.rb'
-    - 'lib/workpattern/week.rb'
+#   - 'lib/workpattern/week.rb'
 
 # Offense count: 43
 # Configuration parameters: AllowedMethods, AllowedPatterns, CountRepeatedAttributes.
@@ -391,7 +391,7 @@ Minitest/UselessAssertion:
 Naming/MethodParameterName:
   Exclude:
 #   - 'lib/workpattern/day.rb'
-    - 'lib/workpattern/week.rb'
+#   - 'lib/workpattern/week.rb'
 #   - 'test/test_workpattern.rb'
 
 # Offense count: 2
@@ -492,7 +492,7 @@ Style/FrozenStringLiteralComment:
 Style/GuardClause:
   Exclude:
 #   - 'lib/workpattern/day.rb'
-    - 'lib/workpattern/week.rb'
+#   - 'lib/workpattern/week.rb'
 
 # Offense count: 1
 # This cop supports unsafe autocorrection (--autocorrect-all).
@@ -529,7 +529,7 @@ Style/IfInsideElse:
 Style/IfUnlessModifier:
   Exclude:
 #   - 'lib/workpattern/day.rb'
-    - 'lib/workpattern/week.rb'
+#   - 'lib/workpattern/week.rb'
     - 'lib/workpattern/workpattern.rb'
 
 # Offense count: 1
@@ -569,7 +569,7 @@ Style/NumericPredicate:
   Exclude:
     - 'spec/**/*'
 #   - 'lib/workpattern/day.rb'
-    - 'lib/workpattern/week.rb'
+#   - 'lib/workpattern/week.rb'
     - 'lib/workpattern/workpattern.rb'
 
 # Offense count: 1
@@ -577,7 +577,7 @@ Style/NumericPredicate:
 # Configuration parameters: AllowSafeAssignment, AllowInMultilineConditions.
 Style/ParenthesesAroundCondition:
   Exclude:
-    - 'lib/workpattern/week.rb'
+#   - 'lib/workpattern/week.rb'
 
 # Offense count: 6
 # This cop supports safe autocorrection (--autocorrect).
@@ -600,13 +600,13 @@ Style/RedundantParentheses:
 Style/RedundantReturn:
   Exclude:
 #   - 'lib/workpattern/day.rb'
-    - 'lib/workpattern/week.rb'
+#   - 'lib/workpattern/week.rb'
 
 # Offense count: 6
 # This cop supports safe autocorrection (--autocorrect).
 Style/RedundantSelf:
   Exclude:
-    - 'lib/workpattern/week.rb'
+#   - 'lib/workpattern/week.rb'
 
 # Offense count: 12
 # This cop supports safe autocorrection (--autocorrect).
@@ -662,7 +662,7 @@ Style/TrivialAccessors:
 # This cop supports safe autocorrection (--autocorrect).
 Style/WhileUntilModifier:
   Exclude:
-    - 'lib/workpattern/week.rb'
+#   - 'lib/workpattern/week.rb'
 
 # Offense count: 6
 # This cop supports safe autocorrection (--autocorrect).
