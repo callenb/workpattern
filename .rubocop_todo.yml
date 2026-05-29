@@ -553,7 +553,7 @@ Style/MethodCallWithoutArgsParentheses:
 # SupportedStyles: literals, strict
 Style/MutableConstant:
   Exclude:
-    - 'lib/workpattern/version.rb'
+#   - 'lib/workpattern/version.rb'
 
 # Offense count: 2
 # This cop supports safe autocorrection (--autocorrect).
