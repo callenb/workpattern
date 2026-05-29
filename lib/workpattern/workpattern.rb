@@ -1,3 +1,9 @@
+# Workpattern - defines the working and resting minutes from the first minute
+# of the start date to the last minute of the finish date.  This could be many
+# years.
+#
+# It provides methods that allow resting and working pattern sto be applied
+# down to a minute over many years.
 module Workpattern
   require 'set'
   require 'tzinfo'
@@ -11,7 +17,6 @@ module Workpattern
   # using this gem.
   #
   class Workpattern
-
     # Holds collection of <tt>Workpattern</tt> objects
     @@workpatterns = {}
 
@@ -42,6 +47,7 @@ module Workpattern
     def to_utc(date)
       date.to_time.utc
     end
+
     # Converts a date like object into local time
     #
     def to_local(date)
@@ -62,10 +68,9 @@ module Workpattern
     # @raise [NameError] if the given name already exists
     #
     def initialize(name = DEFAULT_WORKPATTERN_NAME, base = DEFAULT_BASE_YEAR, span = DEFAULT_SPAN)
-      if workpatterns.key?(name)
-        raise(NameError, "Workpattern '#{name}' already exists and can't be created again")
-      end
-      offset = span < 0 ? span.abs - 1 : 0
+      raise(NameError, "Workpattern '#{name}' already exists and can't be created again") if workpatterns.key?(name)
+
+      offset = span.negative? ? span.abs - 1 : 0
 
       @name = name
       @base = base
@@ -79,13 +84,14 @@ module Workpattern
       @week_pattern = WeekPattern.new(self)
     end
 
-    def week_pattern
-      @week_pattern
+    attr_reader :week_pattern
+
+    private
+
+    def workpatterns
+      self.class.workpatterns
     end
 
-    private def workpatterns
-      @@workpatterns
-    end
     public
 
     # Deletes all <tt>Workpattern</tt> objects
@@ -108,6 +114,7 @@ module Workpattern
     #
     def self.get(name)
       return workpatterns[name] if workpatterns.key?(name)
+
       raise(NameError, "Workpattern '#{name}' doesn't exist so can't be retrieved")
     end
 
@@ -117,7 +124,8 @@ module Workpattern
     # if it doesn't
     #
     def self.delete(name)
-      workpatterns.delete(name).nil? ? false : true
+      result = workpatterns.delete(name).nil?
+      !result
     end
 
     # Applys a working or resting pattern to the <tt>Workpattern</tt> object.
@@ -167,45 +175,35 @@ module Workpattern
 
     def to_h
       { version: 1,
-        name:    @name,
-        base:    @base,
-        span:    @span,
-        weeks:   @weeks.map(&:to_h) }
+        name: @name,
+        base: @base,
+        span: @span,
+        weeks: @weeks.map(&:to_h) }
     end
 
     def self.from_h(hash, overwrite: false)
       unless hash.key?(:version)
-        raise ArgumentError, "from_h: hash is missing a :version key " \
-                             "(if deserialising from JSON, use symbolize_names: true)"
+        raise ArgumentError, 'from_h: hash is missing a :version key ' \
+                             '(if deserialising from JSON, use symbolize_names: true)'
       end
       unless hash[:version] == 1
         raise ArgumentError, "from_h: unsupported version #{hash[:version].inspect} " \
-                             "(supported: 1)"
+                             '(supported: 1)'
       end
-      unless hash[:name].is_a?(String) && !hash[:name].empty?
-        raise ArgumentError, "from_h: :name must be a non-empty String"
-      end
-      unless hash[:base].is_a?(Integer)
-        raise ArgumentError, "from_h: :base must be an Integer"
-      end
-      unless hash[:span].is_a?(Integer) && hash[:span] != 0
-        raise ArgumentError, "from_h: :span must be a non-zero Integer"
-      end
-      unless hash[:weeks].is_a?(Array)
-        raise ArgumentError, "from_h: :weeks must be an Array"
-      end
+      raise ArgumentError, 'from_h: :name must be a non-empty String' unless hash[:name].is_a?(String) && !hash[:name].empty?
+      raise ArgumentError, 'from_h: :base must be an Integer' unless hash[:base].is_a?(Integer)
+      raise ArgumentError, 'from_h: :span must be a non-zero Integer' unless hash[:span].is_a?(Integer) && hash[:span] != 0
+      raise ArgumentError, 'from_h: :weeks must be an Array' unless hash[:weeks].is_a?(Array)
 
       name = hash[:name]
-      if workpatterns.key?(name) && !overwrite
-        raise NameError, "Workpattern '#{name}' already exists and can't be created again"
-      end
+      raise NameError, "Workpattern '#{name}' already exists and can't be created again" if workpatterns.key?(name) && !overwrite
 
       wp = allocate
       wp.instance_variable_set(:@name, name)
       wp.instance_variable_set(:@base, hash[:base])
       wp.instance_variable_set(:@span, hash[:span])
 
-      offset    = hash[:span] < 0 ? hash[:span].abs - 1 : 0
+      offset    = hash[:span].negative? ? hash[:span].abs - 1 : 0
       from_time = Time.gm(hash[:base].abs - offset)
       to_time   = Time.gm(from_time.year + hash[:span].abs - 1, 12, 31, 23, 59)
       wp.instance_variable_set(:@from, from_time)
@@ -213,7 +211,8 @@ module Workpattern
 
       weeks = SortedSet.new
       hash[:weeks].each { |wh| weeks << Week.from_h(wh) }
-      raise ArgumentError, "from_h: :weeks must not be empty" if weeks.empty?
+      raise ArgumentError, 'from_h: :weeks must not be empty' if weeks.empty?
+
       wp.instance_variable_set(:@weeks, weeks)
       wp.instance_variable_set(:@week_pattern, WeekPattern.new(wp))
 
@@ -233,7 +232,8 @@ module Workpattern
     # <tt>start</tt>
     #
     def calc(start, duration)
-      return start if duration == 0
+      return start if duration.zero?
+
       a_day = SAME_DAY
 
       utc_start = to_utc(start)
@@ -241,16 +241,14 @@ module Workpattern
       while duration != 0
 
         if a_day == PREVIOUS_DAY
-	        utc_start -= DAY
-	        a_day = SAME_DAY
-          utc_start = Time.gm(utc_start.year, utc_start.month, utc_start.day,LAST_TIME_IN_DAY.hour, LAST_TIME_IN_DAY.min)
-	        week = find_weekpattern(utc_start)
-	  
-	        if week.working?(utc_start)
-	          duration += 1
-	        end
+          utc_start -= DAY
+          a_day = SAME_DAY
+          utc_start = Time.gm(utc_start.year, utc_start.month, utc_start.day, LAST_TIME_IN_DAY.hour, LAST_TIME_IN_DAY.min)
+          week = find_weekpattern(utc_start)
+
+          duration += 1 if week.working?(utc_start)
         else
-	        week = find_weekpattern(utc_start)
+          week = find_weekpattern(utc_start)
         end
         utc_start, duration, a_day = week.calc(utc_start, duration, a_day)
       end
@@ -308,7 +306,7 @@ module Workpattern
 
         date = Time.gm(date.year, date.month, date.day)
 
-        result = @weeks.find { |week| week.start <= date && week.finish >= date }
+        result = @weeks.find { |week| date.between?(week.start, week.finish) }
       end
       result
     end
