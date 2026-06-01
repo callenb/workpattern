@@ -144,6 +144,8 @@ module Workpattern
 
     def minutes_in_day_range(first, last)
       @days[first..last].inject(0) { |sum, day| sum + day.working_minutes }
+      @days[first..last].sum { |day| 1 * day.working_minutes }
+
     end
 
     def add(a_date, a_duration)
