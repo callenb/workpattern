@@ -66,7 +66,7 @@ module Workpattern
     def duplicate
       duplicate_week = Week.new(@start, @finish)
       FIRST_DAY_OF_WEEK.upto(LAST_DAY_OF_WEEK) do |i|
-        duplicate_week.days[i] = @days[i].clone
+        duplicate_week.days[i] = @days[i].dup
         duplicate_week.days[i].hours_per_day = @days[i].hours_per_day
         duplicate_week.days[i].pattern = @days[i].pattern
       end
