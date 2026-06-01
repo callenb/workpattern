@@ -64,61 +64,61 @@ module Workpattern
       !working?(hour, minute)
     end
 
-    def calc(a_date, a_duration)
-      return a_date, a_duration, SAME_DAY if a_duration.zero?
+    def calc(from_date, a_duration)
+      return from_date, a_duration, SAME_DAY if a_duration.zero?
 
-      a_duration.positive? ? add(a_date, a_duration) : subtract(a_date, a_duration)
+      a_duration.positive? ? add(from_date, a_duration) : subtract(from_date, a_duration)
     end
 
     private
 
-    def add(a_date, a_duration)
-      minutes_left = working_minutes(a_date)
+    def add(from_date, a_duration)
+      minutes_left = working_minutes(from_date)
       if a_duration > minutes_left
-        [a_date, a_duration - minutes_left, NEXT_DAY]
+        [from_date, a_duration - minutes_left, NEXT_DAY]
       elsif a_duration < minutes_left
-        add_minutes(a_date, a_duration)
+        add_minutes(from_date, a_duration)
       else
-        return [a_date, 0, NEXT_DAY] if working?(LAST_TIME_IN_DAY.hour, LAST_TIME_IN_DAY.min)
+        return [from_date, 0, NEXT_DAY] if working?(LAST_TIME_IN_DAY.hour, LAST_TIME_IN_DAY.min)
 
-        return_date = Time.gm(a_date.year, a_date.month, a_date.day, @last_working_minute.hour, @last_working_minute.min) + 60
+        return_date = Time.gm(from_date.year, from_date.month, from_date.day, @last_working_minute.hour, @last_working_minute.min) + 60
         [return_date, 0, SAME_DAY]
 
       end
     end
 
-    def add_minutes(a_date, a_duration)
-      elapsed_date = a_date + (a_duration * 60) - 60
+    def add_minutes(from_date, a_duration)
+      elapsed_date = from_date + (a_duration * 60) - 60
 
-      return [elapsed_date += 60, 0, SAME_DAY] if working_minutes(a_date, elapsed_date) == a_duration
+      return [elapsed_date += 60, 0, SAME_DAY] if working_minutes(from_date, elapsed_date) == a_duration
 
       loop do
         elapsed_date += 60
-        break unless working_minutes(a_date, elapsed_date) != a_duration
+        break unless working_minutes(from_date, elapsed_date) != a_duration
       end
       [elapsed_date + 60, 0, SAME_DAY]
     end
 
-    def subtract(a_date, a_duration)
-      minutes_left = working_minutes(FIRST_TIME_IN_DAY, a_date - 60)
+    def subtract(from_date, a_duration)
+      minutes_left = working_minutes(FIRST_TIME_IN_DAY, from_date - 60)
       abs_duration = a_duration.abs
       if abs_duration > minutes_left
-        [a_date, a_duration + minutes_left, PREVIOUS_DAY]
+        [from_date, a_duration + minutes_left, PREVIOUS_DAY]
       elsif abs_duration < minutes_left
-        subtract_minutes(a_date, abs_duration)
+        subtract_minutes(from_date, abs_duration)
       else
-        [Time.gm(a_date.year, a_date.month, a_date.day, @first_working_minute.hour, @first_working_minute.min), 0, SAME_DAY]
+        [Time.gm(from_date.year, from_date.month, from_date.day, @first_working_minute.hour, @first_working_minute.min), 0, SAME_DAY]
       end
     end
 
-    def subtract_minutes(a_date, abs_duration)
-      elapsed_date = a_date - (abs_duration * 60)
-      return [elapsed_date, 0, SAME_DAY] if working_minutes(elapsed_date, a_date - 60) == abs_duration
+    def subtract_minutes(from_date, abs_duration)
+      elapsed_date = from_date - (abs_duration * 60)
+      return [elapsed_date, 0, SAME_DAY] if working_minutes(elapsed_date, from_date - 60) == abs_duration
 
-      a_date -= 60
+      from_date -= 60
       loop do
         elapsed_date -= 60
-        break unless working_minutes(elapsed_date, a_date) != abs_duration
+        break unless working_minutes(elapsed_date, from_date) != abs_duration
       end
       [elapsed_date, 0, SAME_DAY]
     end
