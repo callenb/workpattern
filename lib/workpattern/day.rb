@@ -64,20 +64,20 @@ module Workpattern
       !working?(hour, minute)
     end
 
-    def calc(from_date, a_duration)
-      return from_date, a_duration, SAME_DAY if a_duration.zero?
+    def calc(from_date, minutes)
+      return from_date, minutes, SAME_DAY if minutes.zero?
 
-      a_duration.positive? ? add(from_date, a_duration) : subtract(from_date, a_duration)
+      minutes.positive? ? add(from_date, minutes) : subtract(from_date, minutes)
     end
 
     private
 
-    def add(from_date, a_duration)
+    def add(from_date, minutes)
       minutes_left = working_minutes(from_date)
-      if a_duration > minutes_left
-        [from_date, a_duration - minutes_left, NEXT_DAY]
-      elsif a_duration < minutes_left
-        add_minutes(from_date, a_duration)
+      if minutes > minutes_left
+        [from_date, minutes - minutes_left, NEXT_DAY]
+      elsif minutes < minutes_left
+        add_minutes(from_date, minutes)
       else
         return [from_date, 0, NEXT_DAY] if working?(LAST_TIME_IN_DAY.hour, LAST_TIME_IN_DAY.min)
 
@@ -87,23 +87,23 @@ module Workpattern
       end
     end
 
-    def add_minutes(from_date, a_duration)
-      elapsed_date = from_date + (a_duration * 60) - 60
+    def add_minutes(from_date, minutes)
+      elapsed_date = from_date + (minutes * 60) - 60
 
-      return [elapsed_date += 60, 0, SAME_DAY] if working_minutes(from_date, elapsed_date) == a_duration
+      return [elapsed_date += 60, 0, SAME_DAY] if working_minutes(from_date, elapsed_date) == minutes
 
       loop do
         elapsed_date += 60
-        break unless working_minutes(from_date, elapsed_date) != a_duration
+        break unless working_minutes(from_date, elapsed_date) != minutes
       end
       [elapsed_date + 60, 0, SAME_DAY]
     end
 
-    def subtract(from_date, a_duration)
+    def subtract(from_date, minutes)
       minutes_left = working_minutes(FIRST_TIME_IN_DAY, from_date - 60)
-      abs_duration = a_duration.abs
+      abs_duration = minutes.abs
       if abs_duration > minutes_left
-        [from_date, a_duration + minutes_left, PREVIOUS_DAY]
+        [from_date, minutes + minutes_left, PREVIOUS_DAY]
       elsif abs_duration < minutes_left
         subtract_minutes(from_date, abs_duration)
       else
