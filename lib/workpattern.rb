@@ -6,7 +6,6 @@
 $LOAD_PATH.unshift(File.dirname(__FILE__)) unless
   $LOAD_PATH.include?(File.dirname(__FILE__)) || $LOAD_PATH.include?(__dir__)
 
-require 'rubygems'
 require 'sorted_set' if RUBY_VERSION >= '2.4'
 require 'date'
 require 'workpattern/clock'
