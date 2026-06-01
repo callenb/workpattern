@@ -38,9 +38,6 @@ module Workpattern
     #
     attr_reader :name, :base, :span, :from, :to, :weeks
 
-    # Holds local timezone info
-    @@tz = nil
-
     # Converts a date like object into utc
     #
     def to_utc(date)
@@ -51,11 +48,6 @@ module Workpattern
     #
     def to_local(date)
       date.to_time.getgm
-    end
-
-    # Retrieves the local timezone
-    def timezone
-      @@tz || @@tz = TZInfo::Timezone.get(Time.now.zone)
     end
 
     # The new <tt>Workpattern</tt> object is created with all working minutes.
