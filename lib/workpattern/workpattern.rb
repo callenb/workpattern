@@ -5,7 +5,6 @@
 # It provides methods that allow resting and working pattern sto be applied
 # down to a minute over many years.
 module Workpattern
-  require 'set'
   require 'tzinfo'
 
   # Represents the working and resting periods across a given number of whole
