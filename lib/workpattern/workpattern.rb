@@ -18,9 +18,13 @@ module Workpattern
   class Workpattern
     # Holds collection of <tt>Workpattern</tt> objects
     @@workpatterns = {}
+    @@mutex = Mutex.new
 
+    # Returns a frozen snapshot of the registry. Reserved for external callers;
+    # internal registry methods read/write @@workpatterns directly since they
+    # already hold @@mutex, and Mutex#synchronize is not reentrant.
     def self.workpatterns
-      @@workpatterns
+      @@mutex.synchronize { @@workpatterns.dup.freeze }
     end
 
     # @!attribute [r] name
@@ -59,43 +63,37 @@ module Workpattern
     # @raise [NameError] if the given name already exists
     #
     def initialize(name = DEFAULT_WORKPATTERN_NAME, base = DEFAULT_BASE_YEAR, span = DEFAULT_SPAN)
-      raise(NameError, "Workpattern '#{name}' already exists and can't be created again") if workpatterns.key?(name)
+      @@mutex.synchronize do
+        raise(NameError, "Workpattern '#{name}' already exists and can't be created again") if @@workpatterns.key?(name)
 
-      offset = span.negative? ? span.abs - 1 : 0
+        offset = span.negative? ? span.abs - 1 : 0
 
-      @name = name
-      @base = base
-      @span = span
-      @from = Time.gm(@base.abs - offset)
-      @to = Time.gm(@from.year + @span.abs - 1, 12, 31, 23, 59)
-      @weeks = SortedSet.new
-      @weeks << Week.new(@from, @to)
+        @name = name
+        @base = base
+        @span = span
+        @from = Time.gm(@base.abs - offset)
+        @to = Time.gm(@from.year + @span.abs - 1, 12, 31, 23, 59)
+        @weeks = SortedSet.new
+        @weeks << Week.new(@from, @to)
 
-      workpatterns[@name] = self
-      @week_pattern = WeekPattern.new(self)
+        @week_pattern = WeekPattern.new(self)
+        @@workpatterns[@name] = self
+      end
     end
 
     attr_reader :week_pattern
 
-    private
-
-    def workpatterns
-      self.class.workpatterns
-    end
-
-    public
-
     # Deletes all <tt>Workpattern</tt> objects
     #
     def self.clear
-      workpatterns.clear
+      @@mutex.synchronize { @@workpatterns.clear }
     end
 
     # Returns an Array containing all the <tt>Workpattern</tt> objects
     # @return [Array] all <tt>Workpattern</tt> objects
     #
     def self.to_a
-      workpatterns.to_a
+      @@mutex.synchronize { @@workpatterns.to_a }
     end
 
     # Returns the specific named <tt>Workpattern</tt>
@@ -104,9 +102,11 @@ module Workpattern
     # exist
     #
     def self.get(name)
-      return workpatterns[name] if workpatterns.key?(name)
+      @@mutex.synchronize do
+        return @@workpatterns[name] if @@workpatterns.key?(name)
 
-      raise(NameError, "Workpattern '#{name}' doesn't exist so can't be retrieved")
+        raise(NameError, "Workpattern '#{name}' doesn't exist so can't be retrieved")
+      end
     end
 
     # Deletes the specific named <tt>Workpattern</tt>
@@ -115,8 +115,10 @@ module Workpattern
     # if it doesn't
     #
     def self.delete(name)
-      result = workpatterns.delete(name).nil?
-      !result
+      @@mutex.synchronize do
+        result = @@workpatterns.delete(name).nil?
+        !result
+      end
     end
 
     # Applys a working or resting pattern to the <tt>Workpattern</tt> object.
@@ -187,29 +189,32 @@ module Workpattern
       raise ArgumentError, 'from_h: :weeks must be an Array' unless hash[:weeks].is_a?(Array)
 
       name = hash[:name]
-      raise NameError, "Workpattern '#{name}' already exists and can't be created again" if workpatterns.key?(name) && !overwrite
 
-      wp = allocate
-      wp.instance_variable_set(:@name, name)
-      wp.instance_variable_set(:@base, hash[:base])
-      wp.instance_variable_set(:@span, hash[:span])
+      @@mutex.synchronize do
+        raise NameError, "Workpattern '#{name}' already exists and can't be created again" if @@workpatterns.key?(name) && !overwrite
 
-      offset    = hash[:span].negative? ? hash[:span].abs - 1 : 0
-      from_time = Time.gm(hash[:base].abs - offset)
-      to_time   = Time.gm(from_time.year + hash[:span].abs - 1, 12, 31, 23, 59)
-      wp.instance_variable_set(:@from, from_time)
-      wp.instance_variable_set(:@to,   to_time)
+        wp = allocate
+        wp.instance_variable_set(:@name, name)
+        wp.instance_variable_set(:@base, hash[:base])
+        wp.instance_variable_set(:@span, hash[:span])
 
-      weeks = SortedSet.new
-      hash[:weeks].each { |wh| weeks << Week.from_h(wh) }
-      raise ArgumentError, 'from_h: :weeks must not be empty' if weeks.empty?
+        offset    = hash[:span].negative? ? hash[:span].abs - 1 : 0
+        from_time = Time.gm(hash[:base].abs - offset)
+        to_time   = Time.gm(from_time.year + hash[:span].abs - 1, 12, 31, 23, 59)
+        wp.instance_variable_set(:@from, from_time)
+        wp.instance_variable_set(:@to,   to_time)
 
-      wp.instance_variable_set(:@weeks, weeks)
-      wp.instance_variable_set(:@week_pattern, WeekPattern.new(wp))
+        weeks = SortedSet.new
+        hash[:weeks].each { |wh| weeks << Week.from_h(wh) }
+        raise ArgumentError, 'from_h: :weeks must not be empty' if weeks.empty?
 
-      workpatterns.delete(name) if overwrite
-      workpatterns[name] = wp
-      wp
+        wp.instance_variable_set(:@weeks, weeks)
+        wp.instance_variable_set(:@week_pattern, WeekPattern.new(wp))
+
+        @@workpatterns.delete(name) if overwrite
+        @@workpatterns[name] = wp
+        wp
+      end
     end
 
     # Calculates the resulting date when the <tt>duration</tt> in minutes

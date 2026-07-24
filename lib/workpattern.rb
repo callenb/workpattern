@@ -87,7 +87,8 @@ module Workpattern
 
   # Convenience method to access the registry of all known Workpattern objects.
   #
-  # @return [Hash]
+  # @return [Hash] a frozen duplicate of the registry -- mutating it (e.g. `[]=`) raises FrozenError.
+  # Use .new, .delete, .clear, or .from_h to change the registry itself.
   #
   def self.workpatterns
     Workpattern.workpatterns

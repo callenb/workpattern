@@ -1,0 +1,14 @@
+{
+  "reviewer": "correctness",
+  "findings": [],
+  "residual_risks": [
+    "Workpattern.initialize now holds @@mutex for the entire object-construction critical section (Time.gm calls, Week.new, WeekPattern.new), not just the check-then-insert window described in the intent. This is not a correctness bug (no deadlock: WeekPattern.new and Week.new do not call back into any @@mutex-guarded class method), but it does mean all concurrent Workpattern.new calls -- even for distinct, non-colliding names -- are now fully serialized rather than only the registry mutation being serialized.",
+    "@@mutex (via Mutex#synchronize) is not reentrant, as the code comment correctly notes. This is safe today because no method that holds the lock calls another @@mutex-guarded method, but it is a latent deadlock trap for future maintainers: any refactor that has initialize, from_h, get, delete, to_a, or clear call each other directly (instead of duplicating @@workpatterns access) would deadlock silently rather than raising immediately.",
+    "Workpattern.workpatterns returns a frozen dup of the hash, but the Workpattern objects it contains are not frozen/duplicated -- external callers can still mutate a live registry entry's internal state (e.g. call .resting on it) without holding @@mutex. This matches the stated intent ('no public visibility-model change') but means the fix only protects the registry container, not the objects inside it."
+  ],
+  "testing_gaps": [
+    "The new concurrency tests only stress Workpattern.new racing against itself (AE1) and a mixed workload of new/get/to_a/delete on distinct names (AE2). Workpattern.from_h's uniqueness race (the same check-then-act pattern, now also mutex-guarded) is not exercised by a GC.stress-style test, so a regression that breaks locking specifically in from_h would not be caught by the new suite.",
+    "No test exercises a same-name collision across different entry points (e.g. Workpattern.new(name) racing Workpattern.from_h({name: ...}) for the same name), which is the scenario most likely to reveal an inconsistency if one of the two code paths were ever changed to use a different lock or none at all.",
+    "The GC.stress-based test is explicitly acknowledged by its own comments to be timing-sensitive; no CI-specific safeguard (e.g. a timeout wrapper) is added, so a slow/loaded CI runner could make this test hang or run long rather than fail fast if the underlying race were reintroduced."
+  ]
+}

@@ -1,0 +1,33 @@
+{
+  "reviewer": "testing",
+  "findings": [
+    {
+      "title": "from_h's uniqueness race is never exercised concurrently",
+      "severity": "P2",
+      "file": "lib/workpattern/workpattern.rb",
+      "line": 194,
+      "why_it_matters": "The stated intent is that the Mutex closes a check-then-act uniqueness race in *both* initialize and from_h. The new concurrency test file empirically reproduces and proves the fix only for Workpattern.new (verified: reverting the mutex reliably makes test_concurrent_creation_with_same_name_exactly_one_succeeds fail 3/3 runs, and the fixed code passes 5/5 runs). No test in test_workpattern_registry_concurrency.rb calls Workpattern.from_h at all -- the identical existence-check-then-insert pattern at line 194 (and the overwrite variant at lines 214-215) is exercised only by single-threaded tests in test_workpattern_serialisation.rb. If a future refactor of from_h (e.g. someone hoists the existence check back out of the synchronize block while 'simplifying' it, mirroring the exact bug this diff fixes for initialize) reintroduces the race, no test would catch it, because none exercises from_h under actual thread contention.",
+      "autofix_class": "manual",
+      "owner": "human",
+      "requires_verification": true,
+      "suggested_fix": "Add a GC.stress-based concurrency test analogous to test_concurrent_creation_with_same_name_exactly_one_succeeds but driving Workpattern.from_h(same_hash) from multiple threads (and ideally a variant with overwrite: true) to empirically prove the from_h check-then-act path is also race-free.",
+      "confidence": 75,
+      "evidence": [
+        "grep for from_h in test/test_workpattern_registry_concurrency.rb returns no matches -- from_h is never invoked by any concurrency test.",
+        "lib/workpattern/workpattern.rb:194 -- raise NameError ... if @@workpatterns.key?(name) && !overwrite -- structurally identical check-then-act pattern to the one fixed (and empirically regression-tested) in initialize at line 67.",
+        "Manually reverting the Mutex/lib change and re-running test/test_workpattern_registry_concurrency.rb reproduces the claimed pre-fix failure (3/3 runs: 'expected exactly one thread to win the race. Actual: 3') only for the initialize path, confirming that path -- and only that path -- is empirically regression-tested."
+      ],
+      "pre_existing": false
+    }
+  ],
+  "residual_risks": [
+    "test_concurrent_mixed_operations_do_not_corrupt_registry (test/test_workpattern_registry_concurrency.rb:52) is documented in its own comments as unable to reliably force the 'concurrent-mutation hazard on reads' the Mutex is meant to close for self.get/self.to_a/self.delete; it runs at natural thread-scheduling speed and only asserts that no exception escapes and that final registry entries are well-formed. This means half of the stated intent (protecting reads/get/to_a/delete against concurrent Hash mutation) is smoke-tested but not empirically proven the way the uniqueness race is -- a regression in that path could pass CI most of the time.",
+    "GC.stress-based tests (test/test_workpattern_registry_concurrency.rb) rely on CRuby/MRI-specific GC scheduling to force interleaving; the gemspec only requires Ruby >= 3.1 with no engine restriction, so on alternative Ruby implementations (JRuby, TruffleRuby) GC.stress semantics may differ or be unsupported, which could make this test silently weaker (or need skip guards) if the project is ever run there. Also adds roughly 7-9 seconds to every test run.",
+    "Workpattern.workpatterns now returns @@workpatterns.dup.freeze -- only the Hash is frozen; the Workpattern objects stored as values remain fully mutable, so external callers can still mutate a workpattern's state through the returned collection. This matches the stated 'no public visibility-model change' intent but is worth keeping in mind if a future intent claims full immutability of the accessor's output."
+  ],
+  "testing_gaps": [
+    "No concurrent (multi-thread/GC.stress) test exercises Workpattern.from_h's existence-check-then-insert critical section (lib/workpattern/workpattern.rb:194) or its overwrite branch (lines 214-215); only Workpattern.new's equivalent race is empirically regression-tested.",
+    "test_concurrent_mixed_operations_do_not_corrupt_registry cannot reliably reproduce the read/mutation hazard on self.get/self.to_a/self.delete that motivated locking those methods, per its own code comments -- it is a best-effort smoke test, not a proof of the fix for that half of the change.",
+    "No test exercises Workpattern.clear running concurrently with Workpattern.new/from_h (e.g. a clear interleaved with in-flight creations), though this is lower risk than the uniqueness/read hazards already covered."
+  ]
+}
