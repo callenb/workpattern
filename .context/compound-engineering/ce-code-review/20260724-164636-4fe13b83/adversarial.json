@@ -1,0 +1,53 @@
+{
+  "reviewer": "adversarial",
+  "findings": [
+    {
+      "title": "Recovery cascade: non-NameError exception leaks racing thread past test",
+      "severity": "P2",
+      "file": "test/test_workpattern_registry_concurrency.rb",
+      "line": 26,
+      "why_it_matters": "The per-thread block only rescues NameError, and thread exceptions are re-raised on Thread#join, not captured cooperatively. If any thread in the GC.stress race raises anything other than NameError (e.g. a transient error surfaced by the stress-forced GC checkpoints this test deliberately induces), Array#each(&:join) aborts on the first offending join and never joins the remaining threads. The begin/ensure only guarantees GC.stress is reset (a process-wide VM flag) -- it does not join or wait for the still-running threads. Those threads keep executing Workpattern.new against the shared @@workpatterns registry after the test method has already raised/failed and Minitest has moved on to the next test, corrupting state for whichever test runs next (setup calls Workpattern.clear, but a late-finishing orphan can re-insert an entry afterward).",
+      "autofix_class": "manual",
+      "owner": "human",
+      "requires_verification": false,
+      "pre_existing": false,
+      "suggested_fix": "Rescue StandardError (not just NameError) in the per-thread body so no exception type can escape unhandled, and make the ensure block itself join every thread (e.g. `ensure; threads.each { |t| t.join rescue nil }; GC.stress = false; end`) so no thread can outlive the test method regardless of what it raises.",
+      "confidence": 100,
+      "evidence": [
+        "Reproduced directly: a 3-thread Array.new(3){ Thread.new { ... } } where thread 0 raises ArgumentError (not rescued) and threads 1/2 sleep before finishing.",
+        "threads.each(&:join) raises on thread 0's join, the ensure block runs (prints 'ensure ran') but 'all joined' is never reached.",
+        "Script exits with the uncaught ArgumentError while threads 1/2 are still sleeping in the background -- confirming they are not joined before control leaves the begin/ensure block.",
+        "Applied to the real test: this is exactly the begin/ensure shape at test/test_workpattern_registry_concurrency.rb:26-42, with only `rescue NameError` guarding the thread body (line 34) and `threads.each(&:join)` at line 39."
+      ]
+    },
+    {
+      "title": "Frozen registry view hides that contained Workpattern objects stay mutable",
+      "severity": "P2",
+      "file": "lib/workpattern/workpattern.rb",
+      "line": 26,
+      "why_it_matters": "Workpattern.workpatterns now returns @@workpatterns.dup.freeze, and the new test (test_workpatterns_returns_frozen_view) is described as covering 'a frozen, mutation-safe view'. But .dup.freeze is shallow: it freezes the Hash object, not its values. The Workpattern instances stored in the registry (and returned unchanged by self.get and self.to_a, which were not touched by this fix) remain live, non-frozen, mutable objects. #working/#resting (via WeekPattern#workpattern) mutate the object's own @weeks SortedSet with no locking at all. Two threads that independently call Workpattern.get('shared-name') and then call #resting/#working on the same returned object race on that SortedSet with exactly the same 'mutate a collection concurrently' hazard class this PR just fixed for @@workpatterns itself -- just one level down, on the object's own state, and entirely unaddressed by this Mutex.",
+      "autofix_class": "advisory",
+      "owner": "human",
+      "requires_verification": true,
+      "pre_existing": true,
+      "suggested_fix": "Document explicitly (in the self.workpatterns comment and README) that the Mutex/frozen-dup only protects the registry's Hash structure, not the mutable state of the Workpattern objects it contains; concurrent mutation of a single named Workpattern is still the caller's responsibility to serialize.",
+      "confidence": 75,
+      "evidence": [
+        "self.workpatterns at lib/workpattern/workpattern.rb:26-28 only dup+freezes the Hash; the values (Workpattern instances) are the same objects stored in @@workpatterns, not duped or frozen.",
+        "lib/workpattern/week_pattern.rb#workpattern (called by Workpattern#working/#resting) mutates work_pattern.weeks (the object's @weeks SortedSet) via `weeks << after_wp` and `current_wp.workpattern(...)` with no synchronization.",
+        "find_weekpattern (lib/workpattern/workpattern.rb:294-308) iterates @weeks via `@weeks.find { ... }` with no lock either, so a concurrent #working call and a concurrent #resting call on the same object retrieved from the registry can race a mutation against an iteration.",
+        "test/test_workpattern_serialisation.rb:203-210 only asserts hash-level FrozenError on injection, not that the objects inside are protected -- the 'mutation-safe view' framing in the comment overstates what is actually guaranteed."
+      ]
+    }
+  ],
+  "residual_risks": [
+    "Composite, multi-call application sequences (e.g. check-then-create via Workpattern.get rescue nil followed by Workpattern.new, or get-then-delete) are still not atomic: each individual registry method call is now atomic under @@mutex, but nothing prevents another thread's call from interleaving between two calls made by the same caller.",
+    "self.from_h holds @@mutex for the entire allocate/Week.from_h-parse-all-weeks/SortedSet-build/insert sequence, not just the existence-check-through-insert. A large or slow-to-parse `hash[:weeks]` array extends the critical section and blocks every other Workpattern.new/get/to_a/delete/from_h call process-wide for that duration.",
+    "Individual Workpattern objects returned by get/to_a/workpatterns remain live shared references whose own mutable state (@weeks) is unguarded by any lock; concurrent #working/#resting/#calc calls against the same named Workpattern can still race."
+  ],
+  "testing_gaps": [
+    "No test exercises concurrent #working/#resting calls against the same named Workpattern object retrieved by multiple threads -- the exact hazard class this PR closes at the registry level is left completely untested at the object level.",
+    "The GC.stress race test's per-thread rescue clause only catches NameError; there is no test asserting that all spawned threads are guaranteed to be joined (or the process left in a clean state) if an unexpected exception type occurs mid-race.",
+    "No test directly asserts Mutex non-reentrancy end-to-end (e.g., that from_h or initialize cannot deadlock if a future change makes WeekPattern.new or Week.new call back into a Workpattern class method) -- current safety relies on manual code inspection rather than an automated guard."
+  ]
+}

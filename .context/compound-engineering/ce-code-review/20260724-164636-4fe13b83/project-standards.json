@@ -1,0 +1,8 @@
+{
+  "reviewer": "project-standards",
+  "findings": [],
+  "residual_risks": [
+    "No CLAUDE.md/AGENTS.md standards files exist in this repository, so this review persona has no codified rules to check the Mutex/registry change against."
+  ],
+  "testing_gaps": []
+}

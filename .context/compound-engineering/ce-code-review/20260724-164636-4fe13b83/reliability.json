@@ -1,0 +1,32 @@
+{
+  "reviewer": "reliability",
+  "findings": [
+    {
+      "title": "Mutex held across full object construction, not just check-then-act",
+      "severity": "P2",
+      "file": "lib/workpattern/workpattern.rb",
+      "line": 66,
+      "why_it_matters": "The @@mutex.synchronize block in #initialize (and similarly in .from_h, lines 193-217) wraps the entire object build -- Time.gm calls, SortedSet/Week construction, and WeekPattern.new -- not just the name-uniqueness check plus registry insert. This serializes every Workpattern.new/from_h call process-wide even when the names don't collide, turning what could be independent, parallel creations into a fully serialized critical section. Under a workload that creates many distinct workpatterns concurrently, this is a new global bottleneck introduced by this diff (previously there was no lock at all).",
+      "autofix_class": "manual",
+      "owner": "human",
+      "requires_verification": true,
+      "pre_existing": false,
+      "suggested_fix": "Build the Weeks/WeekPattern object outside the lock, then acquire @@mutex only to re-check `@@workpatterns.key?(name)` and perform the insert (mirroring the from_h overwrite pattern), shrinking the critical section to the minimal check+insert.",
+      "confidence": 75,
+      "evidence": [
+        "lib/workpattern/workpattern.rb:66-81 wraps Time.gm/SortedSet/Week.new/WeekPattern.new inside @@mutex.synchronize",
+        "lib/workpattern/workpattern.rb:193-217 wraps the equivalent from_h construction inside the same mutex"
+      ]
+    }
+  ],
+  "residual_risks": [
+    "Only the class-level registry (@@workpatterns) is now guarded by @@mutex; individual Workpattern instances returned by .get/.workpatterns/.to_a are live, mutable, unsynchronized objects. Concurrent calls to instance methods that mutate state (e.g. #workpattern/#resting/#working touching @weeks) on the same Workpattern from multiple threads remain unprotected and can still corrupt the SortedSet -- this diff does not and does not claim to address that layer.",
+    "@@mutex and @@workpatterns are class variables (@@), which in Ruby are shared with any subclass of Workpattern; this is consistent with the pre-existing @@workpatterns design but means the lock scope is process-wide across the class hierarchy, not just this class.",
+    "Ruby's Mutex#synchronize has no timeout parameter, so any future code path added inside a locked block that blocks or loops indefinitely would stall all registry access process-wide; today's critical sections are pure in-memory computation with no I/O, so this is not currently exercised."
+  ],
+  "testing_gaps": [
+    "No test exercises concurrent mutation of a single Workpattern instance's internal state (e.g. concurrent #working/#resting calls) to establish whether that layer is safe or not now that the registry itself is protected.",
+    "No test verifies registry consistency when Week.from_h raises mid-construction inside .from_h under concurrent access (confirming the partially-built `wp` never reaches @@workpatterns) -- current tests only cover the from_h happy path and the .new uniqueness race.",
+    "No test covers Workpattern.clear racing with in-flight .new/.from_h calls."
+  ]
+}

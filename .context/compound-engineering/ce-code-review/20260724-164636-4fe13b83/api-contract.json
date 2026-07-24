@@ -1,0 +1,33 @@
+{
+  "reviewer": "api-contract",
+  "findings": [
+    {
+      "title": "Workpattern.workpatterns now returns frozen dup",
+      "severity": "P3",
+      "file": "lib/workpattern/workpattern.rb",
+      "line": 26,
+      "confidence": 50,
+      "autofix_class": "advisory",
+      "owner": "human",
+      "requires_verification": false,
+      "pre_existing": false,
+      "suggested_fix": "None required within this repo. If Workpattern.workpatterns is a documented/public API consumed by gems or apps outside this repository, mention the mutability change in CHANGELOG/release notes so external maintainers relying on hash identity or in-place mutation of the returned registry are aware.",
+      "evidence": [
+        "lib/workpattern/workpattern.rb:26-30 changes `def self.workpatterns; @@workpatterns; end` to `@@mutex.synchronize { @@workpatterns.dup.freeze }`",
+        "lib/workpattern.rb:92-94 facade delegates directly to Workpattern::Workpattern.workpatterns, propagating the frozen-dup return value unchanged",
+        "grep across test/*.rb and README.md finds only two call sites: test/test_workpattern_serialisation.rb:163 (`Workpattern.workpatterns.keys.select { ... }`, read-only) and the new test at test/test_workpattern_serialisation.rb:203-210, both compatible with a frozen dup",
+        "No occurrences of `.equal?`, `object_id`, or index-assignment (`workpatterns[...] =`) against the .workpatterns return value anywhere in lib/ or test/",
+        "README.md contains no reference to `.workpatterns` at all",
+        "Full test suite (124 runs, 9115 assertions) passes with the change, including the new frozen-view regression test"
+      ]
+    }
+  ],
+  "residual_risks": [
+    "Workpattern.workpatterns' return value changing from a live Hash reference to a frozen duplicate is technically a backward-incompatible type/behavior change (mutable -> immutable, object identity no longer matches internal registry). Within this repository no caller depends on mutability or identity, and the change closes a real thread-safety hole, so risk is low. However, this method is public and re-exported via the lib/workpattern.rb facade with no gem version bump or CHANGELOG entry evident in this diff; any external consumer outside this repo that captured the hash and later wrote to it (e.g. `Workpattern.workpatterns[name] = wp`) would start seeing FrozenError instead of silent mutation. Recommend a minor version bump and changelog note given this is a public gem API, even though it's a safety fix rather than a feature change.",
+    "Values inside the returned Hash (the Workpattern objects themselves) are not frozen, only the Hash structure — a caller can still mutate an individual Workpattern object's internal state via its own instance methods; this was true before and after the change and is unaffected here, but is worth noting as a boundary of what the fix actually protects."
+  ],
+  "testing_gaps": [
+    "No test asserts that Workpattern.workpatterns returns a new object each call (i.e., that repeated calls are not aliased to the same frozen dup) — not required for correctness but would make the 'always call-time dup' contract explicit.",
+    "No test verifies that mutating a Workpattern object retrieved from Workpattern.workpatterns (e.g. calling a mutating instance method) is unaffected by the hash being frozen, i.e. that only the Hash container is frozen and not its values."
+  ]
+}

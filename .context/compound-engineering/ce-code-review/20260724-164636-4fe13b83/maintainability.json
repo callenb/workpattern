@@ -1,0 +1,48 @@
+{
+  "reviewer": "maintainability",
+  "findings": [],
+  "residual_risks": [
+    {
+      "title": "Workpattern.workpatterns contract change undocumented in CHANGELOG",
+      "severity": "P3",
+      "file": "lib/workpattern/workpattern.rb",
+      "line": 26,
+      "why_it_matters": "Workpattern.workpatterns previously returned the live, mutable @@workpatterns Hash; it now returns a frozen duplicate (self.class's own registry hash is frozen; the top-level Workpattern.workpatterns facade in lib/workpattern.rb just forwards this). Any external caller of this gem that mutated the returned hash directly (e.g. Workpattern.workpatterns[name] = wp, or Workpattern.workpatterns.delete(name)) will now raise FrozenError instead of silently succeeding. This is an intentional and reasonable fix, but it is a public-API behavior change for a gem (CHANGELOG.md's unreleased v0.7.0 section documents to_h/from_h additions but has no entry for this). A maintainer bumping/publishing the release without noting this could surprise downstream consumers.",
+      "autofix_class": "advisory",
+      "owner": "release",
+      "requires_verification": true,
+      "suggested_fix": "Add a CHANGELOG.md entry under v0.7.0 noting that Workpattern.workpatterns now returns a frozen snapshot rather than the live registry hash.",
+      "confidence": 50,
+      "evidence": [
+        "lib/workpattern/workpattern.rb:26-28 def self.workpatterns; @@mutex.synchronize { @@workpatterns.dup.freeze }; end",
+        "CHANGELOG.md v0.7.0 (unreleased) section lists to_h/from_h additions but no entry for the workpatterns() return-value change",
+        "test/test_workpattern_serialisation.rb:203-210 new test_workpatterns_returns_frozen_view confirms the new FrozenError behavior is intentional"
+      ],
+      "pre_existing": false
+    },
+    {
+      "title": "Mutex protects registry only, not per-instance Workpattern mutation",
+      "severity": "P3",
+      "file": "lib/workpattern/workpattern.rb",
+      "line": 145,
+      "why_it_matters": "The new @@mutex only serializes name -> Workpattern registry operations (create/lookup/delete/clear). A Workpattern instance obtained via Workpattern.get(name) can still have #workpattern / #working / #resting called concurrently by multiple threads, which mutate @weeks (a SortedSet) via WeekPattern#workpattern with no locking at all. The PR's framing ('closes a concurrent-mutation hazard') is scoped to the registry structure, but a future maintainer skimming the class comment or CHANGELOG could reasonably assume Workpattern as a whole is now safe for concurrent use, which it is not.",
+      "autofix_class": "advisory",
+      "owner": "human",
+      "requires_verification": false,
+      "suggested_fix": "Add a doc note on the class (or in the CHANGELOG) clarifying that the mutex covers only the class-level registry, not concurrent mutation of a single Workpattern instance's own state.",
+      "confidence": 50,
+      "evidence": [
+        "lib/workpattern/workpattern.rb:145-147 def workpattern(opts = {}); week_pattern.workpattern(opts); end -- no locking",
+        "lib/workpattern/workpattern.rb:20-28 @@mutex only wraps @@workpatterns registry access, not instance mutation paths"
+      ],
+      "pre_existing": true
+    }
+  ],
+  "testing_gaps": [
+    {
+      "title": "No test for concurrent mutation of a single shared Workpattern instance",
+      "file": "test/test_workpattern_registry_concurrency.rb",
+      "why_it_matters": "Both new concurrency tests exercise registry-level operations (new/get/delete/to_a/clear) but none exercise two threads calling #working, #resting, or #workpattern on the same Workpattern instance retrieved via Workpattern.get -- the actual case where @weeks (SortedSet) mutation races would surface. Given the PR is framed around 'closing a concurrent-mutation hazard', a reader could mistake the new tests as covering that broader case."
+    }
+  ]
+}
