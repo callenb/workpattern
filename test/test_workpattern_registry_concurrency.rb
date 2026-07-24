@@ -33,6 +33,8 @@ class TestWorkpatternRegistryConcurrency < WorkpatternTest # :nodoc:
               :created
             rescue NameError
               :name_error
+            rescue StandardError => e
+              e
             end
         end
       end
@@ -41,9 +43,51 @@ class TestWorkpatternRegistryConcurrency < WorkpatternTest # :nodoc:
       GC.stress = false
     end
 
+    unexpected = results.grep(Exception)
+
+    assert_empty unexpected, "unexpected exception(s) escaped a thread: #{unexpected.map(&:message)}"
     assert_equal 1, results.count(:created), 'expected exactly one thread to win the race'
     assert_equal thread_count - 1, results.count(:name_error), 'expected every other thread to raise NameError'
     assert_instance_of Workpattern::Workpattern, Workpattern.get(name)
+  end
+
+  # Covers R3 for Workpattern.from_h: the identical check-then-act race exists
+  # at from_h's existence check (lib/workpattern/workpattern.rb) as in
+  # initialize above. Exercised the same way -- multiple threads racing
+  # from_h(hash) for the same name under GC.stress.
+  def test_concurrent_from_h_with_same_name_exactly_one_succeeds
+    template_hash = Workpattern.new('from_h-template').to_h
+    Workpattern.delete('from_h-template')
+    hash = template_hash.merge(name: 'contested-from-h')
+    thread_count = 3
+    results = Array.new(thread_count)
+
+    begin
+      GC.stress = true
+      threads = Array.new(thread_count) do |i|
+        Thread.new do
+          results[i] =
+            begin
+              Workpattern.from_h(hash)
+              :created
+            rescue NameError
+              :name_error
+            rescue StandardError => e
+              e
+            end
+        end
+      end
+      threads.each(&:join)
+    ensure
+      GC.stress = false
+    end
+
+    unexpected = results.grep(Exception)
+
+    assert_empty unexpected, "unexpected exception(s) escaped a thread: #{unexpected.map(&:message)}"
+    assert_equal 1, results.count(:created), 'expected exactly one thread to win the race'
+    assert_equal thread_count - 1, results.count(:name_error), 'expected every other thread to raise NameError'
+    assert_instance_of Workpattern::Workpattern, Workpattern.get('contested-from-h')
   end
 
   # Covers AE2: a mixed workload of creators (distinct names, no collisions),
