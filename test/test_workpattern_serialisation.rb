@@ -199,4 +199,13 @@ class TestWorkpatternSerialisation < WorkpatternTest
 
     assert_equal wp.working?(t1), wp2.working?(t1)
   end
+
+  # 15. Covers AE3. Workpattern.workpatterns returns a frozen, mutation-safe view
+  def test_workpatterns_returns_frozen_view
+    Workpattern.new('readonly-check')
+    h = Workpattern.workpatterns
+
+    assert_raises(FrozenError) { h['injected'] = 1 }
+    refute_includes Workpattern.workpatterns.keys, 'injected'
+  end
 end
