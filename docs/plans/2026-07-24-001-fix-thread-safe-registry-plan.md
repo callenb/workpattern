@@ -211,7 +211,7 @@ Separately, `self.workpatterns` (`workpattern.rb:22-24`, facade re-exported at `
 
 ## Documentation / Operational Notes
 
-- After landing, consider adding a short `docs/solutions/` entry documenting the Mutex approach and the rationale for a frozen-dup accessor over the raw hash — no prior institutional learning exists on concurrency in this codebase (confirmed: no `docs/solutions/` directory exists yet), so this would be the first such entry and a reference point for any future registry changes.
+- **Done:** [docs/solutions/logic-errors/thread-safe-workpattern-registry-2026-07-24.md](../solutions/logic-errors/thread-safe-workpattern-registry-2026-07-24.md) documents the Mutex approach and the rationale for a frozen-dup accessor over the raw hash — the first entry in this codebase's `docs/solutions/` and a reference point for any future registry changes.
 - No CHANGELOG entry is strictly required for behavior correctness (no public API shape changes), but noting the fix under the next unreleased version section (following the existing `CHANGELOG.md` convention used for the `to_h`/`from_h` work) is reasonable given it closes a real correctness gap for concurrent callers.
 
 ---

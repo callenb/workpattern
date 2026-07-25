@@ -31,7 +31,7 @@ mode: repo-grounded
 
 **Confidence:** 95%
 **Complexity:** Low
-**Status:** Unexplored
+**Status:** Completed — shipped as `#to_h`/`.from_h` round-trip serialisation via PR #26. See [docs/plans/2026-04-26-001-feat-persistence-to-h-from-h-plan.md](../plans/2026-04-26-001-feat-persistence-to-h-from-h-plan.md).
 
 ***
 
@@ -47,7 +47,7 @@ mode: repo-grounded
 
 **Confidence:** 90%
 **Complexity:** Low
-**Status:** Unexplored
+**Status:** Completed, via a different mechanism than proposed — shipped as a `Mutex`-guarded shared registry (not thread-local storage) via PR #27. The brainstorm explicitly rejected the thread-local approach above in favor of keeping the shared, globally-visible registry model. See [docs/solutions/logic-errors/thread-safe-workpattern-registry-2026-07-24.md](../solutions/logic-errors/thread-safe-workpattern-registry-2026-07-24.md) and [docs/plans/2026-07-24-001-fix-thread-safe-registry-plan.md](../plans/2026-07-24-001-fix-thread-safe-registry-plan.md).
 
 ***
 
