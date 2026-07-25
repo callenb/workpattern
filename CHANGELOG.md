@@ -1,16 +1,19 @@
-## Workpattern v0.7.0 (unreleased) ##
+## Workpattern v0.8.0 (unreleased) ##
+
+* Fixed thread safety of the named-workpattern registry: `Workpattern.new`, `.get`, `.delete`, `.clear`, `.to_a`, and `.from_h` are now guarded by a `Mutex`, closing a check-then-act race on duplicate-name creation and a concurrent-mutation hazard on reads. **Behavior change:** `Workpattern.workpatterns` now returns a frozen duplicate of the registry instead of the live internal hash — mutating the returned object now raises `FrozenError` instead of silently corrupting the registry.
+
+## Workpattern v0.7.0 ( 26 Apr, 2026) ##
 
 * Added `Workpattern#to_h` — serialises a workpattern to a plain Ruby hash (JSON-safe; pattern bitmaps are hex-encoded strings).
 * Added `Workpattern.from_h(hash, overwrite: false)` — reconstructs a workpattern from a hash produced by `to_h`. Requires symbol keys; when deserialising from JSON use `JSON.parse(json, symbolize_names: true)`.
 * Removed `Workpattern.persistence_class=` and `Workpattern.persistence?` — both were silently non-functional in all prior releases due to a `@@persist`/`@@persistence` naming bug; no working integration exists.
 * Fixed `DEFAULT_NAME` undefined constant in `Workpattern::Workpattern.initialize` (pre-existing; only triggered when calling the inner class constructor directly with no arguments).
 * Fixed `Array.new(LAST_DAY_OF_WEEK)` → `Array.new(LAST_DAY_OF_WEEK + 1)` in `Week.initialize` for consistency (pre-existing; Ruby auto-extends arrays so no runtime difference).
-* Fixed thread safety of the named-workpattern registry: `Workpattern.new`, `.get`, `.delete`, `.clear`, `.to_a`, and `.from_h` are now guarded by a `Mutex`, closing a check-then-act race on duplicate-name creation and a concurrent-mutation hazard on reads. **Behavior change:** `Workpattern.workpatterns` now returns a frozen duplicate of the registry instead of the live internal hash — mutating the returned object now raises `FrozenError` instead of silently corrupting the registry.
 
 ## Workpattern v0.6.0 ( 25 Feb, 2021) ##
 
 I stopped keeping this Changelog file update back when v0.5.0 was realeased on 19 Oct 2016 and now it is 10Feb 2021 and I'm playing catch-up.
-I have created the following set of bullet point changes by going through my commit messages, the quality of which varies greatly.  
+I have created the following set of bullet point changes by going through my commit messages, the quality of which varies greatly.
 A lot of the effort has been on making the code easier to read as it was a real mess.
 Here is a chronological take on what I have been doing.
 
