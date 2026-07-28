@@ -1,6 +1,7 @@
 ## Workpattern v0.8.0 (unreleased) ##
 
 * Fixed thread safety of the named-workpattern registry: `Workpattern.new`, `.get`, `.delete`, `.clear`, `.to_a`, and `.from_h` are now guarded by a `Mutex`, closing a check-then-act race on duplicate-name creation and a concurrent-mutation hazard on reads. **Behavior change:** `Workpattern.workpatterns` now returns a frozen duplicate of the registry instead of the live internal hash — mutating the returned object now raises `FrozenError` instead of silently corrupting the registry.
+* Added `Workpattern::Holidays.apply(workpattern, region:, year:)` — an opt-in adapter bridging the third-party `holidays` gem, applying one region's public holidays for one calendar year as resting days in a single call. `holidays` is a soft dependency (not added to this gem's runtime dependencies); require `workpattern/holidays` explicitly to use it.
 
 ## Workpattern v0.7.0 ( 26 Apr, 2026) ##
 

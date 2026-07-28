@@ -1,0 +1,13 @@
+{
+  "reviewer": "correctness",
+  "findings": [],
+  "residual_risks": [
+    "Workpattern::Holidays.apply performs a sequence of unsynchronized workpattern.resting calls (one per holiday date). If the same Workpattern instance is mutated concurrently from another thread while apply is iterating, updates can interleave with no protection, unlike the registry-level Mutex added in the prior release for Workpattern.new/.get/.delete/.clear. This is a pre-existing characteristic of Workpattern#resting rather than something introduced by this diff, but apply's bulk, multi-call nature makes the exposure window larger than a single resting() call.",
+    "If Holidays.between ever returns two holiday entries sharing the same :date for a region (e.g. two named observances landing on the same calendar day), apply will call workpattern.resting for that date twice (harmless idempotent update) and return that date twice in the result array, which is not explicitly disallowed by the documented @return contract ('the dates applied as resting days, sorted') and could surprise a caller expecting one entry per resting day."
+  ],
+  "testing_gaps": [
+    "No test exercises Workpattern::Holidays.apply being invoked concurrently (e.g. from multiple threads) against the same Workpattern instance, so any interleaving hazard in the underlying resting() calls is unverified.",
+    "No test asserts that requiring only 'workpattern' (without explicitly requiring 'workpattern/holidays') leaves Workpattern::Holidays undefined and does not load the holidays gem, which is the core 'soft dependency' guarantee the intent describes.",
+    "No test covers a region/year combination where Holidays.between could return two entries for the same calendar date, so duplicate-date handling in the returned array is unverified."
+  ]
+}

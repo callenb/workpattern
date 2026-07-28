@@ -1,0 +1,51 @@
+{
+  "reviewer": "adversarial",
+  "findings": [
+    {
+      "title": "Cascade: an exception partway through the holiday loop leaves the workpattern half-mutated with no way to identify which dates committed",
+      "severity": "P2",
+      "file": "lib/workpattern/holidays.rb",
+      "line": 57,
+      "confidence": 75,
+      "autofix_class": "advisory",
+      "owner": "human",
+      "requires_verification": false,
+      "pre_existing": false,
+      "suggested_fix": "Wrap the loop so that either (a) all mutations happen only after every date is known to be valid (collect dates first, mutate second), or (b) document explicitly that `apply` is non-atomic and callers who need atomicity should snapshot/restore the workpattern (e.g. via `to_h`/`from_h`) before calling.",
+      "why_it_matters": "`.map` in `Holidays.apply` calls `workpattern.resting` once per holiday and mutates the target Workpattern in place as it goes, with no rescue/ensure/rollback around the loop. If anything raises partway through iteration -- a malformed holiday entry from a region's community-maintained data, a resource limit hit deep in `Week`/`SortedSet` internals during a large multi-year apply, or any other exception from `#resting` -- the exception propagates and the caller never receives the `dates` array, but every holiday processed before the failing one is already permanently marked resting on the live Workpattern object. There is no way for the caller to know how far the loop got, and no compensating action is offered or documented. For an adapter explicitly pitched as a 'bulk apply... in one call', callers reasonably expect it to behave atomically (all-or-nothing) the way the rest of the gem's single-call operations do, which is a false expectation here.",
+      "evidence": [
+        "Trigger: any exception raised by `workpattern.resting(start: date, finish: date, days: :all)` for the Nth holiday date in a year's holiday list (e.g. holiday 5 of 10 for region :us, year 2027).",
+        "Execution path: `Holidays.between(...).map { ... }` at lib/workpattern/holidays.rb:57-61 has already executed `workpattern.resting` successfully for holidays 1-4, mutating `workpattern`'s internal `@weeks` SortedSet each time (via `WeekPattern#workpattern` -> `update_and_store_week_pattern` -> `weeks << week_pattern`, lib/workpattern/week_pattern.rb:126-128).",
+        "Failure outcome: the exception from holiday 5 propagates out of `apply` uncaught (no rescue/ensure present in the method). The caller's exception handler (if any) sees only the raised error, not the partial `dates` array, and the target `workpattern` object is left permanently mutated for holidays 1-4 with no record of which dates succeeded and no automatic rollback -- the object is silently in an inconsistent state relative to the caller's mental model of 'apply either worked or didn't'."
+      ]
+    },
+    {
+      "title": "Concurrent mutation: two threads calling apply (or apply + resting) on the same Workpattern race on the unguarded @weeks SortedSet",
+      "severity": "P2",
+      "file": "lib/workpattern/holidays.rb",
+      "line": 59,
+      "confidence": 75,
+      "autofix_class": "advisory",
+      "owner": "human",
+      "requires_verification": false,
+      "pre_existing": false,
+      "suggested_fix": "Document explicitly (README/holidays.rb docstring) that a single Workpattern instance is not safe to mutate from multiple threads, including via `Holidays.apply`, and that per-instance mutation is a distinct, unguarded risk from the class-level registry Mutex added in the prior thread-safety fix. If concurrent bulk-application across regions/years is a supported use case, either serialize calls per-instance behind a caller-provided lock or add instance-level synchronization to `#resting`/`#working`.",
+      "why_it_matters": "This repo just added a Mutex around the class-level registry (`Workpattern.new`/`.get`/`.delete`/`.clear`) in the immediately preceding PR, which could reasonably give users the impression the gem is now generally thread-safe. `Holidays.apply` is a new, natural candidate for parallelization -- e.g. a script building a combined multi-region or multi-year holiday calendar by firing off one thread per region/year against the same long-lived Workpattern object to speed up setup. But the per-instance mutation path `Holidays.apply` drives (`workpattern.resting` -> `WeekPattern#workpattern` -> `@weeks.find` then conditionally `weeks << ...`) is a plain, unsynchronized `SortedSet` read-then-write with no mutex, entirely separate from the registry-level Mutex. Two threads applying holidays to the same instance concurrently can interleave a `@weeks.find` from one thread with a `weeks <<` from another mid-split, corrupting the SortedSet's internal ordering/structure or producing a lost update (one thread's Week split silently overwritten or skipped).",
+      "evidence": [
+        "Trigger: caller spawns two threads, each calling `Workpattern::Holidays.apply(wp, region: ..., year: ...)` against the same `wp` instance (e.g. thread A applies GB holidays for 2027, thread B applies US holidays for 2027, both starting near-simultaneously).",
+        "Execution path: both threads independently execute lib/workpattern/holidays.rb:57-61's `.map` loop, each iteration calling `workpattern.resting` -> `WeekPattern#workpattern` (lib/workpattern/week_pattern.rb:52-89), which reads `work_pattern.find_weekpattern(upd_start)` (a linear `@weeks.find`) and then, depending on the branch taken, calls `weeks << after_wp` or `weeks << week_pattern` to grow the same `@weeks` SortedSet -- with no lock around either the read or the write.",
+        "Failure outcome: interleaved read-then-write from two threads on the same SortedSet can produce a Week split based on stale data from before the other thread's insert, silently dropping or misordering a Week boundary; in the worst case a holiday from one thread's batch never actually gets marked resting (its split is overwritten by the other thread's concurrent insert), and the corruption presents only as a spot-check failure ('this holiday should be resting but working? returns true') with no exception raised to signal it happened."
+      ]
+    }
+  ],
+  "residual_risks": [
+    "The out-of-range `year:` no-op (documented in README and holidays.rb) does more than 'nothing' internally: for a year outside the workpattern's span, `find_weekpattern` returns a boundary-sentinel Week that WeekPattern#workpattern then clones and stores via `weeks << after_wp`/`weeks << week_pattern`, growing `@weeks` with orphaned entries that sit outside the real span. Calling `apply` repeatedly for many out-of-range years (e.g. a backfill loop with an off-by-one range) will grow `@weeks` unboundedly and degrade the linear `@weeks.find` scan used by every subsequent date lookup on that instance -- this is a real consequence of the documented edge case, not a new bug, but its severity (memory/perf) is outside adversarial scope.",
+    "The backward-shifting `:observed` rule edge case (US-style Saturday-to-Friday shift) is documented as a per-call silent gap, but nothing in `apply` or the README warns that stitching together multiple years' `apply` calls to get a complete calendar requires the caller to also union in the tail-end of the adjacent year's call -- a caller who calls `apply` once per year in a loop and unions only that year's return array will systematically miss these shifted holidays with no error at any point.",
+    "`Holidays.apply` performs no validation on `region`/`year` beyond what the third-party `holidays` gem and Ruby's `Date.new` already enforce; behavior for malformed input (wrong type, non-existent gem version differences) is entirely delegated and unpinned beyond a `~> 8.8` Gemfile constraint that is dev-only, not a gemspec dependency, so production consumers control their own `holidays` version and could diverge from what was tested here."
+  ],
+  "testing_gaps": [
+    "No test exercises `apply` raising partway through the holiday loop (e.g. by stubbing `Holidays.between` to return a list where a later `date` causes `#resting` to raise) to characterize/lock in the partial-mutation behavior.",
+    "No test exercises two threads calling `apply` (or `apply` + `resting`/`working`) concurrently against the same Workpattern instance, despite the repo having just added thread-safety tests for the class-level registry in the prior PR -- the per-instance path introduced here has no equivalent coverage.",
+    "No test exercises repeated `apply` calls across a wide out-of-range year loop to confirm the orphaned-Week growth is inert (never picked up by in-range `#working?`/`#resting` lookups) as the documentation implies."
+  ]
+}
