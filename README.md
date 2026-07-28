@@ -114,3 +114,16 @@ If a workpattern with the same name already exists, `from_h` raises `NameError`.
 ``` ruby
 Workpattern.from_h(h, overwrite: true)
 ```
+
+### Holidays
+
+`Workpattern::Holidays.apply` bridges the third-party [`holidays`](https://rubygems.org/gems/holidays) gem to a `Workpattern`, marking one region's public holidays resting for one calendar year in a single call. It's an opt-in adapter — `holidays` is not a runtime dependency of this gem, so add it to your own Gemfile and require the adapter explicitly:
+
+``` ruby
+require 'workpattern/holidays'
+
+# Applies GB's 2026 public holidays (observed dates, informal holidays excluded)
+dates = Workpattern::Holidays.apply(mywp, region: :gb, year: 2026)
+```
+
+A `year:` outside `mywp`'s own span is a silent no-op — no error, but no holiday is actually applied either. Holiday data quality varies by region and isn't rated by the `holidays` gem itself, so spot-check `apply`'s output against your region's actual statutory calendar before relying on it for anything business-critical. For regions with a backward-shifting observed rule (e.g. US-style "Saturday shifts to the preceding Friday"), a holiday near a year boundary may not appear in that year's `apply` call and instead appears via the adjacent year's call.
