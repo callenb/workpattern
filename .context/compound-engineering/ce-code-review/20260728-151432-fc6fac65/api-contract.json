@@ -1,0 +1,51 @@
+{
+  "reviewer": "api-contract",
+  "findings": [
+    {
+      "title": "apply()'s @return doc promises 'dates applied' but the method returns every fetched holiday date even when resting() silently no-ops it",
+      "severity": "P2",
+      "file": "lib/workpattern/holidays.rb",
+      "line": 48,
+      "confidence": 75,
+      "autofix_class": "safe_auto",
+      "owner": "review-fixer",
+      "requires_verification": false,
+      "pre_existing": false,
+      "why_it_matters": "This is a brand-new public method, so its docstring IS the contract consumers will read and code against before ever inspecting the implementation. The docstring at line 48 says '@return [Array<Date>] the dates applied as resting days, sorted' but the method's own docstring three paragraphs earlier (lines 27-30) states that a year outside the workpattern's base/span window is silently absorbed by #resting -- 'no holiday is actually applied' -- and the method still returns that date in the array (confirmed by test 5, test_apply_for_out_of_range_year_does_not_raise_or_change_working_state, which asserts refute_empty(dates) while also asserting the corresponding day is still working?). So the return value is really 'every holiday the holidays gem reported for this region/year, each attempted via #resting' -- not 'the dates applied'. A caller who trusts the @return doc and uses the returned array to, say, populate an audit log of 'holidays we marked resting on this workpattern' will silently log holidays that were never actually applied. The doc also asserts 'sorted' with no corresponding sort call in the implementation -- that ordering guarantee is an unstated, unverified assumption about the third-party holidays gem's Holidays.between return order, not something this method enforces itself.",
+      "evidence": [
+        "lib/workpattern/holidays.rb:48 '@return [Array<Date>] the dates applied as resting days, sorted'",
+        "lib/workpattern/holidays.rb:27-30 '...a year outside the workpattern's own base/span window is silently absorbed exactly as #resting already absorbs any other out-of-range date -- no holiday is actually applied, but no error is raised either.'",
+        "lib/workpattern/holidays.rb:57-61 the map block always appends `date` regardless of whether workpattern.resting(...) actually changed anything",
+        "test/test_workpattern_holidays.rb:44-51 test_apply_for_out_of_range_year_does_not_raise_or_change_working_state asserts refute_empty(dates) while also asserting wp.working?(Time.gm(2050,1,1,12,0)) is still true, i.e. the returned date was never applied"
+      ],
+      "suggested_fix": "Reword the @return doc to reflect actual behavior, e.g. '@return [Array<Date>] every holiday date the holidays gem reports for this region/year; each is passed to #resting, but a date outside the workpattern's base/span window will not actually change its working state (see note above)'. If 'sorted' is meant as a guarantee of this method (not just an assumption about Holidays.between's output), add an explicit `.sort` before returning; otherwise drop the word from the doc."
+    },
+    {
+      "title": "apply() lets the third-party Holidays::InvalidRegion exception leak through unwrapped as part of this gem's public error contract",
+      "severity": "P2",
+      "file": "lib/workpattern/holidays.rb",
+      "line": 49,
+      "confidence": 50,
+      "autofix_class": "manual",
+      "owner": "human",
+      "requires_verification": true,
+      "pre_existing": false,
+      "why_it_matters": "Every other validation-raising public entry point in this gem raises a standard-library exception type it owns the meaning of (from_h raises ArgumentError/NameError; see lib/workpattern/workpattern.rb:179-194). Workpattern::Holidays.apply instead documents (line 49) and tests (test/test_workpattern_holidays.rb:76-82, test_apply_with_unknown_region_raises_invalid_region) that callers must rescue Holidays::InvalidRegion -- a class defined by the third-party `holidays` gem, not by workpattern. Because this is a brand-new method being shipped now, this choice becomes locked in as soon as consumers start writing `rescue Holidays::InvalidRegion` in their own code. If a future version of this gem swaps the underlying holidays backend, adds region validation of its own, or vendors the data, that rescue clause breaks for every consumer even though workpattern's own version number may not signal an error-type change (the holidays gem's exception hierarchy isn't covered by this gem's semver). This is an internal-soundness concern about a newly introduced contract rather than a break against an existing one, so it's flagged at moderate confidence pending a judgment call on whether pass-through is intentional and acceptable for this opt-in adapter.",
+      "evidence": [
+        "lib/workpattern/holidays.rb:49-50 '@raise [Holidays::InvalidRegion] if the holidays gem does not recognise +region+'",
+        "lib/workpattern/holidays.rb:53-61 self.apply performs no region validation or rescue of its own before calling ::Holidays.between",
+        "test/test_workpattern_holidays.rb:76-82 test_apply_with_unknown_region_raises_invalid_region asserts Holidays::InvalidRegion directly, cementing the third-party type as part of the tested contract",
+        "lib/workpattern/workpattern.rb:179,186-188 the gem's existing convention is to raise ArgumentError/NameError it owns for validation failures, not a dependency's own exception classes"
+      ],
+      "suggested_fix": "Either rescue Holidays::InvalidRegion and re-raise as a Workpattern-owned error (e.g. Workpattern::Holidays::InvalidRegion < ArgumentError, wrapping the original), or explicitly document in the README/CHANGELOG that catching Holidays::InvalidRegion is a deliberate, permanent part of this adapter's contract so it isn't accidentally changed later without a major version bump."
+    }
+  ],
+  "residual_risks": [
+    "Workpattern::Holidays.apply's error contract and return ordering both transitively depend on the third-party `holidays` gem (pinned '~> 8.8' in the Gemfile, not the gemspec). A minor/patch bump of that dependency could change Holidays.between's return order or exception behavior without workpattern's own version number reflecting a contract change, since it's a dev-only Gemfile pin rather than a runtime dependency consumers are forced through this gem's version resolution.",
+    "The documented silent no-op for out-of-range years (apply returns a non-empty array while making zero changes to the workpattern) is easy to overlook by a caller who only checks 'did apply return holidays' rather than 'did apply change working?/resting? state' -- this is called out in the README and code comments, which mitigates but doesn't eliminate the risk for a first-time integrator."
+  ],
+  "testing_gaps": [
+    "No test asserts the documented 'sorted' guarantee on apply's return value independent of whatever order Holidays.between happens to return (e.g. no test constructs an out-of-order fixture and checks the output is sorted).",
+    "No test covers a non-Integer or otherwise malformed `year:` argument to document/verify the resulting error type (currently would surface as whatever Date.new(year, 1, 1) raises, e.g. TypeError, which isn't part of the documented @raise contract)."
+  ]
+}

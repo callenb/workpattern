@@ -1,0 +1,48 @@
+{
+  "reviewer": "testing",
+  "findings": [
+    {
+      "title": "Vacuous assertion in year-boundary test can never fail",
+      "severity": "P3",
+      "file": "test/test_workpattern_holidays.rb",
+      "line": 63,
+      "confidence": 75,
+      "autofix_class": "advisory",
+      "owner": "review-fixer",
+      "requires_verification": false,
+      "pre_existing": false,
+      "why_it_matters": "test_apply_can_miss_a_holiday_that_shifts_across_the_year_boundary asserts `refute_includes dates, Date.new(2027, 12, 31)` on line 63, but `dates` is the return value of Workpattern::Holidays.apply(wp, region: :us, year: 2028), which is built from `::Holidays.between(Date.new(2028,1,1), Date.new(2028,12,31), region, :observed).map { ... }` in lib/workpattern/holidays.rb. Because the query window is hard-bounded to calendar year 2028, `dates` can structurally never contain a 2027 date, regardless of whether the backward-shifting :observed edge case the test intends to document is present or absent. The assertion therefore provides no signal and cannot catch a regression; only the following line (`assert_nil(dates.find { |d| d.year == 2028 && d.yday <= 3 })`) does real work in this test.",
+      "evidence": [
+        "test/test_workpattern_holidays.rb:61-64 defines test_apply_can_miss_a_holiday_that_shifts_across_the_year_boundary and asserts `refute_includes dates, Date.new(2027, 12, 31)` immediately before the meaningful assertion.",
+        "lib/workpattern/holidays.rb:53-63 `self.apply` calls `::Holidays.between(start_date, finish_date, region, :observed)` where start_date/finish_date are Date.new(year,1,1)/Date.new(year,12,31) for the single requested year (2028 here), so the mapped `dates` array is structurally confined to dates whose .year is 2028 (or, per the underlying gem's own contract, at most within that window) — a 2027 date can never appear."
+      ],
+      "suggested_fix": "Drop the vacuous line, or replace it with an assertion that actually exercises the boundary-crossing claim, e.g. calling apply for year: 2027 as well and asserting Date.new(2027, 12, 31) IS present there (paired with the year: 2028 call already asserting it's absent from 2028's own window)."
+    },
+    {
+      "title": "Documented 'sorted' return contract has no test coverage",
+      "severity": "P3",
+      "file": "lib/workpattern/holidays.rb",
+      "line": 48,
+      "confidence": 75,
+      "autofix_class": "advisory",
+      "owner": "review-fixer",
+      "requires_verification": false,
+      "pre_existing": false,
+      "why_it_matters": "The YARD doc at line 48 promises `@return [Array<Date>] the dates applied as resting days, sorted`, but `self.apply` (lines 53-63) never sorts the result itself — it relies entirely on `::Holidays.between(...).map { ... }` preserving order from the third-party gem, which is not part of the contract the code enforces. None of the 8 tests in test/test_workpattern_holidays.rb assert on ordering; all use assert_includes/refute_includes/assert_nil/find, which are order-insensitive. If the holidays gem's internal ordering ever changes (or a future maintainer refactors apply to merge/dedupe multiple region calls), the documented 'sorted' guarantee could silently break with nothing in the suite to catch it.",
+      "evidence": [
+        "lib/workpattern/holidays.rb:48 `# @return [Array<Date>] the dates applied as resting days, sorted`",
+        "lib/workpattern/holidays.rb:53-63 self.apply builds the returned array via `::Holidays.between(...).map { |holiday| ... date }` with no explicit `.sort` call, so orderedness is an unverified assumption about the third-party gem's behavior, not an invariant the adapter code itself guarantees.",
+        "test/test_workpattern_holidays.rb: all assertions on `dates` use assert_includes/refute_includes/assert_nil(dates.find{...}), none of which would fail if the returned array were unsorted."
+      ],
+      "suggested_fix": "Either add `assert_equal dates, dates.sort` to one of the multi-holiday tests (e.g. test_apply_returns_dates_and_marks_them_resting) to lock in the documented ordering, or have apply call `.sort` explicitly before returning so the guarantee doesn't depend on an undocumented upstream behavior."
+    }
+  ],
+  "residual_risks": [
+    "The adapter's documented edge cases (out-of-range year silent no-op; backward-shifting :observed rule crossing a year boundary) are exercised against the real `holidays` gem rather than a mock, so their continued correctness depends on that gem's data/behavior remaining stable across future `holidays` version bumps within the `~> 8.8` pin; a minor version change to the gem's US/GB holiday tables could silently invalidate test_apply_uses_observed_date_when_holiday_falls_on_a_weekend or test_apply_can_miss_a_holiday_that_shifts_across_the_year_boundary without any code change on this side.",
+    "No test exercises calling `apply` twice in succession for the same workpattern/region/year (idempotency of repeated application), though this is a low-likelihood usage pattern."
+  ],
+  "testing_gaps": [
+    "No test covers passing a non-Symbol/invalid-type `year:` (e.g. a String or nil) to `apply`; behavior is documented as relying on Ruby/Date's own enforcement but this is unverified.",
+    "No test verifies behavior when a single Workpattern's `resting` call for a holiday date overlaps a date that is already outside the workpattern's granularity (e.g. asserting the resting call is truly idempotent across multiple applies of the same region/year, not just already-resting weekend days as in test 8)."
+  ]
+}

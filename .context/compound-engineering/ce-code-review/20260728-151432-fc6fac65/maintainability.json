@@ -1,0 +1,27 @@
+{
+  "reviewer": "maintainability",
+  "findings": [
+    {
+      "title": "Redundant `assert refute(...)` pattern obscures test intent",
+      "severity": "P3",
+      "file": "test/test_workpattern_holidays.rb",
+      "line": 17,
+      "confidence": 50,
+      "autofix_class": "safe_auto",
+      "owner": "review-fixer",
+      "requires_verification": false,
+      "pre_existing": false,
+      "why_it_matters": "`refute(x)` already performs the assertion (it raises Minitest::Assertion and halts the test if `x` is truthy, or returns `true` if the check passes). Wrapping it in `assert(...)` — `assert refute(...)` — does nothing functionally, since a failure inside `refute` never lets the outer `assert` execute at all. The pattern reads as if two independent checks are happening, which will mislead the next person who edits this file into believing there's a compound assertion here, or into copying the pattern elsewhere in the suite (it already appears 3 times: lines 17, 82, 86). It should just be `refute(...)`.",
+      "evidence": [
+        "test/test_workpattern_holidays.rb:17: `assert refute(wp.working?(Time.gm(date.year, date.month, date.day, 12, 0)))`",
+        "test/test_workpattern_holidays.rb:82: `assert refute(wp.working?(already_resting_saturday))`",
+        "test/test_workpattern_holidays.rb:86: `assert refute(wp.working?(already_resting_saturday))`"
+      ],
+      "suggested_fix": "Replace `assert refute(...)` with plain `refute(...)` at lines 17, 82, and 86."
+    }
+  ],
+  "residual_risks": [],
+  "testing_gaps": [
+    "The new tests (test/test_workpattern_holidays.rb) assert against hardcoded real-world holiday dates for 2026/2028/2050 sourced from the third-party `holidays` gem's data tables (e.g. `Date.new(2028, 1, 3)` for an observed New Year's Day, `Date.new(2026, 11, 30)` for St Andrew's Day). If a future `holidays` gem release corrects or revises its GB/US calendar data, these tests could fail for reasons unrelated to the adapter's own logic, without an obvious signal that the fixture data (not the adapter) is what changed."
+  ]
+}
