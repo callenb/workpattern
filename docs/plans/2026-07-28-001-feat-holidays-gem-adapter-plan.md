@@ -1,7 +1,7 @@
 ---
 title: "holidays Gem Adapter"
 type: feat
-status: active
+status: completed
 date: 2026-07-28
 origin: docs/brainstorms/2026-07-28-holidays-gem-adapter-requirements.md
 deepened: 2026-07-28
