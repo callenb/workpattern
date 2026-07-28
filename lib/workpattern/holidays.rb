@@ -45,7 +45,12 @@ module Workpattern
     # @param [Symbol] region a region recognised by the <tt>holidays</tt> gem
     #     (e.g. <tt>:gb</tt>, <tt>:us</tt>)
     # @param [Integer] year the calendar year to apply holidays for
-    # @return [Array<Date>] the dates applied as resting days, sorted
+    # @return [Array<Date>] every holiday date the <tt>holidays</tt> gem
+    #     reported for this region/year, sorted — each is passed to
+    #     <tt>#resting</tt>, but a date outside the workpattern's own
+    #     <tt>base</tt>/<tt>span</tt> window is still included here even
+    #     though it did not actually change the workpattern's working state
+    #     (see the out-of-range note above)
     # @raise [Holidays::InvalidRegion] if the <tt>holidays</tt> gem does not
     #     recognise +region+
     # @see Workpattern::Workpattern#resting

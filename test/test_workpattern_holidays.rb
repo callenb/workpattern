@@ -57,11 +57,15 @@ class TestWorkpatternHolidays < WorkpatternTest
   # 6. Edge case: a backward-shifting :observed rule can push a holiday
   #    outside the requested year's query window entirely
   def test_apply_can_miss_a_holiday_that_shifts_across_the_year_boundary
-    wp = Workpattern.new('us-2028', 2028, 1)
-    dates = Workpattern::Holidays.apply(wp, region: :us, year: 2028)
+    wp2028 = Workpattern.new('us-2028', 2028, 1)
+    dates2028 = Workpattern::Holidays.apply(wp2028, region: :us, year: 2028)
 
-    refute_includes dates, Date.new(2027, 12, 31)
-    assert_nil(dates.find { |d| d.year == 2028 && d.yday <= 3 })
+    assert_nil(dates2028.find { |d| d.year == 2028 && d.yday <= 3 })
+
+    wp2027 = Workpattern.new('us-2027', 2027, 1)
+    dates2027 = Workpattern::Holidays.apply(wp2027, region: :us, year: 2027)
+
+    assert_includes dates2027, Date.new(2027, 12, 31)
   end
 
   # 7. Error path: an unrecognised region raises Holidays::InvalidRegion unwrapped
